@@ -42,6 +42,7 @@
 ### 1.1 Настройка окружения разработки
 
 **Задача 1.1.1:** Инициализация проекта
+
 - [ ] Создать структуру каталогов проекта
   ```
   housler-pervichka/
@@ -84,6 +85,7 @@
 - **Критерии готовности:** Структура создана, Git инициализирован
 
 **Задача 1.1.2:** Docker окружение
+
 - [ ] Создать `docker-compose.yml` для разработки
   - PostgreSQL 14 с PostGIS
   - Redis 7
@@ -98,6 +100,7 @@
 - **Критерии готовности:** `docker-compose up` запускает все сервисы
 
 **Задача 1.1.3:** CI/CD pipeline (базовый)
+
 - [ ] Настроить GitHub Actions для автотестов
 - [ ] Настроить линтеры (ESLint, Prettier)
 - [ ] Настроить pre-commit hooks (Husky)
@@ -111,6 +114,7 @@
 ### 2.1 Создание схемы базы данных
 
 **Задача 2.1.1:** Настройка PostgreSQL с расширениями
+
 - [ ] Создать init-скрипт для установки расширений
   ```sql
   CREATE EXTENSION IF NOT EXISTS postgis;
@@ -123,6 +127,7 @@
 - **Критерии готовности:** Расширения установлены, подключение работает
 
 **Задача 2.1.2:** Создание базовых таблиц (справочники)
+
 - [ ] Создать таблицу `districts`
   - id, name, region, created_at
   - Заполнить начальными данными (18 районов СПб)
@@ -137,6 +142,7 @@
 - **Критерии готовности:** Таблицы созданы, seed данные загружены
 
 **Задача 2.1.3:** Создание основных таблиц
+
 - [ ] Создать таблицу `complexes`
   - Все поля согласно schema.sql
   - GEOGRAPHY поле для координат
@@ -152,6 +158,7 @@
 - **Критерии готовности:** Таблицы созданы, индексы на месте
 
 **Задача 2.1.4:** Создание таблицы объявлений
+
 - [ ] Создать таблицу `offers`
   - Все поля согласно schema.sql
   - GENERATED ALWAYS AS для price_per_sqm
@@ -167,6 +174,7 @@
 - **Критерии готовности:** Таблица создана, все индексы работают
 
 **Задача 2.1.5:** Создание таблицы изображений
+
 - [ ] Создать таблицу `images`
   - id, offer_id, tag, url, local_path
   - width, height, file_size
@@ -178,6 +186,7 @@
 - **Критерии готовности:** Таблица создана, связи работают
 
 **Задача 2.1.6:** Триггеры и функции
+
 - [ ] Создать функцию `update_updated_at_column()`
 - [ ] Создать триггеры на offers, complexes, buildings
 - [ ] Создать функцию `set_studio_flag()`
@@ -187,6 +196,7 @@
 - **Критерии готовности:** Триггеры работают автоматически
 
 **Задача 2.1.7:** Система миграций
+
 - [ ] Настроить node-pg-migrate или Knex.js
 - [ ] Создать скрипты для миграций (up/down)
 - [ ] Создать скрипт для сброса БД в dev окружении
@@ -200,13 +210,14 @@
 ### 3.1 Парсер XML-фидов
 
 **Задача 3.1.1:** Настройка XML парсера
+
 - [ ] Установить библиотеку (xml2js или fast-xml-parser)
 - [ ] Создать базовую структуру парсера
   ```typescript
   class XMLFeedParser {
-    async parseFeed(filePath: string): Promise<ParsedFeed>
-    validateFeed(feed: any): ValidationResult
-    extractOffers(feed: any): RawOffer[]
+    async parseFeed(filePath: string): Promise<ParsedFeed>;
+    validateFeed(feed: any): ValidationResult;
+    extractOffers(feed: any): RawOffer[];
   }
   ```
 - [ ] Настроить streaming для больших файлов
@@ -215,7 +226,9 @@
 - **Критерии готовности:** Парсит тестовый XML файл
 
 **Задача 3.1.2:** Маппинг XML → TypeScript типы
+
 - [ ] Создать TypeScript интерфейсы для всех сущностей
+
   ```typescript
   interface RawOffer {
     internalId: string;
@@ -231,16 +244,18 @@
     region: string;
     district: string;
     address: string;
-    coordinates: {lat: number; lng: number};
+    coordinates: { lat: number; lng: number };
     metro?: MetroInfo;
   }
   ```
+
 - [ ] Создать мапперы для трансформации данных
 - **Файл:** `backend/src/types/offer.types.ts`
 - **Время:** 3 часа
 - **Критерии готовности:** Типизация покрывает все поля XML
 
 **Задача 3.1.3:** Валидация данных
+
 - [ ] Установить Zod или Yup для валидации
 - [ ] Создать схемы валидации для каждой сущности
   ```typescript
@@ -250,7 +265,7 @@
     area: z.number().positive(),
     coordinates: z.object({
       lat: z.number().min(-90).max(90),
-      lng: z.number().min(-180).max(180)
+      lng: z.number().min(-180).max(180),
     }),
     // ...
   });
@@ -262,6 +277,7 @@
 - **Критерии готовности:** Валидация отклоняет некорректные данные
 
 **Задача 3.1.4:** Нормализация данных
+
 - [ ] Создать утилиты для нормализации:
   - Телефонов (убрать пробелы, привести к +7XXXXXXXXXX)
   - Email (trim, toLowerCase)
@@ -277,13 +293,14 @@
 - **Критерии готовности:** Данные нормализованы перед сохранением
 
 **Задача 3.1.5:** Импорт в БД (базовый)
+
 - [ ] Создать сервис импорта
   ```typescript
   class ImportService {
-    async importOffer(rawOffer: RawOffer): Promise<void>
-    async importBuilding(building: Building): Promise<void>
-    async importComplex(complex: Complex): Promise<void>
-    async importImages(offerId: string, images: Image[]): Promise<void>
+    async importOffer(rawOffer: RawOffer): Promise<void>;
+    async importBuilding(building: Building): Promise<void>;
+    async importComplex(complex: Complex): Promise<void>;
+    async importImages(offerId: string, images: Image[]): Promise<void>;
   }
   ```
 - [ ] Реализовать upsert логику (UPDATE if exists, INSERT if not)
@@ -295,6 +312,7 @@
 - **Критерии готовности:** Импорт одного offer работает корректно
 
 **Задача 3.1.6:** Полный pipeline импорта
+
 - [ ] Создать оркестратор импорта
   ```typescript
   class FeedImportOrchestrator {
@@ -316,6 +334,7 @@
 - **Критерии готовности:** Полный фид импортируется успешно
 
 **Задача 3.1.7:** CLI команда для импорта
+
 - [ ] Создать CLI скрипт
   ```bash
   npm run import:feed -- --file=./data/spb.xml
@@ -328,6 +347,7 @@
 - **Критерии готовности:** Импорт запускается из командной строки
 
 **Задача 3.1.8:** Тестирование парсера
+
 - [ ] Unit тесты для парсера (sample XML)
 - [ ] Unit тесты для валидаторов
 - [ ] Unit тесты для нормализаторов
@@ -342,8 +362,10 @@
 ### 4.1 Базовая настройка API
 
 **Задача 4.1.1:** Настройка Express сервера
+
 - [ ] Установить зависимости (express, cors, helmet, compression)
 - [ ] Создать основное Express приложение
+
   ```typescript
   import express from 'express';
   import cors from 'cors';
@@ -354,6 +376,7 @@
   app.use(cors());
   app.use(express.json());
   ```
+
 - [ ] Настроить middleware (body-parser, cors, helmet)
 - [ ] Обработка ошибок (error middleware)
 - [ ] Логирование (winston или pino)
@@ -362,8 +385,10 @@
 - **Критерии готовности:** Сервер стартует, отвечает на /health
 
 **Задача 4.1.2:** Настройка подключения к БД
+
 - [ ] Установить pg (PostgreSQL client)
 - [ ] Создать connection pool
+
   ```typescript
   import { Pool } from 'pg';
 
@@ -375,6 +400,7 @@
     password: process.env.DB_PASSWORD,
   });
   ```
+
 - [ ] Создать базовый Database service
 - [ ] Graceful shutdown
 - **Файл:** `backend/src/config/database.ts`
@@ -382,6 +408,7 @@
 - **Критерии готовности:** Подключение к БД работает
 
 **Задача 4.1.3:** Структура API роутов
+
 - [ ] Создать роуты для основных эндпоинтов
   ```typescript
   /api/v1/offers         # Список объявлений
@@ -399,25 +426,27 @@
 ### 4.2 Эндпоинт: Поиск объявлений
 
 **Задача 4.2.1:** Query builder для фильтрации
+
 - [ ] Создать OfferQueryBuilder
+
   ```typescript
   class OfferQueryBuilder {
     private query: string;
     private params: any[];
 
-    filterByRooms(rooms: number[]): this
-    filterByPrice(min?: number, max?: number): this
-    filterByDistrict(districts: string[]): this
-    filterByMetro(stations: string[], maxTime?: number): this
-    filterByArea(min?: number, max?: number): this
-    filterByFloor(min?: number, max?: number,
-                  notFirst?: boolean, notLast?: boolean): this
-    paginate(page: number, perPage: number): this
-    sort(field: string, order: 'asc' | 'desc'): this
+    filterByRooms(rooms: number[]): this;
+    filterByPrice(min?: number, max?: number): this;
+    filterByDistrict(districts: string[]): this;
+    filterByMetro(stations: string[], maxTime?: number): this;
+    filterByArea(min?: number, max?: number): this;
+    filterByFloor(min?: number, max?: number, notFirst?: boolean, notLast?: boolean): this;
+    paginate(page: number, perPage: number): this;
+    sort(field: string, order: 'asc' | 'desc'): this;
 
-    build(): { query: string; params: any[] }
+    build(): { query: string; params: any[] };
   }
   ```
+
 - [ ] Динамическое построение WHERE условий
 - [ ] Параметризованные запросы (защита от SQL injection)
 - **Файл:** `backend/src/services/query-builder.service.ts`
@@ -425,13 +454,13 @@
 - **Критерии готовности:** Поддержка всех основных фильтров
 
 **Задача 4.2.2:** OffersService - бизнес-логика
+
 - [ ] Создать OffersService
   ```typescript
   class OffersService {
-    async searchOffers(filters: OfferFilters): Promise<PaginatedResult<Offer>>
-    async getOfferById(id: string): Promise<Offer | null>
-    async getOffersNearby(lat: number, lng: number,
-                          radius: number): Promise<Offer[]>
+    async searchOffers(filters: OfferFilters): Promise<PaginatedResult<Offer>>;
+    async getOfferById(id: string): Promise<Offer | null>;
+    async getOffersNearby(lat: number, lng: number, radius: number): Promise<Offer[]>;
   }
   ```
 - [ ] Реализовать поиск с фильтрацией
@@ -442,12 +471,13 @@
 - **Критерии готовности:** Поиск работает со всеми фильтрами
 
 **Задача 4.2.3:** OffersController - HTTP обработчики
+
 - [ ] Создать контроллер
   ```typescript
   class OffersController {
-    async search(req: Request, res: Response): Promise<void>
-    async getById(req: Request, res: Response): Promise<void>
-    async getNearby(req: Request, res: Response): Promise<void>
+    async search(req: Request, res: Response): Promise<void>;
+    async getById(req: Request, res: Response): Promise<void>;
+    async getNearby(req: Request, res: Response): Promise<void>;
   }
   ```
 - [ ] Валидация query параметров (express-validator)
@@ -458,6 +488,7 @@
 - **Критерии готовности:** Эндпоинт отвечает корректными данными
 
 **Задача 4.2.4:** DTO (Data Transfer Objects)
+
 - [ ] Создать DTO для ответов API
   ```typescript
   interface OfferListItemDTO {
@@ -482,6 +513,7 @@
 ### 4.3 Эндпоинт: Детали объявления
 
 **Задача 4.3.1:** Получение полной информации об offer
+
 - [ ] SQL запрос с JOIN всех связанных таблиц
   - offers + complexes + buildings + districts + metro + sales_agents
 - [ ] Агрегация изображений (json_agg)
@@ -491,6 +523,7 @@
 - **Критерии готовности:** Возвращает все данные об объекте
 
 **Задача 4.3.2:** DTO для детального представления
+
 - [ ] Создать OfferDetailDTO со всеми полями
 - [ ] Вложенные объекты (building, complex, location)
 - [ ] Форматирование дат, цен, телефонов
@@ -501,13 +534,13 @@
 ### 4.4 Эндпоинт: Список ЖК
 
 **Задача 4.4.1:** ComplexesService
+
 - [ ] Создать сервис для работы с ЖК
   ```typescript
   class ComplexesService {
-    async getComplexes(filters: ComplexFilters): Promise<Complex[]>
-    async getComplexById(id: number): Promise<ComplexDetail | null>
-    async getComplexOffers(complexId: number,
-                           filters: OfferFilters): Promise<Offer[]>
+    async getComplexes(filters: ComplexFilters): Promise<Complex[]>;
+    async getComplexById(id: number): Promise<ComplexDetail | null>;
+    async getComplexOffers(complexId: number, filters: OfferFilters): Promise<Offer[]>;
   }
   ```
 - [ ] Агрегация статистики (min/max/avg цены)
@@ -516,6 +549,7 @@
 - **Критерии готовности:** Список ЖК со статистикой
 
 **Задача 4.4.2:** ComplexesController
+
 - [ ] Контроллер для ЖК
 - [ ] Эндпоинты:
   - GET /api/v1/complexes
@@ -528,15 +562,16 @@
 ### 4.5 Эндпоинт: Фильтры (справочники)
 
 **Задача 4.5.1:** FiltersService
+
 - [ ] Получение доступных значений фильтров
   ```typescript
   class FiltersService {
-    async getAvailableDistricts(): Promise<FilterOption[]>
-    async getAvailableMetroStations(): Promise<FilterOption[]>
-    async getBuildingTypes(): Promise<FilterOption[]>
-    async getRenovationTypes(): Promise<FilterOption[]>
-    async getPriceRange(filters?: OfferFilters): Promise<Range>
-    async getAreaRange(filters?: OfferFilters): Promise<Range>
+    async getAvailableDistricts(): Promise<FilterOption[]>;
+    async getAvailableMetroStations(): Promise<FilterOption[]>;
+    async getBuildingTypes(): Promise<FilterOption[]>;
+    async getRenovationTypes(): Promise<FilterOption[]>;
+    async getPriceRange(filters?: OfferFilters): Promise<Range>;
+    async getAreaRange(filters?: OfferFilters): Promise<Range>;
   }
   ```
 - [ ] Подсчет количества объектов для каждого фильтра
@@ -545,6 +580,7 @@
 - **Критерии готовности:** Возвращает все опции фильтров
 
 **Задача 4.5.2:** Динамические диапазоны
+
 - [ ] Расчет min/max цен с учетом текущих фильтров
 - [ ] Расчет min/max площадей
 - [ ] Кэширование результатов (Redis)
@@ -554,14 +590,15 @@
 ### 4.6 Оптимизация и кэширование
 
 **Задача 4.6.1:** Настройка Redis
+
 - [ ] Подключение к Redis
 - [ ] Создать Redis service
   ```typescript
   class CacheService {
-    async get<T>(key: string): Promise<T | null>
-    async set(key: string, value: any, ttl?: number): Promise<void>
-    async del(key: string): Promise<void>
-    async clear(pattern: string): Promise<void>
+    async get<T>(key: string): Promise<T | null>;
+    async set(key: string, value: any, ttl?: number): Promise<void>;
+    async del(key: string): Promise<void>;
+    async clear(pattern: string): Promise<void>;
   }
   ```
 - **Файл:** `backend/src/services/cache.service.ts`
@@ -569,6 +606,7 @@
 - **Критерии готовности:** Redis работает
 
 **Задача 4.6.2:** Кэширование запросов
+
 - [ ] Кэширование списка фильтров (TTL: 1 час)
 - [ ] Кэширование списков справочников (TTL: 1 день)
 - [ ] Инвалидация кэша при обновлении данных
@@ -576,6 +614,7 @@
 - **Критерии готовности:** Повторные запросы берутся из кэша
 
 **Задача 4.6.3:** Тестирование API
+
 - [ ] Unit тесты для сервисов
 - [ ] Integration тесты для эндпоинтов
 - [ ] E2E тесты основных сценариев
@@ -589,6 +628,7 @@
 ### 5.1 Настройка Next.js проекта
 
 **Задача 5.1.1:** Инициализация проекта
+
 - [ ] Create Next.js app с TypeScript
   ```bash
   npx create-next-app@latest frontend --typescript --tailwind --app
@@ -605,6 +645,7 @@
 - **Критерии готовности:** Приложение запускается
 
 **Задача 5.1.2:** Структура проекта и конфигурация
+
 - [ ] Настроить path aliases (@/, @/components, @/services)
 - [ ] Создать layout компонент (Header, Footer)
 - [ ] Настроить Tailwind/UI библиотеку (темы, цвета)
@@ -616,11 +657,12 @@
 - **Критерии готовности:** Базовая структура готова
 
 **Задача 5.1.3:** API Client
+
 - [ ] Создать API client (axios или fetch wrapper)
   ```typescript
   class ApiClient {
-    async get<T>(url: string, params?: any): Promise<T>
-    async post<T>(url: string, data: any): Promise<T>
+    async get<T>(url: string, params?: any): Promise<T>;
+    async post<T>(url: string, data: any): Promise<T>;
     // error handling, interceptors
   }
   ```
@@ -631,6 +673,7 @@
 - **Критерии готовности:** Запросы к backend работают
 
 **Задача 5.1.4:** TypeScript типы (общие с backend)
+
 - [ ] Создать types для всех DTO
   ```typescript
   export interface Offer {
@@ -649,6 +692,7 @@
 ### 5.2 Главная страница поиска
 
 **Задача 5.2.1:** Layout главной страницы
+
 - [ ] Создать страницу `/` (app/page.tsx)
 - [ ] Разметка:
   ```
@@ -668,6 +712,7 @@
 - **Критерии готовности:** Layout готов
 
 **Задача 5.2.2:** Компонент: Форма фильтров (основные)
+
 - [ ] Создать компонент FilterForm
   ```typescript
   interface FilterFormProps {
@@ -687,6 +732,7 @@
 - **Критерии готовности:** Фильтры работают, отправляют запросы
 
 **Задача 5.2.3:** Компонент: Карточка объекта (список)
+
 - [ ] Создать компонент OfferCard
   ```typescript
   interface OfferCardProps {
@@ -708,6 +754,7 @@
 - **Критерии готовности:** Карточка отображает все данные
 
 **Задача 5.2.4:** Список результатов + пагинация
+
 - [ ] Компонент OffersList
   ```typescript
   interface OffersListProps {
@@ -728,6 +775,7 @@
 - **Критерии готовности:** Список с пагинацией
 
 **Задача 5.2.5:** Интеграция с API (React Query)
+
 - [ ] Создать хук useOffers
   ```typescript
   function useOffers(filters: OfferFilters) {
@@ -745,6 +793,7 @@
 - **Критерии готовности:** Данные подгружаются из API
 
 **Задача 5.2.6:** Сортировка и счетчик результатов
+
 - [ ] Компонент ResultsHeader
   - Счетчик: "Найдено 489 квартир"
   - Сортировка (dropdown): по цене, площади, дате
@@ -757,6 +806,7 @@
 ### 5.3 Страница объекта
 
 **Задача 5.3.1:** Layout страницы объекта
+
 - [ ] Создать страницу `/offers/[id]`
 - [ ] Разметка:
   ```
@@ -775,6 +825,7 @@
 - **Критерии готовности:** Layout готов
 
 **Задача 5.3.2:** Компонент: Галерея изображений
+
 - [ ] Создать ImageGallery
   - Главное фото (большое)
   - Thumbnails (миниатюры)
@@ -788,6 +839,7 @@
 - **Критерии готовности:** Галерея работает
 
 **Задача 5.3.3:** Компонент: Основная информация
+
 - [ ] Отображение всех характеристик:
   - Цена (большая), цена за м²
   - Комнаты, площади (общая/жилая/кухня)
@@ -801,6 +853,7 @@
 - **Критерии готовности:** Вся инфа отображается
 
 **Задача 5.3.4:** Компонент: Блок с описанием
+
 - [ ] Отображение description
 - [ ] "Читать полностью" если текст длинный
 - [ ] Разбивка на абзацы
@@ -809,6 +862,7 @@
 - **Критерии готовности:** Описание читаемое
 
 **Задача 5.3.5:** Компонент: Контакты
+
 - [ ] Отображение контактов застройщика/агента
 - [ ] Кнопки:
   - Позвонить (tel: ссылка)
@@ -819,6 +873,7 @@
 - **Критерии готовности:** Контакты кликабельны
 
 **Задача 5.3.6:** Интеграция с API
+
 - [ ] Хук useOffer(id)
 - [ ] SSR (Server-Side Rendering) для SEO
   ```typescript
@@ -837,6 +892,7 @@
 ### 5.4 Карта объектов (базовая интеграция)
 
 **Задача 5.4.1:** Интеграция Yandex Maps API
+
 - [ ] Подключить Yandex Maps API
   ```html
   <script src="https://api-maps.yandex.ru/2.1/?apikey=...&lang=ru_RU"></script>
@@ -848,6 +904,7 @@
 - **Критерии готовности:** Карта показывает маркер объекта
 
 **Задача 5.4.2:** Карта на главной странице (опционально для MVP)
+
 - [ ] Отображение всех объектов из результатов поиска
 - [ ] Кластеризация маркеров
 - [ ] Popup с краткой инфой при клике
@@ -858,6 +915,7 @@
 ### 5.5 UI/UX полировка
 
 **Задача 5.5.1:** Адаптивность
+
 - [ ] Проверка на мобильных устройствах
 - [ ] Мобильная версия фильтров (drawer/modal)
 - [ ] Touch-friendly элементы (кнопки >= 44px)
@@ -865,6 +923,7 @@
 - **Критерии готовности:** Работает на всех экранах
 
 **Задача 5.5.2:** Состояния загрузки
+
 - [ ] Скелетоны для всех компонентов
 - [ ] Спиннеры для долгих операций
 - [ ] Smooth transitions
@@ -872,6 +931,7 @@
 - **Критерии готовности:** Приятная загрузка
 
 **Задача 5.5.3:** Обработка ошибок
+
 - [ ] Error boundaries
 - [ ] User-friendly сообщения об ошибках
 - [ ] Retry кнопки
@@ -885,6 +945,7 @@
 ### 6.1 End-to-End тестирование
 
 **Задача 6.1.1:** Настройка E2E тестов
+
 - [ ] Установить Playwright или Cypress
 - [ ] Настроить тестовое окружение
 - [ ] Создать базовые тесты:
@@ -898,6 +959,7 @@
 ### 6.2 Документация
 
 **Задача 6.2.1:** API документация
+
 - [ ] Настроить Swagger/OpenAPI
 - [ ] Документировать все эндпоинты
 - [ ] Примеры запросов/ответов
@@ -905,6 +967,7 @@
 - **Критерии готовности:** Swagger UI доступен
 
 **Задача 6.2.2:** README и документация для разработчиков
+
 - [ ] README.md с инструкциями по запуску
 - [ ] Архитектурная диаграмма
 - [ ] Описание основных компонентов
@@ -927,6 +990,7 @@ graph TD
 ```
 
 **Критический путь:**
+
 1. Инфраструктура (Docker, БД) - ДОЛЖНО быть первым
 2. Схема БД - параллельно с парсером
 3. XML Parser + импорт данных - нужны данные для тестирования
@@ -938,15 +1002,15 @@ graph TD
 
 ## Оценка времени MVP
 
-| Блок | Задач | Часов | Недель (40ч) |
-|------|-------|-------|--------------|
-| 1. Инфраструктура | 3 | 9 | 0.2 |
-| 2. База данных | 7 | 21 | 0.5 |
-| 3. XML Parser | 8 | 34 | 0.9 |
-| 4. Backend API | 15 | 55 | 1.4 |
-| 5. Frontend | 20 | 70 | 1.8 |
-| 6. Тестирование | 2 | 10 | 0.3 |
-| **ИТОГО** | **55** | **199** | **~5 недель** |
+| Блок              | Задач  | Часов   | Недель (40ч)  |
+| ----------------- | ------ | ------- | ------------- |
+| 1. Инфраструктура | 3      | 9       | 0.2           |
+| 2. База данных    | 7      | 21      | 0.5           |
+| 3. XML Parser     | 8      | 34      | 0.9           |
+| 4. Backend API    | 15     | 55      | 1.4           |
+| 5. Frontend       | 20     | 70      | 1.8           |
+| 6. Тестирование   | 2      | 10      | 0.3           |
+| **ИТОГО**         | **55** | **199** | **~5 недель** |
 
 **С учетом буфера (+30%):** ~6-7 недель
 
@@ -955,6 +1019,7 @@ graph TD
 ## Чек-лист готовности MVP
 
 ### Функциональные требования
+
 - [ ] Импорт XML фида в БД работает
 - [ ] Поиск объектов с основными фильтрами
 - [ ] Детальная страница объекта
@@ -962,6 +1027,7 @@ graph TD
 - [ ] Адаптивный дизайн (mobile + desktop)
 
 ### Технические требования
+
 - [ ] Docker окружение запускается одной командой
 - [ ] API документация (Swagger)
 - [ ] Тесты (>70% покрытие backend)
@@ -969,6 +1035,7 @@ graph TD
 - [ ] README с инструкциями
 
 ### Производительность
+
 - [ ] Импорт фида < 5 минут
 - [ ] API ответ < 500ms (p95)
 - [ ] Страница загружается < 3 секунды

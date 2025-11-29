@@ -24,9 +24,11 @@
 ## F5: REST API (БАЗОВЫЙ)
 
 ### Цель
+
 Создать базовые эндпоинты для получения данных: списки, фильтры, детали.
 
 ### Контекст для чтения ПЕРЕД началом
+
 ```
 ОБЯЗАТЕЛЬНО ПРОЧИТАЙ:
 ├── /CLAUDE.md                    — Правила работы
@@ -39,6 +41,7 @@
 ### Саб-таски
 
 #### F5.1 Структура API слоя
+
 ```
 ЗАДАЧА: Создать базовую структуру для роутов и контроллеров
 
@@ -80,6 +83,7 @@ git add -A && git commit -m "feat(api): add router structure"
 ```
 
 #### F5.2 Offers Router — список объявлений
+
 ```
 ЗАДАЧА: Создать эндпоинт GET /api/offers с пагинацией
 
@@ -167,6 +171,7 @@ git add -A && git commit -m "feat(api): add GET /api/offers with pagination"
 ```
 
 #### F5.3 Offers Router — фильтрация
+
 ```
 ЗАДАЧА: Добавить фильтры к списку объявлений
 
@@ -355,6 +360,7 @@ git add -A && git commit -m "feat(api): add filtering to GET /api/offers"
 ```
 
 #### F5.4 Offers Router — детали объявления
+
 ```
 ЗАДАЧА: Создать эндпоинт GET /api/offers/:id
 
@@ -442,6 +448,7 @@ git add -A && git commit -m "feat(api): add GET /api/offers/:id"
 ```
 
 #### F5.5 Complexes Router
+
 ```
 ЗАДАЧА: Создать эндпоинты для ЖК
 
@@ -644,6 +651,7 @@ git add -A && git commit -m "feat(api): add complexes router"
 ```
 
 #### F5.6 Filters Router — справочники для фильтров
+
 ```
 ЗАДАЧА: Создать эндпоинты для получения справочных данных
 
@@ -817,6 +825,7 @@ git add -A && git commit -m "feat(api): add filters router with reference data"
 ```
 
 #### F5.7 Error Handling Middleware
+
 ```
 ЗАДАЧА: Добавить централизованную обработку ошибок
 
@@ -891,6 +900,7 @@ git add -A && git commit -m "feat(api): add error handling middleware"
 ```
 
 #### F5.8 Request Validation с Zod
+
 ```
 ЗАДАЧА: Добавить валидацию входящих запросов
 
@@ -965,6 +975,7 @@ git add -A && git commit -m "feat(api): add zod validation schemas"
 ```
 
 ### Критерии завершения F5
+
 - [ ] GET /api/offers — работает с пагинацией
 - [ ] GET /api/offers?rooms=1,2&price_min=5000000 — фильтрация работает
 - [ ] GET /api/offers/:id — возвращает детали с изображениями
@@ -977,9 +988,11 @@ git add -A && git commit -m "feat(api): add zod validation schemas"
 ## F6: FRONTEND (КАРКАС)
 
 ### Цель
+
 Создать базовый Next.js фронтенд с главной страницей и списком объявлений.
 
 ### Контекст для чтения ПЕРЕД началом
+
 ```
 ОБЯЗАТЕЛЬНО ПРОЧИТАЙ:
 ├── /CLAUDE.md                    — Правила работы
@@ -991,6 +1004,7 @@ git add -A && git commit -m "feat(api): add zod validation schemas"
 ### Саб-таски
 
 #### F6.1 Настройка API клиента
+
 ```
 ЗАДАЧА: Создать клиент для работы с API
 
@@ -1167,6 +1181,7 @@ git add -A && git commit -m "feat(frontend): add API client with types"
 ```
 
 #### F6.2 Главная страница — layout
+
 ```
 ЗАДАЧА: Создать базовый layout и главную страницу
 
@@ -1297,6 +1312,7 @@ git add -A && git commit -m "feat(frontend): add layout and home page"
 ```
 
 #### F6.3 Страница списка квартир
+
 ```
 ЗАДАЧА: Создать страницу /offers со списком объявлений
 
@@ -1478,6 +1494,7 @@ git add -A && git commit -m "feat(frontend): add offers list page"
 ```
 
 #### F6.4 Утилиты форматирования
+
 ```
 ЗАДАЧА: Вынести форматирование в отдельный модуль
 
@@ -1549,6 +1566,7 @@ git add -A && git commit -m "feat(frontend): add formatting utilities"
 ```
 
 #### F6.5 Loading и Error состояния
+
 ```
 ЗАДАЧА: Добавить индикаторы загрузки и обработку ошибок
 
@@ -1644,6 +1662,7 @@ git add -A && git commit -m "feat(frontend): add loading and error states"
 ```
 
 ### Критерии завершения F6
+
 - [ ] http://localhost:3000 — главная страница работает
 - [ ] http://localhost:3000/offers — список квартир с пагинацией
 - [ ] Карточки показывают: комнаты, площадь, цену, этаж, ЖК
@@ -1656,9 +1675,11 @@ git add -A && git commit -m "feat(frontend): add loading and error states"
 ## F7: ПОИСК И ФИЛЬТРАЦИЯ
 
 ### Цель
+
 Добавить функциональные фильтры на странице списка квартир.
 
 ### Контекст для чтения ПЕРЕД началом
+
 ```
 ОБЯЗАТЕЛЬНО ПРОЧИТАЙ:
 ├── /CLAUDE.md                    — Правила работы
@@ -1671,6 +1692,7 @@ git add -A && git commit -m "feat(frontend): add loading and error states"
 ### Саб-таски
 
 #### F7.1 Компонент фильтров — структура
+
 ```
 ЗАДАЧА: Создать компонент фильтров с базовой структурой
 
@@ -1894,6 +1916,7 @@ git add -A && git commit -m "feat(frontend): add OffersFilter component"
 ```
 
 #### F7.2 Интеграция фильтров со страницей
+
 ```
 ЗАДАЧА: Подключить фильтры к странице /offers
 
@@ -2088,6 +2111,7 @@ git add -A && git commit -m "feat(frontend): integrate filters with offers page"
 ```
 
 #### F7.3 Сортировка результатов
+
 ```
 ЗАДАЧА: Добавить выбор сортировки
 
@@ -2169,6 +2193,7 @@ git add -A && git commit -m "feat(frontend): add offers sorting"
 ```
 
 #### F7.4 Расширенные фильтры — этаж
+
 ```
 ЗАДАЧА: Добавить фильтры по этажу
 
@@ -2232,6 +2257,7 @@ git add -A && git commit -m "feat(frontend): add floor filters"
 ```
 
 #### F7.5 Расширенные фильтры — отделка
+
 ```
 ЗАДАЧА: Добавить мультиселект для типа отделки
 
@@ -2285,6 +2311,7 @@ git add -A && git commit -m "feat(frontend): add renovation filter"
 ```
 
 #### F7.6 Сохранение фильтров в URL
+
 ```
 ЗАДАЧА: Убедиться что все фильтры корректно сохраняются и восстанавливаются
 
@@ -2331,6 +2358,7 @@ git add -A && git commit -m "feat(frontend): ensure filter state persistence in 
 ```
 
 #### F7.7 Мобильная адаптация фильтров
+
 ```
 ЗАДАЧА: Сделать фильтры удобными на мобильных устройствах
 
@@ -2397,6 +2425,7 @@ git add -A && git commit -m "feat(frontend): add mobile-friendly filter accordio
 ```
 
 ### Критерии завершения F7
+
 - [ ] Фильтры по комнатам работают (мультиселект)
 - [ ] Фильтр евро-планировки работает
 - [ ] Диапазоны цены и площади работают
@@ -2414,6 +2443,7 @@ git add -A && git commit -m "feat(frontend): add mobile-friendly filter accordio
 **Следующий документ:** `PHASE_1_PLAN_PART3.md`
 
 Содержит:
+
 - F8: Карточка объекта (детальная страница)
 - F9: Авторизация и подборки
 - F10: Бронирование и ЛК агента

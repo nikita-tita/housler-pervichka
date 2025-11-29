@@ -35,18 +35,18 @@
 
 ## ОБЗОР ФИЧЕЙ ЭТАПА 1
 
-| # | Фича | Саб-тасков | Зависит от | Результат |
-|---|------|------------|------------|-----------|
-| F1 | Инициализация проекта | 6 | - | Структура папок, package.json |
-| F2 | Docker-окружение | 5 | F1 | docker-compose up работает |
-| F3 | База данных | 7 | F2 | Схема создана, миграции работают |
-| F4 | XML-парсер | 6 | F3 | Фид парсится, данные в БД |
-| F5 | REST API (базовый) | 8 | F4 | /api/offers возвращает данные |
-| F6 | Frontend (каркас) | 5 | F5 | Страница открывается |
-| F7 | Поиск и фильтрация | 7 | F6 | Фильтры работают |
-| F8 | Карточка объекта | 5 | F7 | Детали объекта показываются |
-| F9 | Авторизация и подборки | 6 | F8 | Агент создаёт подборку |
-| F10 | Бронирование и ЛК | 5 | F9 | Полный флоу работает |
+| #   | Фича                   | Саб-тасков | Зависит от | Результат                        |
+| --- | ---------------------- | ---------- | ---------- | -------------------------------- |
+| F1  | Инициализация проекта  | 6          | -          | Структура папок, package.json    |
+| F2  | Docker-окружение       | 5          | F1         | docker-compose up работает       |
+| F3  | База данных            | 7          | F2         | Схема создана, миграции работают |
+| F4  | XML-парсер             | 6          | F3         | Фид парсится, данные в БД        |
+| F5  | REST API (базовый)     | 8          | F4         | /api/offers возвращает данные    |
+| F6  | Frontend (каркас)      | 5          | F5         | Страница открывается             |
+| F7  | Поиск и фильтрация     | 7          | F6         | Фильтры работают                 |
+| F8  | Карточка объекта       | 5          | F7         | Детали объекта показываются      |
+| F9  | Авторизация и подборки | 6          | F8         | Агент создаёт подборку           |
+| F10 | Бронирование и ЛК      | 5          | F9         | Полный флоу работает             |
 
 **Общее количество саб-тасков: 60**
 **Оценка времени: 3-4 недели**
@@ -56,9 +56,11 @@
 ## F1: ИНИЦИАЛИЗАЦИЯ ПРОЕКТА
 
 ### Цель
+
 Создать структуру проекта, настроить TypeScript, линтеры, базовые конфиги.
 
 ### Контекст для чтения ПЕРЕД началом
+
 ```
 ОБЯЗАТЕЛЬНО ПРОЧИТАЙ:
 ├── /CLAUDE.md                    — Правила работы
@@ -70,6 +72,7 @@
 ### Саб-таски
 
 #### F1.1 Создание корневой структуры
+
 ```
 ЗАДАЧА: Создать папки и корневые файлы проекта
 
@@ -126,6 +129,7 @@ git add -A && git commit -m "feat(init): create project structure"
 ```
 
 #### F1.2 Инициализация Backend
+
 ```
 ЗАДАЧА: Настроить Node.js backend с TypeScript
 
@@ -243,6 +247,7 @@ git add -A && git commit -m "feat(backend): initialize express with typescript"
 ```
 
 #### F1.3 Инициализация Frontend
+
 ```
 ЗАДАЧА: Настроить Next.js frontend
 
@@ -291,6 +296,7 @@ git add -A && git commit -m "feat(frontend): initialize next.js with tailwind"
 ```
 
 #### F1.4 Конфигурация ESLint и Prettier
+
 ```
 ЗАДАЧА: Единые правила форматирования
 
@@ -354,7 +360,8 @@ git add -A && git commit -m "chore: configure eslint and prettier"
 ```
 
 #### F1.5 Создание README
-```
+
+````
 ЗАДАЧА: Документация для разработчика
 
 ДО НАЧАЛА:
@@ -390,7 +397,7 @@ docker-compose up -d
 # Или локально (для разработки)
 npm install
 npm run dev
-```
+````
 
 ### Структура проекта
 
@@ -428,22 +435,25 @@ git add -A && git commit -m "docs: add README"
 
 ПОСЛЕ:
 □ Отметь F1.5 как completed
+
 ```
 
 #### F1.6 Перенос фида в проект
 ```
+
 ЗАДАЧА: Скопировать XML-фид в папку feeds
 
 ДО НАЧАЛА:
 □ F1.5 завершена
-□ Найди файл спб_.xml
+□ Найди файл спб\_.xml
 
 ДЕЙСТВИЯ:
+
 1. Скопируй фид:
-   cp /путь/к/спб_.xml ./feeds/spb.xml
+   cp /путь/к/спб\_.xml ./feeds/spb.xml
 
 2. Добавь feeds/ в .gitignore (если ещё нет):
-   feeds/*.xml
+   feeds/\*.xml
 
 3. Создай feeds/.gitkeep:
    touch feeds/.gitkeep
@@ -459,6 +469,7 @@ git add feeds/.gitkeep .gitignore && git commit -m "chore: add feeds directory"
 □ Отметь F1.6 как completed
 □ git push origin main
 □ Переходи к F2
+
 ```
 
 ### Критерии завершения F1
@@ -478,16 +489,19 @@ git add feeds/.gitkeep .gitignore && git commit -m "chore: add feeds directory"
 
 ### Контекст для чтения ПЕРЕД началом
 ```
+
 ОБЯЗАТЕЛЬНО ПРОЧИТАЙ:
-├── /CLAUDE.md                    — Правила работы
-├── /DECOMPOSITION.md             — Секция "0.2 Docker Compose"
-└── /ТЗ_v2_расширенное.md         — Секция 6.1 (архитектура)
+├── /CLAUDE.md — Правила работы
+├── /DECOMPOSITION.md — Секция "0.2 Docker Compose"
+└── /ТЗ*v2*расширенное.md — Секция 6.1 (архитектура)
+
 ```
 
 ### Саб-таски
 
 #### F2.1 Dockerfile для Backend
 ```
+
 ЗАДАЧА: Создать Dockerfile для backend
 
 ДО НАЧАЛА:
@@ -495,6 +509,7 @@ git add feeds/.gitkeep .gitignore && git commit -m "chore: add feeds directory"
 □ Прочитай backend/package.json
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/Dockerfile:
 
 FROM node:20-alpine
@@ -502,28 +517,34 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Копируем package files
-COPY package*.json ./
+
+COPY package\*.json ./
 
 # Устанавливаем зависимости
+
 RUN npm ci --only=production
 
 # Копируем исходники
+
 COPY . .
 
 # Собираем TypeScript
+
 RUN npm run build
 
 # Порт
+
 EXPOSE 3001
 
 # Запуск
+
 CMD ["node", "dist/index.js"]
 
 2. Создай backend/.dockerignore:
    node_modules
    dist
    .env
-   *.log
+   \*.log
    coverage
 
 ПРОВЕРКА:
@@ -534,10 +555,12 @@ git add -A && git commit -m "feat(docker): add backend Dockerfile"
 
 ПОСЛЕ:
 □ Отметь F2.1 как completed
+
 ```
 
 #### F2.2 Dockerfile для Frontend
 ```
+
 ЗАДАЧА: Создать Dockerfile для frontend
 
 ДО НАЧАЛА:
@@ -545,13 +568,14 @@ git add -A && git commit -m "feat(docker): add backend Dockerfile"
 □ Прочитай frontend/package.json
 
 ДЕЙСТВИЯ:
+
 1. Создай frontend/Dockerfile:
 
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package\*.json ./
 RUN npm ci
 
 COPY . .
@@ -576,17 +600,17 @@ EXPOSE 3000
 CMD ["node", "server.js"]
 
 2. Обнови frontend/next.config.js:
-   /** @type {import('next').NextConfig} */
+   /\*_ @type {import('next').NextConfig} _/
    const nextConfig = {
-     output: 'standalone',
+   output: 'standalone',
    };
    module.exports = nextConfig;
 
 3. Создай frontend/.dockerignore:
    node_modules
    .next
-   .env*
-   *.log
+   .env\*
+   \*.log
 
 ПРОВЕРКА:
 □ docker build -t housler-frontend ./frontend — без ошибок (может занять время)
@@ -596,10 +620,12 @@ git add -A && git commit -m "feat(docker): add frontend Dockerfile"
 
 ПОСЛЕ:
 □ Отметь F2.2 как completed
+
 ```
 
 #### F2.3 Docker Compose для разработки
 ```
+
 ЗАДАЧА: Создать docker-compose.yml
 
 ДО НАЧАЛА:
@@ -607,77 +633,69 @@ git add -A && git commit -m "feat(docker): add frontend Dockerfile"
 □ Прочитай /DECOMPOSITION.md секцию "0.2 Docker Compose"
 
 ДЕЙСТВИЯ:
+
 1. Создай docker-compose.yml в корне:
 
 version: '3.8'
 
 services:
-  postgres:
-    image: postgis/postgis:15-3.3
-    container_name: housler-postgres
-    environment:
-      POSTGRES_DB: ${DB_NAME:-housler}
-      POSTGRES_USER: ${DB_USER:-housler}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-housler123}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-housler}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+postgres:
+image: postgis/postgis:15-3.3
+container_name: housler-postgres
+environment:
+POSTGRES_DB: ${DB_NAME:-housler}
+POSTGRES_USER: ${DB_USER:-housler}
+POSTGRES_PASSWORD: ${DB_PASSWORD:-housler123}
+volumes: - postgres_data:/var/lib/postgresql/data - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+ports: - "5432:5432"
+healthcheck:
+test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-housler}"]
+interval: 10s
+timeout: 5s
+retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: housler-redis
-    volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+redis:
+image: redis:7-alpine
+container_name: housler-redis
+volumes: - redis_data:/data
+ports: - "6379:6379"
+healthcheck:
+test: ["CMD", "redis-cli", "ping"]
+interval: 10s
+timeout: 5s
+retries: 5
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: housler-backend
-    environment:
-      DATABASE_URL: postgresql://${DB_USER:-housler}:${DB_PASSWORD:-housler123}@postgres:5432/${DB_NAME:-housler}
-      REDIS_URL: redis://redis:6379
-      NODE_ENV: development
-      API_PORT: 3001
-    volumes:
-      - ./feeds:/app/feeds:ro
-    ports:
-      - "3001:3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+backend:
+build:
+context: ./backend
+dockerfile: Dockerfile
+container_name: housler-backend
+environment:
+DATABASE_URL: postgresql://${DB_USER:-housler}:${DB_PASSWORD:-housler123}@postgres:5432/${DB_NAME:-housler}
+REDIS_URL: redis://redis:6379
+NODE_ENV: development
+API_PORT: 3001
+volumes: - ./feeds:/app/feeds:ro
+ports: - "3001:3001"
+depends_on:
+postgres:
+condition: service_healthy
+redis:
+condition: service_healthy
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: http://localhost:3001
-    container_name: housler-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+frontend:
+build:
+context: ./frontend
+dockerfile: Dockerfile
+args:
+NEXT_PUBLIC_API_URL: http://localhost:3001
+container_name: housler-frontend
+ports: - "3000:3000"
+depends_on: - backend
 
 volumes:
-  postgres_data:
-  redis_data:
+postgres_data:
+redis_data:
 
 ПРОВЕРКА:
 □ docker-compose config — без ошибок
@@ -688,45 +706,46 @@ git add -A && git commit -m "feat(docker): add docker-compose.yml"
 
 ПОСЛЕ:
 □ Отметь F2.3 как completed
+
 ```
 
 #### F2.4 Docker Compose для разработки (dev режим)
 ```
+
 ЗАДАЧА: Создать docker-compose.dev.yml с hot-reload
 
 ДО НАЧАЛА:
 □ F2.3 завершена
 
 ДЕЙСТВИЯ:
+
 1. Создай docker-compose.dev.yml:
 
 version: '3.8'
 
 services:
-  postgres:
-    image: postgis/postgis:15-3.3
-    container_name: housler-postgres-dev
-    environment:
-      POSTGRES_DB: housler
-      POSTGRES_USER: housler
-      POSTGRES_PASSWORD: housler123
-    volumes:
-      - postgres_dev_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-    ports:
-      - "5432:5432"
+postgres:
+image: postgis/postgis:15-3.3
+container_name: housler-postgres-dev
+environment:
+POSTGRES_DB: housler
+POSTGRES_USER: housler
+POSTGRES_PASSWORD: housler123
+volumes: - postgres_dev_data:/var/lib/postgresql/data - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+ports: - "5432:5432"
 
-  redis:
-    image: redis:7-alpine
-    container_name: housler-redis-dev
-    ports:
-      - "6379:6379"
+redis:
+image: redis:7-alpine
+container_name: housler-redis-dev
+ports: - "6379:6379"
 
 volumes:
-  postgres_dev_data:
+postgres_dev_data:
 
 2. Обнови .env.example:
+
    # Database
+
    DB_HOST=localhost
    DB_PORT=5432
    DB_NAME=housler
@@ -735,13 +754,16 @@ volumes:
    DATABASE_URL=postgresql://housler:housler123@localhost:5432/housler
 
    # Redis
+
    REDIS_URL=redis://localhost:6379
 
    # App
+
    NODE_ENV=development
    API_PORT=3001
 
    # Frontend
+
    NEXT_PUBLIC_API_URL=http://localhost:3001
 
 3. Скопируй .env:
@@ -756,26 +778,29 @@ git add -A && git commit -m "feat(docker): add dev compose with hot-reload"
 
 ПОСЛЕ:
 □ Отметь F2.4 как completed
+
 ```
 
 #### F2.5 Nginx конфигурация
 ```
+
 ЗАДАЧА: Настроить reverse proxy
 
 ДО НАЧАЛА:
 □ F2.4 завершена
 
 ДЕЙСТВИЯ:
+
 1. Создай nginx/nginx.conf:
 
 events {
-    worker_connections 1024;
+worker_connections 1024;
 }
 
 http {
-    upstream backend {
-        server backend:3001;
-    }
+upstream backend {
+server backend:3001;
+}
 
     upstream frontend {
         server frontend:3000;
@@ -811,6 +836,7 @@ http {
             proxy_cache_bypass $http_upgrade;
         }
     }
+
 }
 
 2. Создай nginx/Dockerfile:
@@ -830,6 +856,7 @@ git add -A && git commit -m "feat(nginx): add reverse proxy config"
 □ Отметь F2.5 как completed
 □ git push origin main
 □ Переходи к F3
+
 ```
 
 ### Критерии завершения F2
@@ -847,17 +874,20 @@ git add -A && git commit -m "feat(nginx): add reverse proxy config"
 
 ### Контекст для чтения ПЕРЕД началом
 ```
+
 ОБЯЗАТЕЛЬНО ПРОЧИТАЙ:
-├── /CLAUDE.md                    — Правила работы
-├── /database_schema.sql          — ПОЛНОСТЬЮ, это основа
-├── /ТЗ_v2_расширенное.md         — Секция 7 (модель данных)
-└── /DECOMPOSITION.md             — Секция "1.2 Импорт в базу данных"
+├── /CLAUDE.md — Правила работы
+├── /database*schema.sql — ПОЛНОСТЬЮ, это основа
+├── /ТЗ_v2*расширенное.md — Секция 7 (модель данных)
+└── /DECOMPOSITION.md — Секция "1.2 Импорт в базу данных"
+
 ```
 
 ### Саб-таски
 
 #### F3.1 Подготовка схемы для Docker
 ```
+
 ЗАДАЧА: Убедиться что schema.sql готов для автозапуска
 
 ДО НАЧАЛА:
@@ -865,6 +895,7 @@ git add -A && git commit -m "feat(nginx): add reverse proxy config"
 □ ПРОЧИТАЙ database_schema.sql ПОЛНОСТЬЮ
 
 ДЕЙСТВИЯ:
+
 1. Проверь что database_schema.sql начинается с:
    -- Расширения PostgreSQL
    CREATE EXTENSION IF NOT EXISTS postgis;
@@ -890,10 +921,12 @@ git add -A && git commit -m "feat(db): add schema.sql to database folder"
 
 ПОСЛЕ:
 □ Отметь F3.1 как completed
+
 ```
 
 #### F3.2 Подключение к БД из Backend
 ```
+
 ЗАДАЧА: Настроить pg клиент в backend
 
 ДО НАЧАЛА:
@@ -901,6 +934,7 @@ git add -A && git commit -m "feat(db): add schema.sql to database folder"
 □ Postgres работает (docker ps)
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/config/database.ts:
 
 import { Pool } from 'pg';
@@ -909,21 +943,21 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+connectionString: process.env.DATABASE_URL,
+max: 20,
+idleTimeoutMillis: 30000,
+connectionTimeoutMillis: 2000,
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+console.error('Unexpected error on idle client', err);
+process.exit(-1);
 });
 
 export const db = {
-  query: (text: string, params?: any[]) => pool.query(text, params),
-  getClient: () => pool.connect(),
-  pool,
+query: (text: string, params?: any[]) => pool.query(text, params),
+getClient: () => pool.connect(),
+pool,
 };
 
 export default db;
@@ -948,24 +982,24 @@ app.use(compression());
 app.use(express.json());
 
 app.get('/health', async (req, res) => {
-  try {
-    await db.query('SELECT 1');
-    res.json({
-      status: 'ok',
-      database: 'connected',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      database: 'disconnected',
-      error: (error as Error).message
-    });
-  }
+try {
+await db.query('SELECT 1');
+res.json({
+status: 'ok',
+database: 'connected',
+timestamp: new Date().toISOString()
+});
+} catch (error) {
+res.status(500).json({
+status: 'error',
+database: 'disconnected',
+error: (error as Error).message
+});
+}
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+console.log(`Server running on port ${PORT}`);
 });
 
 3. Создай .env в backend/ (скопируй из корня):
@@ -980,10 +1014,12 @@ git add -A && git commit -m "feat(backend): add database connection"
 
 ПОСЛЕ:
 □ Отметь F3.2 как completed
+
 ```
 
 #### F3.3 Подключение к Redis
 ```
+
 ЗАДАЧА: Настроить Redis клиент
 
 ДО НАЧАЛА:
@@ -991,6 +1027,7 @@ git add -A && git commit -m "feat(backend): add database connection"
 □ Redis работает (docker ps)
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/config/redis.ts:
 
 import { createClient } from 'redis';
@@ -999,19 +1036,19 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379',
+url: process.env.REDIS_URL || 'redis://localhost:6379',
 });
 
 redisClient.on('error', (err) => console.error('Redis Client Error', err));
 redisClient.on('connect', () => console.log('Redis connected'));
 
 export const redis = {
-  client: redisClient,
-  connect: () => redisClient.connect(),
-  get: (key: string) => redisClient.get(key),
-  set: (key: string, value: string, options?: { EX?: number }) =>
-    redisClient.set(key, value, options),
-  del: (key: string) => redisClient.del(key),
+client: redisClient,
+connect: () => redisClient.connect(),
+get: (key: string) => redisClient.get(key),
+set: (key: string, value: string, options?: { EX?: number }) =>
+redisClient.set(key, value, options),
+del: (key: string) => redisClient.del(key),
 };
 
 export default redis;
@@ -1027,21 +1064,21 @@ redis.connect().catch(console.error);
 
 // Обнови /health:
 app.get('/health', async (req, res) => {
-  try {
-    await db.query('SELECT 1');
-    await redis.client.ping();
-    res.json({
-      status: 'ok',
-      database: 'connected',
-      redis: 'connected',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      error: (error as Error).message
-    });
-  }
+try {
+await db.query('SELECT 1');
+await redis.client.ping();
+res.json({
+status: 'ok',
+database: 'connected',
+redis: 'connected',
+timestamp: new Date().toISOString()
+});
+} catch (error) {
+res.status(500).json({
+status: 'error',
+error: (error as Error).message
+});
+}
 });
 
 ПРОВЕРКА:
@@ -1053,48 +1090,51 @@ git add -A && git commit -m "feat(backend): add redis connection"
 
 ПОСЛЕ:
 □ Отметь F3.3 как completed
+
 ```
 
 #### F3.4 Seed данных — Районы
 ```
+
 ЗАДАЧА: Заполнить справочник районов
 
 ДО НАЧАЛА:
 □ F3.3 завершена
 □ Проверь что таблица districts пустая:
-  docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT COUNT(*) FROM districts"
+docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT COUNT(\*) FROM districts"
 
 ДЕЙСТВИЯ:
+
 1. Создай database/seeds/01-districts.sql:
 
 -- Районы Санкт-Петербурга
 INSERT INTO districts (name, region) VALUES
-  ('Адмиралтейский', 'Санкт-Петербург'),
-  ('Василеостровский', 'Санкт-Петербург'),
-  ('Выборгский', 'Санкт-Петербург'),
-  ('Калининский', 'Санкт-Петербург'),
-  ('Кировский', 'Санкт-Петербург'),
-  ('Колпинский', 'Санкт-Петербург'),
-  ('Красногвардейский', 'Санкт-Петербург'),
-  ('Красносельский', 'Санкт-Петербург'),
-  ('Кронштадтский', 'Санкт-Петербург'),
-  ('Курортный', 'Санкт-Петербург'),
-  ('Московский', 'Санкт-Петербург'),
-  ('Невский', 'Санкт-Петербург'),
-  ('Петроградский', 'Санкт-Петербург'),
-  ('Петродворцовый', 'Санкт-Петербург'),
-  ('Приморский', 'Санкт-Петербург'),
-  ('Пушкинский', 'Санкт-Петербург'),
-  ('Фрунзенский', 'Санкт-Петербург'),
-  ('Центральный', 'Санкт-Петербург')
+('Адмиралтейский', 'Санкт-Петербург'),
+('Василеостровский', 'Санкт-Петербург'),
+('Выборгский', 'Санкт-Петербург'),
+('Калининский', 'Санкт-Петербург'),
+('Кировский', 'Санкт-Петербург'),
+('Колпинский', 'Санкт-Петербург'),
+('Красногвардейский', 'Санкт-Петербург'),
+('Красносельский', 'Санкт-Петербург'),
+('Кронштадтский', 'Санкт-Петербург'),
+('Курортный', 'Санкт-Петербург'),
+('Московский', 'Санкт-Петербург'),
+('Невский', 'Санкт-Петербург'),
+('Петроградский', 'Санкт-Петербург'),
+('Петродворцовый', 'Санкт-Петербург'),
+('Приморский', 'Санкт-Петербург'),
+('Пушкинский', 'Санкт-Петербург'),
+('Фрунзенский', 'Санкт-Петербург'),
+('Центральный', 'Санкт-Петербург')
 ON CONFLICT (name) DO NOTHING;
 
 -- Районы Ленинградской области (основные)
 INSERT INTO districts (name, region) VALUES
-  ('Всеволожский', 'Ленинградская область'),
-  ('Гатчинский', 'Ленинградская область'),
-  ('Ломоносовский', 'Ленинградская область'),
-  ('Тосненский', 'Ленинградская область')
+('Всеволожский', 'Ленинградская область'),
+('Гатчинский', 'Ленинградская область'),
+('Ломоносовский', 'Ленинградская область'),
+('Тосненский', 'Ленинградская область')
 ON CONFLICT (name) DO NOTHING;
 
 2. Выполни seed:
@@ -1104,7 +1144,7 @@ ON CONFLICT (name) DO NOTHING;
    docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "$(cat database/seeds/01-districts.sql)"
 
 ПРОВЕРКА:
-□ docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT * FROM districts"
+□ docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT \* FROM districts"
 □ Показывает 22 района
 
 КОММИТ:
@@ -1112,115 +1152,118 @@ git add -A && git commit -m "feat(db): add districts seed"
 
 ПОСЛЕ:
 □ Отметь F3.4 как completed
+
 ```
 
 #### F3.5 Seed данных — Метро
 ```
+
 ЗАДАЧА: Заполнить справочник станций метро
 
 ДО НАЧАЛА:
 □ F3.4 завершена
 
 ДЕЙСТВИЯ:
+
 1. Создай database/seeds/02-metro.sql:
 
 -- Линия 1 (Красная)
 INSERT INTO metro_stations (name, line) VALUES
-  ('Девяткино', 'Линия 1'),
-  ('Гражданский проспект', 'Линия 1'),
-  ('Академическая', 'Линия 1'),
-  ('Политехническая', 'Линия 1'),
-  ('Площадь Мужества', 'Линия 1'),
-  ('Лесная', 'Линия 1'),
-  ('Выборгская', 'Линия 1'),
-  ('Площадь Ленина', 'Линия 1'),
-  ('Чернышевская', 'Линия 1'),
-  ('Площадь Восстания', 'Линия 1'),
-  ('Владимирская', 'Линия 1'),
-  ('Пушкинская', 'Линия 1'),
-  ('Технологический институт', 'Линия 1'),
-  ('Балтийская', 'Линия 1'),
-  ('Нарвская', 'Линия 1'),
-  ('Кировский завод', 'Линия 1'),
-  ('Автово', 'Линия 1'),
-  ('Ленинский проспект', 'Линия 1'),
-  ('Проспект Ветеранов', 'Линия 1')
+('Девяткино', 'Линия 1'),
+('Гражданский проспект', 'Линия 1'),
+('Академическая', 'Линия 1'),
+('Политехническая', 'Линия 1'),
+('Площадь Мужества', 'Линия 1'),
+('Лесная', 'Линия 1'),
+('Выборгская', 'Линия 1'),
+('Площадь Ленина', 'Линия 1'),
+('Чернышевская', 'Линия 1'),
+('Площадь Восстания', 'Линия 1'),
+('Владимирская', 'Линия 1'),
+('Пушкинская', 'Линия 1'),
+('Технологический институт', 'Линия 1'),
+('Балтийская', 'Линия 1'),
+('Нарвская', 'Линия 1'),
+('Кировский завод', 'Линия 1'),
+('Автово', 'Линия 1'),
+('Ленинский проспект', 'Линия 1'),
+('Проспект Ветеранов', 'Линия 1')
 ON CONFLICT (name, line) DO NOTHING;
 
 -- Линия 2 (Синяя)
 INSERT INTO metro_stations (name, line) VALUES
-  ('Парнас', 'Линия 2'),
-  ('Проспект Просвещения', 'Линия 2'),
-  ('Озерки', 'Линия 2'),
-  ('Удельная', 'Линия 2'),
-  ('Пионерская', 'Линия 2'),
-  ('Чёрная речка', 'Линия 2'),
-  ('Петроградская', 'Линия 2'),
-  ('Горьковская', 'Линия 2'),
-  ('Невский проспект', 'Линия 2'),
-  ('Сенная площадь', 'Линия 2'),
-  ('Технологический институт', 'Линия 2'),
-  ('Фрунзенская', 'Линия 2'),
-  ('Московские ворота', 'Линия 2'),
-  ('Электросила', 'Линия 2'),
-  ('Парк Победы', 'Линия 2'),
-  ('Московская', 'Линия 2'),
-  ('Звёздная', 'Линия 2'),
-  ('Купчино', 'Линия 2')
+('Парнас', 'Линия 2'),
+('Проспект Просвещения', 'Линия 2'),
+('Озерки', 'Линия 2'),
+('Удельная', 'Линия 2'),
+('Пионерская', 'Линия 2'),
+('Чёрная речка', 'Линия 2'),
+('Петроградская', 'Линия 2'),
+('Горьковская', 'Линия 2'),
+('Невский проспект', 'Линия 2'),
+('Сенная площадь', 'Линия 2'),
+('Технологический институт', 'Линия 2'),
+('Фрунзенская', 'Линия 2'),
+('Московские ворота', 'Линия 2'),
+('Электросила', 'Линия 2'),
+('Парк Победы', 'Линия 2'),
+('Московская', 'Линия 2'),
+('Звёздная', 'Линия 2'),
+('Купчино', 'Линия 2')
 ON CONFLICT (name, line) DO NOTHING;
 
 -- Линия 3 (Зелёная)
 INSERT INTO metro_stations (name, line) VALUES
-  ('Беговая', 'Линия 3'),
-  ('Зенит', 'Линия 3'),
-  ('Приморская', 'Линия 3'),
-  ('Василеостровская', 'Линия 3'),
-  ('Гостиный двор', 'Линия 3'),
-  ('Маяковская', 'Линия 3'),
-  ('Площадь Александра Невского', 'Линия 3'),
-  ('Елизаровская', 'Линия 3'),
-  ('Ломоносовская', 'Линия 3'),
-  ('Пролетарская', 'Линия 3'),
-  ('Обухово', 'Линия 3'),
-  ('Рыбацкое', 'Линия 3')
+('Беговая', 'Линия 3'),
+('Зенит', 'Линия 3'),
+('Приморская', 'Линия 3'),
+('Василеостровская', 'Линия 3'),
+('Гостиный двор', 'Линия 3'),
+('Маяковская', 'Линия 3'),
+('Площадь Александра Невского', 'Линия 3'),
+('Елизаровская', 'Линия 3'),
+('Ломоносовская', 'Линия 3'),
+('Пролетарская', 'Линия 3'),
+('Обухово', 'Линия 3'),
+('Рыбацкое', 'Линия 3')
 ON CONFLICT (name, line) DO NOTHING;
 
 -- Линия 4 (Оранжевая)
 INSERT INTO metro_stations (name, line) VALUES
-  ('Спасская', 'Линия 4'),
-  ('Достоевская', 'Линия 4'),
-  ('Лиговский проспект', 'Линия 4'),
-  ('Площадь Александра Невского', 'Линия 4'),
-  ('Новочеркасская', 'Линия 4'),
-  ('Ладожская', 'Линия 4'),
-  ('Проспект Большевиков', 'Линия 4'),
-  ('Улица Дыбенко', 'Линия 4')
+('Спасская', 'Линия 4'),
+('Достоевская', 'Линия 4'),
+('Лиговский проспект', 'Линия 4'),
+('Площадь Александра Невского', 'Линия 4'),
+('Новочеркасская', 'Линия 4'),
+('Ладожская', 'Линия 4'),
+('Проспект Большевиков', 'Линия 4'),
+('Улица Дыбенко', 'Линия 4')
 ON CONFLICT (name, line) DO NOTHING;
 
 -- Линия 5 (Фиолетовая)
 INSERT INTO metro_stations (name, line) VALUES
-  ('Комендантский проспект', 'Линия 5'),
-  ('Старая Деревня', 'Линия 5'),
-  ('Крестовский остров', 'Линия 5'),
-  ('Чкаловская', 'Линия 5'),
-  ('Спортивная', 'Линия 5'),
-  ('Адмиралтейская', 'Линия 5'),
-  ('Садовая', 'Линия 5'),
-  ('Звенигородская', 'Линия 5'),
-  ('Обводный канал', 'Линия 5'),
-  ('Волковская', 'Линия 5'),
-  ('Бухарестская', 'Линия 5'),
-  ('Международная', 'Линия 5'),
-  ('Проспект Славы', 'Линия 5'),
-  ('Дунайская', 'Линия 5'),
-  ('Шушары', 'Линия 5')
+('Комендантский проспект', 'Линия 5'),
+('Старая Деревня', 'Линия 5'),
+('Крестовский остров', 'Линия 5'),
+('Чкаловская', 'Линия 5'),
+('Спортивная', 'Линия 5'),
+('Адмиралтейская', 'Линия 5'),
+('Садовая', 'Линия 5'),
+('Звенигородская', 'Линия 5'),
+('Обводный канал', 'Линия 5'),
+('Волковская', 'Линия 5'),
+('Бухарестская', 'Линия 5'),
+('Международная', 'Линия 5'),
+('Проспект Славы', 'Линия 5'),
+('Дунайская', 'Линия 5'),
+('Шушары', 'Линия 5')
 ON CONFLICT (name, line) DO NOTHING;
 
 2. Выполни seed:
    docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "$(cat database/seeds/02-metro.sql)"
 
 ПРОВЕРКА:
-□ docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT COUNT(*) FROM metro_stations"
+□ docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT COUNT(\*) FROM metro_stations"
 □ Показывает 69+ станций
 
 КОММИТ:
@@ -1228,10 +1271,12 @@ git add -A && git commit -m "feat(db): add metro stations seed"
 
 ПОСЛЕ:
 □ Отметь F3.5 как completed
+
 ```
 
 #### F3.6 Создание базовых моделей TypeORM
 ```
+
 ЗАДАЧА: Создать TypeScript интерфейсы для таблиц
 
 ДО НАЧАЛА:
@@ -1239,154 +1284,155 @@ git add -A && git commit -m "feat(db): add metro stations seed"
 □ Прочитай database_schema.sql — таблицы offers, complexes, buildings
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/types/models.ts:
 
 // Базовые типы из БД
 export interface District {
-  id: number;
-  name: string;
-  region: string;
-  created_at: Date;
+id: number;
+name: string;
+region: string;
+created_at: Date;
 }
 
 export interface MetroStation {
-  id: number;
-  name: string;
-  line: string | null;
-  district_id: number | null;
-  created_at: Date;
+id: number;
+name: string;
+line: string | null;
+district_id: number | null;
+created_at: Date;
 }
 
 export interface Developer {
-  id: number;
-  name: string;
-  inn: string | null;
-  website: string | null;
-  description: string | null;
-  created_at: Date;
-  updated_at: Date;
+id: number;
+name: string;
+inn: string | null;
+website: string | null;
+description: string | null;
+created_at: Date;
+updated_at: Date;
 }
 
 export interface Complex {
-  id: number;
-  name: string;
-  developer_id: number | null;
-  district_id: number | null;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  nearest_metro_id: number | null;
-  metro_time_on_foot: number | null;
-  description: string | null;
-  min_price: number | null;
-  max_price: number | null;
-  avg_price_per_sqm: number | null;
-  created_at: Date;
-  updated_at: Date;
+id: number;
+name: string;
+developer_id: number | null;
+district_id: number | null;
+address: string | null;
+latitude: number | null;
+longitude: number | null;
+nearest_metro_id: number | null;
+metro_time_on_foot: number | null;
+description: string | null;
+min_price: number | null;
+max_price: number | null;
+avg_price_per_sqm: number | null;
+created_at: Date;
+updated_at: Date;
 }
 
 export interface Building {
-  id: number;
-  complex_id: number;
-  name: string | null;
-  building_type: string | null;
-  building_state: 'unfinished' | 'hand-over';
-  floors_total: number | null;
-  built_year: number | null;
-  ready_quarter: number | null;
-  created_at: Date;
-  updated_at: Date;
+id: number;
+complex_id: number;
+name: string | null;
+building_type: string | null;
+building_state: 'unfinished' | 'hand-over';
+floors_total: number | null;
+built_year: number | null;
+ready_quarter: number | null;
+created_at: Date;
+updated_at: Date;
 }
 
 export interface Offer {
-  id: number;
-  complex_id: number | null;
-  building_id: number | null;
-  district_id: number | null;
-  metro_station_id: number | null;
+id: number;
+complex_id: number | null;
+building_id: number | null;
+district_id: number | null;
+metro_station_id: number | null;
 
-  // Тип
-  offer_type: string;
-  property_type: string;
-  category: string;
+// Тип
+offer_type: string;
+property_type: string;
+category: string;
 
-  // Квартира
-  rooms: number;
-  is_studio: boolean;
-  area_total: number;
-  area_living: number | null;
-  area_kitchen: number | null;
-  floor: number;
-  floors_total: number;
-  renovation: string | null;
-  balcony: string | null;
-  bathroom_unit: string | null;
+// Квартира
+rooms: number;
+is_studio: boolean;
+area_total: number;
+area_living: number | null;
+area_kitchen: number | null;
+floor: number;
+floors_total: number;
+renovation: string | null;
+balcony: string | null;
+bathroom_unit: string | null;
 
-  // Цена
-  price: number;
-  price_per_sqm: number;
-  currency: string;
+// Цена
+price: number;
+price_per_sqm: number;
+currency: string;
 
-  // Юридическое (из Этапа 2)
-  deal_type: string | null;
-  has_escrow: boolean | null;
-  is_apartment: boolean;
-  room_type: string | null;
-  is_euro_layout: boolean;
+// Юридическое (из Этапа 2)
+deal_type: string | null;
+has_escrow: boolean | null;
+is_apartment: boolean;
+room_type: string | null;
+is_euro_layout: boolean;
 
-  // Местоположение
-  address: string | null;
-  latitude: number;
-  longitude: number;
-  metro_time_on_foot: number | null;
+// Местоположение
+address: string | null;
+latitude: number;
+longitude: number;
+metro_time_on_foot: number | null;
 
-  // Описание
-  description: string | null;
+// Описание
+description: string | null;
 
-  // Статус
-  is_active: boolean;
+// Статус
+is_active: boolean;
 
-  // Даты
-  created_at: Date;
-  updated_at: Date;
+// Даты
+created_at: Date;
+updated_at: Date;
 }
 
 export interface OfferImage {
-  id: number;
-  offer_id: number;
-  tag: 'plan' | 'housemain' | 'floorplan' | 'complexscheme' | null;
-  url: string;
-  display_order: number;
+id: number;
+offer_id: number;
+tag: 'plan' | 'housemain' | 'floorplan' | 'complexscheme' | null;
+url: string;
+display_order: number;
 }
 
 // Для API ответов
 export interface OfferListItem {
-  id: number;
-  complex_name: string | null;
-  district_name: string | null;
-  metro_name: string | null;
-  metro_time_on_foot: number | null;
-  rooms: number;
-  room_type: string | null;
-  is_euro_layout: boolean;
-  area_total: number;
-  floor: number;
-  floors_total: number;
-  renovation: string | null;
-  price: number;
-  price_per_sqm: number;
-  building_state: string | null;
-  built_year: number | null;
-  ready_quarter: number | null;
-  plan_image_url: string | null;
+id: number;
+complex_name: string | null;
+district_name: string | null;
+metro_name: string | null;
+metro_time_on_foot: number | null;
+rooms: number;
+room_type: string | null;
+is_euro_layout: boolean;
+area_total: number;
+floor: number;
+floors_total: number;
+renovation: string | null;
+price: number;
+price_per_sqm: number;
+building_state: string | null;
+built_year: number | null;
+ready_quarter: number | null;
+plan_image_url: string | null;
 }
 
 export interface OfferDetails extends Offer {
-  complex: Complex | null;
-  building: Building | null;
-  district: District | null;
-  metro: MetroStation | null;
-  images: OfferImage[];
+complex: Complex | null;
+building: Building | null;
+district: District | null;
+metro: MetroStation | null;
+images: OfferImage[];
 }
 
 ПРОВЕРКА:
@@ -1398,10 +1444,12 @@ git add -A && git commit -m "feat(backend): add TypeScript models"
 
 ПОСЛЕ:
 □ Отметь F3.6 как completed
+
 ```
 
 #### F3.7 Создание базового репозитория
 ```
+
 ЗАДАЧА: Создать слой доступа к данным
 
 ДО НАЧАЛА:
@@ -1409,37 +1457,38 @@ git add -A && git commit -m "feat(backend): add TypeScript models"
 □ Прочитай backend/src/types/models.ts
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/repositories/base.repository.ts:
 
 import db from '../config/database';
 
 export class BaseRepository<T> {
-  constructor(protected tableName: string) {}
+constructor(protected tableName: string) {}
 
-  async findById(id: number | string): Promise<T | null> {
-    const result = await db.query(
-      `SELECT * FROM ${this.tableName} WHERE id = $1`,
-      [id]
-    );
-    return result.rows[0] || null;
-  }
+async findById(id: number | string): Promise<T | null> {
+const result = await db.query(
+`SELECT * FROM ${this.tableName} WHERE id = $1`,
+[id]
+);
+return result.rows[0] || null;
+}
 
-  async findAll(limit = 100, offset = 0): Promise<T[]> {
-    const result = await db.query(
-      `SELECT * FROM ${this.tableName} LIMIT $1 OFFSET $2`,
-      [limit, offset]
-    );
-    return result.rows;
-  }
+async findAll(limit = 100, offset = 0): Promise<T[]> {
+const result = await db.query(
+`SELECT * FROM ${this.tableName} LIMIT $1 OFFSET $2`,
+[limit, offset]
+);
+return result.rows;
+}
 
-  async count(where?: string, params?: any[]): Promise<number> {
-    const whereClause = where ? `WHERE ${where}` : '';
-    const result = await db.query(
-      `SELECT COUNT(*) FROM ${this.tableName} ${whereClause}`,
-      params
-    );
-    return parseInt(result.rows[0].count, 10);
-  }
+async count(where?: string, params?: any[]): Promise<number> {
+const whereClause = where ? `WHERE ${where}` : '';
+const result = await db.query(
+`SELECT COUNT(*) FROM ${this.tableName} ${whereClause}`,
+params
+);
+return parseInt(result.rows[0].count, 10);
+}
 }
 
 2. Создай backend/src/repositories/districts.repository.ts:
@@ -1449,25 +1498,25 @@ import { District } from '../types/models';
 import db from '../config/database';
 
 class DistrictsRepository extends BaseRepository<District> {
-  constructor() {
-    super('districts');
-  }
+constructor() {
+super('districts');
+}
 
-  async findByName(name: string): Promise<District | null> {
-    const result = await db.query(
-      'SELECT * FROM districts WHERE LOWER(name) = LOWER($1)',
-      [name]
-    );
-    return result.rows[0] || null;
-  }
+async findByName(name: string): Promise<District | null> {
+const result = await db.query(
+'SELECT \* FROM districts WHERE LOWER(name) = LOWER($1)',
+[name]
+);
+return result.rows[0] || null;
+}
 
-  async findByRegion(region: string): Promise<District[]> {
-    const result = await db.query(
-      'SELECT * FROM districts WHERE region = $1 ORDER BY name',
-      [region]
-    );
-    return result.rows;
-  }
+async findByRegion(region: string): Promise<District[]> {
+const result = await db.query(
+'SELECT \* FROM districts WHERE region = $1 ORDER BY name',
+[region]
+);
+return result.rows;
+}
 }
 
 export const districtsRepository = new DistrictsRepository();
@@ -1487,6 +1536,7 @@ git add -A && git commit -m "feat(backend): add base repository pattern"
 □ Отметь F3.7 как completed
 □ git push origin main
 □ Переходи к F4
+
 ```
 
 ### Критерии завершения F3
@@ -1506,18 +1556,21 @@ git add -A && git commit -m "feat(backend): add base repository pattern"
 
 ### Контекст для чтения ПЕРЕД началом
 ```
+
 ОБЯЗАТЕЛЬНО ПРОЧИТАЙ:
-├── /CLAUDE.md                    — Правила работы
-├── /SUMMARY.md                   — Структура XML-фида
-├── /ТЗ_v2_расширенное.md         — Секция 4.13 (евро-форматы)
-├── /database_schema.sql          — Таблицы offers, complexes, buildings, images
-└── /DECOMPOSITION.md             — Секции "1.1 Парсер", "1.2 Импорт", "1.3 Евро-планировки"
+├── /CLAUDE.md — Правила работы
+├── /SUMMARY.md — Структура XML-фида
+├── /ТЗ*v2*расширенное.md — Секция 4.13 (евро-форматы)
+├── /database_schema.sql — Таблицы offers, complexes, buildings, images
+└── /DECOMPOSITION.md — Секции "1.1 Парсер", "1.2 Импорт", "1.3 Евро-планировки"
+
 ```
 
 ### Саб-таски
 
 #### F4.1 Создание типов для парсера
 ```
+
 ЗАДАЧА: Определить интерфейсы для парсинга XML
 
 ДО НАЧАЛА:
@@ -1526,92 +1579,93 @@ git add -A && git commit -m "feat(backend): add base repository pattern"
 □ Открой feeds/spb.xml и посмотри реальные данные (первые 500 строк)
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/parsers/types.ts:
 
 // Структура данных из XML-фида
 export interface ParsedOffer {
-  // Идентификаторы
-  externalId: string;           // internal-id
+// Идентификаторы
+externalId: string; // internal-id
 
-  // Тип объявления
-  type: string;                 // "продажа"
-  propertyType: string;         // "жилая"
-  category: string;             // "квартира"
+// Тип объявления
+type: string; // "продажа"
+propertyType: string; // "жилая"
+category: string; // "квартира"
 
-  // Характеристики квартиры
-  rooms: number;                // 0 = студия
-  isStudio: boolean;
-  areaTotal: number;
-  areaLiving: number | null;
-  areaKitchen: number | null;
-  floor: number;
-  floorsTotal: number;
-  renovation: string | null;
-  balcony: string | null;
-  bathroomUnit: string | null;
-  ceilingHeight: number | null;
+// Характеристики квартиры
+rooms: number; // 0 = студия
+isStudio: boolean;
+areaTotal: number;
+areaLiving: number | null;
+areaKitchen: number | null;
+floor: number;
+floorsTotal: number;
+renovation: string | null;
+balcony: string | null;
+bathroomUnit: string | null;
+ceilingHeight: number | null;
 
-  // Цена
-  price: number;
-  currency: string;
-  mortgage: boolean;
+// Цена
+price: number;
+currency: string;
+mortgage: boolean;
 
-  // Здание
-  buildingName: string | null;  // <building-name>
-  buildingType: string | null;  // <building-type>
-  buildingState: string | null; // <building-state>
-  builtYear: number | null;
-  readyQuarter: number | null;
+// Здание
+buildingName: string | null; // <building-name>
+buildingType: string | null; // <building-type>
+buildingState: string | null; // <building-state>
+builtYear: number | null;
+readyQuarter: number | null;
 
-  // NMarket IDs (для связей)
-  nmarketBuildingId: number | null;
-  nmarketComplexId: number | null;
+// NMarket IDs (для связей)
+nmarketBuildingId: number | null;
+nmarketComplexId: number | null;
 
-  // Местоположение
-  address: string | null;
-  district: string | null;
-  latitude: number;
-  longitude: number;
+// Местоположение
+address: string | null;
+district: string | null;
+latitude: number;
+longitude: number;
 
-  // Метро
-  metroName: string | null;
-  metroTimeOnFoot: number | null;
-  metroTimeOnTransport: number | null;
+// Метро
+metroName: string | null;
+metroTimeOnFoot: number | null;
+metroTimeOnTransport: number | null;
 
-  // Контакты
-  salesAgentPhone: string | null;
-  salesAgentEmail: string | null;
-  salesAgentOrganization: string | null;
-  salesAgentCategory: string | null;
+// Контакты
+salesAgentPhone: string | null;
+salesAgentEmail: string | null;
+salesAgentOrganization: string | null;
+salesAgentCategory: string | null;
 
-  // Описание
-  description: string | null;
+// Описание
+description: string | null;
 
-  // Изображения
-  images: ParsedImage[];
+// Изображения
+images: ParsedImage[];
 
-  // Даты
-  creationDate: Date | null;
-  lastUpdateDate: Date | null;
+// Даты
+creationDate: Date | null;
+lastUpdateDate: Date | null;
 }
 
 export interface ParsedImage {
-  tag: string | null;           // plan, housemain, floorplan, complexscheme
-  url: string;
+tag: string | null; // plan, housemain, floorplan, complexscheme
+url: string;
 }
 
 export interface ParseResult {
-  offers: ParsedOffer[];
-  totalParsed: number;
-  errors: ParseError[];
-  durationMs: number;
+offers: ParsedOffer[];
+totalParsed: number;
+errors: ParseError[];
+durationMs: number;
 }
 
 export interface ParseError {
-  offerId: string | null;
-  field: string;
-  message: string;
-  rawValue?: string;
+offerId: string | null;
+field: string;
+message: string;
+rawValue?: string;
 }
 
 ПРОВЕРКА:
@@ -1622,10 +1676,12 @@ git add -A && git commit -m "feat(parser): add XML parser types"
 
 ПОСЛЕ:
 □ Отметь F4.1 как completed
+
 ```
 
 #### F4.2 Потоковый XML-парсер
 ```
+
 ЗАДАЧА: Создать парсер с использованием sax-js
 
 ДО НАЧАЛА:
@@ -1633,22 +1689,23 @@ git add -A && git commit -m "feat(parser): add XML parser types"
 □ Убедись что sax установлен: npm list sax (в backend)
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/parsers/yandex-feed.parser.ts:
 
-import * as fs from 'fs';
-import * as sax from 'sax';
+import _ as fs from 'fs';
+import _ as sax from 'sax';
 import { ParsedOffer, ParsedImage, ParseResult, ParseError } from './types';
 
 export class YandexFeedParser {
-  private currentOffer: Partial<ParsedOffer> | null = null;
-  private currentElement: string = '';
-  private currentText: string = '';
-  private currentImageTag: string | null = null;
-  private offers: ParsedOffer[] = [];
-  private errors: ParseError[] = [];
+private currentOffer: Partial<ParsedOffer> | null = null;
+private currentElement: string = '';
+private currentText: string = '';
+private currentImageTag: string | null = null;
+private offers: ParsedOffer[] = [];
+private errors: ParseError[] = [];
 
-  async parse(filePath: string): Promise<ParseResult> {
-    const startTime = Date.now();
+async parse(filePath: string): Promise<ParseResult> {
+const startTime = Date.now();
 
     return new Promise((resolve, reject) => {
       const stream = fs.createReadStream(filePath);
@@ -1679,11 +1736,12 @@ export class YandexFeedParser {
       stream.pipe(parser);
       stream.on('error', reject);
     });
-  }
 
-  private onOpenTag(node: sax.Tag): void {
-    this.currentElement = node.name;
-    this.currentText = '';
+}
+
+private onOpenTag(node: sax.Tag): void {
+this.currentElement = node.name;
+this.currentText = '';
 
     if (node.name === 'offer') {
       this.currentOffer = {
@@ -1701,10 +1759,11 @@ export class YandexFeedParser {
     if (node.name === 'image' && this.currentOffer) {
       this.currentImageTag = (node.attributes['tag'] as string) || null;
     }
-  }
 
-  private onCloseTag(tagName: string): void {
-    if (!this.currentOffer) return;
+}
+
+private onCloseTag(tagName: string): void {
+if (!this.currentOffer) return;
 
     const text = this.currentText.trim();
 
@@ -1861,22 +1920,23 @@ export class YandexFeedParser {
         this.currentOffer = null;
         break;
     }
-  }
 
-  private onText(text: string): void {
-    this.currentText += text;
-  }
+}
 
-  private validateOffer(offer: Partial<ParsedOffer>): boolean {
-    // Минимальная валидация
-    if (!offer.externalId) {
-      this.errors.push({
-        offerId: null,
-        field: 'externalId',
-        message: 'Missing internal-id',
-      });
-      return false;
-    }
+private onText(text: string): void {
+this.currentText += text;
+}
+
+private validateOffer(offer: Partial<ParsedOffer>): boolean {
+// Минимальная валидация
+if (!offer.externalId) {
+this.errors.push({
+offerId: null,
+field: 'externalId',
+message: 'Missing internal-id',
+});
+return false;
+}
 
     if (!offer.price || offer.price <= 0) {
       // Попробуем извлечь цену из других полей
@@ -1898,7 +1958,8 @@ export class YandexFeedParser {
     }
 
     return true;
-  }
+
+}
 }
 
 export const feedParser = new YandexFeedParser();
@@ -1915,39 +1976,43 @@ git add -A && git commit -m "feat(parser): add basic XML parser structure"
 ПРИМЕЧАНИЕ:
 Это базовая версия парсера. В F4.3 мы его доработаем для корректной обработки
 вложенных элементов (area/value, price/value, metro/name).
+
 ```
 
 #### F4.3 Улучшенный парсер с контекстом
 ```
+
 ЗАДАЧА: Доработать парсер для обработки вложенных элементов
 
 ДО НАЧАЛА:
 □ F4.2 завершена
 □ Открой feeds/spb.xml и найди примеры:
-  - <area><value>52.3</value><unit>кв. м</unit></area>
-  - <price><value>9200000</value><currency>RUR</currency></price>
-  - <metro><name>Невский проспект</name><time-on-foot>10</time-on-foot></metro>
+
+- <area><value>52.3</value><unit>кв. м</unit></area>
+- <price><value>9200000</value><currency>RUR</currency></price>
+- <metro><name>Невский проспект</name><time-on-foot>10</time-on-foot></metro>
 
 ДЕЙСТВИЯ:
+
 1. Замени backend/src/parsers/yandex-feed.parser.ts на улучшенную версию:
 
-import * as fs from 'fs';
-import * as sax from 'sax';
+import _ as fs from 'fs';
+import _ as sax from 'sax';
 import { ParsedOffer, ParsedImage, ParseResult, ParseError } from './types';
 
 export class YandexFeedParser {
-  private currentOffer: Partial<ParsedOffer> | null = null;
-  private elementStack: string[] = [];  // Стек элементов для контекста
-  private currentText: string = '';
-  private currentImageTag: string | null = null;
-  private offers: ParsedOffer[] = [];
-  private errors: ParseError[] = [];
+private currentOffer: Partial<ParsedOffer> | null = null;
+private elementStack: string[] = []; // Стек элементов для контекста
+private currentText: string = '';
+private currentImageTag: string | null = null;
+private offers: ParsedOffer[] = [];
+private errors: ParseError[] = [];
 
-  async parse(filePath: string): Promise<ParseResult> {
-    // Сбрасываем состояние
-    this.offers = [];
-    this.errors = [];
-    this.elementStack = [];
+async parse(filePath: string): Promise<ParseResult> {
+// Сбрасываем состояние
+this.offers = [];
+this.errors = [];
+this.elementStack = [];
 
     const startTime = Date.now();
 
@@ -1979,17 +2044,18 @@ export class YandexFeedParser {
       stream.pipe(parser);
       stream.on('error', reject);
     });
-  }
 
-  private getParentElement(): string | null {
-    return this.elementStack.length > 1
-      ? this.elementStack[this.elementStack.length - 2]
-      : null;
-  }
+}
 
-  private onOpenTag(node: sax.Tag): void {
-    this.elementStack.push(node.name);
-    this.currentText = '';
+private getParentElement(): string | null {
+return this.elementStack.length > 1
+? this.elementStack[this.elementStack.length - 2]
+: null;
+}
+
+private onOpenTag(node: sax.Tag): void {
+this.elementStack.push(node.name);
+this.currentText = '';
 
     if (node.name === 'offer') {
       this.currentOffer = {
@@ -2014,11 +2080,12 @@ export class YandexFeedParser {
     if (node.name === 'image' && this.currentOffer) {
       this.currentImageTag = (node.attributes['tag'] as string) || null;
     }
-  }
 
-  private onCloseTag(tagName: string): void {
-    const text = this.currentText.trim();
-    const parent = this.getParentElement();
+}
+
+private onCloseTag(tagName: string): void {
+const text = this.currentText.trim();
+const parent = this.getParentElement();
 
     this.elementStack.pop();
 
@@ -2189,14 +2256,15 @@ export class YandexFeedParser {
         this.currentOffer = null;
         break;
     }
-  }
 
-  private onText(text: string): void {
-    this.currentText += text;
-  }
+}
 
-  private validateOffer(offer: Partial<ParsedOffer>): boolean {
-    const errors: ParseError[] = [];
+private onText(text: string): void {
+this.currentText += text;
+}
+
+private validateOffer(offer: Partial<ParsedOffer>): boolean {
+const errors: ParseError[] = [];
 
     if (!offer.externalId) {
       errors.push({ offerId: null, field: 'externalId', message: 'Missing internal-id' });
@@ -2217,7 +2285,8 @@ export class YandexFeedParser {
     }
 
     return true;
-  }
+
+}
 }
 
 export const feedParser = new YandexFeedParser();
@@ -2230,10 +2299,12 @@ git add -A && git commit -m "feat(parser): improve XML parser with element conte
 
 ПОСЛЕ:
 □ Отметь F4.3 как completed
+
 ```
 
 #### F4.4 Тестирование парсера
 ```
+
 ЗАДАЧА: Проверить парсер на реальном фиде
 
 ДО НАЧАЛА:
@@ -2241,19 +2312,20 @@ git add -A && git commit -m "feat(parser): improve XML parser with element conte
 □ Файл feeds/spb.xml существует
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/parsers/test-parser.ts:
 
 import { feedParser } from './yandex-feed.parser';
-import * as path from 'path';
+import \* as path from 'path';
 
 async function testParser() {
-  const feedPath = path.join(__dirname, '../../../feeds/spb.xml');
+const feedPath = path.join(\_\_dirname, '../../../feeds/spb.xml');
 
-  console.log('Starting parser test...');
-  console.log('Feed path:', feedPath);
+console.log('Starting parser test...');
+console.log('Feed path:', feedPath);
 
-  try {
-    const result = await feedParser.parse(feedPath);
+try {
+const result = await feedParser.parse(feedPath);
 
     console.log('\n=== PARSE RESULTS ===');
     console.log('Total offers parsed:', result.totalParsed);
@@ -2298,9 +2370,9 @@ async function testParser() {
     ).length;
     console.log('With floor plan:', withPlan, `(${Math.round(withPlan / result.totalParsed * 100)}%)`);
 
-  } catch (error) {
-    console.error('Parser error:', error);
-  }
+} catch (error) {
+console.error('Parser error:', error);
+}
 }
 
 testParser();
@@ -2321,76 +2393,79 @@ git add -A && git commit -m "test(parser): add parser test script"
 ПОСЛЕ:
 □ Если много ошибок — исправь парсер и повтори
 □ Отметь F4.4 как completed
+
 ```
 
 #### F4.5 Детектор евро-планировок
 ```
+
 ЗАДАЧА: Создать функцию определения евро-планировки
 
 ДО НАЧАЛА:
 □ F4.4 завершена
-□ ПРОЧИТАЙ /ТЗ_v2_расширенное.md секцию 4.13 (Евро-форматы)
+□ ПРОЧИТАЙ /ТЗ*v2*расширенное.md секцию 4.13 (Евро-форматы)
 □ ПРОЧИТАЙ /DECOMPOSITION.md секцию "1.3 Определение евро-планировок"
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/utils/euro-detector.ts:
 
 export type RoomType =
-  | 'studio'
-  | 'room_1' | 'euro_1'
-  | 'room_2' | 'euro_2'
-  | 'room_3' | 'euro_3'
-  | 'room_4_plus';
+| 'studio'
+| 'room_1' | 'euro_1'
+| 'room_2' | 'euro_2'
+| 'room_3' | 'euro_3'
+| 'room_4_plus';
 
 export interface EuroDetectionResult {
-  isEuro: boolean;
-  roomType: RoomType;
-  confidence: number;  // 0-1
-  reason: string;
+isEuro: boolean;
+roomType: RoomType;
+confidence: number; // 0-1
+reason: string;
 }
 
 interface EuroDetectionInput {
-  rooms: number;
-  areaTotal: number;
-  areaLiving: number | null;
-  areaKitchen: number | null;
-  description: string | null;
+rooms: number;
+areaTotal: number;
+areaLiving: number | null;
+areaKitchen: number | null;
+description: string | null;
 }
 
 // Ключевые слова для определения евро-планировки
 const EURO_KEYWORDS = [
-  'евро', 'euro', 'европланировка', 'евро-планировка',
-  'кухня-гостиная', 'кухня гостиная', 'объединённая кухня',
-  'объединенная кухня', 'кухня-столовая', 'совмещённая кухня',
+'евро', 'euro', 'европланировка', 'евро-планировка',
+'кухня-гостиная', 'кухня гостиная', 'объединённая кухня',
+'объединенная кухня', 'кухня-столовая', 'совмещённая кухня',
 ];
 
 export function detectEuroLayout(input: EuroDetectionInput): EuroDetectionResult {
-  const { rooms, areaTotal, areaLiving, areaKitchen, description } = input;
+const { rooms, areaTotal, areaLiving, areaKitchen, description } = input;
 
-  // Студия — не евро по определению
-  if (rooms === 0) {
-    return {
-      isEuro: false,
-      roomType: 'studio',
-      confidence: 1.0,
-      reason: 'Студия',
-    };
-  }
+// Студия — не евро по определению
+if (rooms === 0) {
+return {
+isEuro: false,
+roomType: 'studio',
+confidence: 1.0,
+reason: 'Студия',
+};
+}
 
-  // 4+ комнат — не различаем евро
-  if (rooms >= 4) {
-    return {
-      isEuro: false,
-      roomType: 'room_4_plus',
-      confidence: 1.0,
-      reason: '4+ комнат',
-    };
-  }
+// 4+ комнат — не различаем евро
+if (rooms >= 4) {
+return {
+isEuro: false,
+roomType: 'room_4_plus',
+confidence: 1.0,
+reason: '4+ комнат',
+};
+}
 
-  // Проверка 1: По описанию (высокая уверенность)
-  if (description) {
-    const descLower = description.toLowerCase();
-    const hasEuroKeyword = EURO_KEYWORDS.some(kw => descLower.includes(kw));
+// Проверка 1: По описанию (высокая уверенность)
+if (description) {
+const descLower = description.toLowerCase();
+const hasEuroKeyword = EURO_KEYWORDS.some(kw => descLower.includes(kw));
 
     if (hasEuroKeyword) {
       return {
@@ -2400,19 +2475,20 @@ export function detectEuroLayout(input: EuroDetectionInput): EuroDetectionResult
         reason: 'Ключевое слово в описании',
       };
     }
-  }
 
-  // Проверка 2: По площади кухни (кухня-гостиная > 12 м²)
-  if (areaKitchen && areaKitchen > 12) {
-    // Дополнительно проверяем соотношение
-    if (areaLiving && areaKitchen / areaLiving > 0.5) {
-      return {
-        isEuro: true,
-        roomType: getEuroRoomType(rooms),
-        confidence: 0.85,
-        reason: `Большая кухня (${areaKitchen} м²) + высокое соотношение к жилой`,
-      };
-    }
+}
+
+// Проверка 2: По площади кухни (кухня-гостиная > 12 м²)
+if (areaKitchen && areaKitchen > 12) {
+// Дополнительно проверяем соотношение
+if (areaLiving && areaKitchen / areaLiving > 0.5) {
+return {
+isEuro: true,
+roomType: getEuroRoomType(rooms),
+confidence: 0.85,
+reason: `Большая кухня (${areaKitchen} м²) + высокое соотношение к жилой`,
+};
+}
 
     // Просто большая кухня
     return {
@@ -2421,12 +2497,13 @@ export function detectEuroLayout(input: EuroDetectionInput): EuroDetectionResult
       confidence: 0.7,
       reason: `Большая кухня (${areaKitchen} м²)`,
     };
-  }
 
-  // Проверка 3: По соотношению жилая/общая площадь
-  // Евро обычно имеет меньше "жилой" площади (часть ушла в кухню-гостиную)
-  if (areaLiving && areaTotal) {
-    const livingRatio = areaLiving / areaTotal;
+}
+
+// Проверка 3: По соотношению жилая/общая площадь
+// Евро обычно имеет меньше "жилой" площади (часть ушла в кухню-гостиную)
+if (areaLiving && areaTotal) {
+const livingRatio = areaLiving / areaTotal;
 
     // Для обычной квартиры: жилая ~55-65% от общей
     // Для евро: жилая ~40-50% от общей
@@ -2438,49 +2515,50 @@ export function detectEuroLayout(input: EuroDetectionInput): EuroDetectionResult
         reason: `Низкое соотношение жилой к общей (${Math.round(livingRatio * 100)}%)`,
       };
     }
-  }
 
-  // Не евро
-  return {
-    isEuro: false,
-    roomType: getStandardRoomType(rooms),
-    confidence: 0.7,
-    reason: 'Не соответствует критериям евро-планировки',
-  };
+}
+
+// Не евро
+return {
+isEuro: false,
+roomType: getStandardRoomType(rooms),
+confidence: 0.7,
+reason: 'Не соответствует критериям евро-планировки',
+};
 }
 
 function getEuroRoomType(rooms: number): RoomType {
-  switch (rooms) {
-    case 1: return 'euro_1';
-    case 2: return 'euro_2';
-    case 3: return 'euro_3';
-    default: return 'room_4_plus';
-  }
+switch (rooms) {
+case 1: return 'euro_1';
+case 2: return 'euro_2';
+case 3: return 'euro_3';
+default: return 'room_4_plus';
+}
 }
 
 function getStandardRoomType(rooms: number): RoomType {
-  switch (rooms) {
-    case 0: return 'studio';
-    case 1: return 'room_1';
-    case 2: return 'room_2';
-    case 3: return 'room_3';
-    default: return 'room_4_plus';
-  }
+switch (rooms) {
+case 0: return 'studio';
+case 1: return 'room_1';
+case 2: return 'room_2';
+case 3: return 'room_3';
+default: return 'room_4_plus';
+}
 }
 
 // Форматирование для отображения
 export function formatRoomType(roomType: RoomType): string {
-  const labels: Record<RoomType, string> = {
-    'studio': 'Студия',
-    'room_1': '1-комн.',
-    'euro_1': '1-комн. (евро)',
-    'room_2': '2-комн.',
-    'euro_2': '2-комн. (евро)',
-    'room_3': '3-комн.',
-    'euro_3': '3-комн. (евро)',
-    'room_4_plus': '4+ комн.',
-  };
-  return labels[roomType];
+const labels: Record<RoomType, string> = {
+'studio': 'Студия',
+'room_1': '1-комн.',
+'euro_1': '1-комн. (евро)',
+'room_2': '2-комн.',
+'euro_2': '2-комн. (евро)',
+'room_3': '3-комн.',
+'euro_3': '3-комн. (евро)',
+'room_4_plus': '4+ комн.',
+};
+return labels[roomType];
 }
 
 ПРОВЕРКА:
@@ -2491,10 +2569,12 @@ git add -A && git commit -m "feat(utils): add euro layout detector"
 
 ПОСЛЕ:
 □ Отметь F4.5 как completed
+
 ```
 
 #### F4.6 Сервис импорта в БД
 ```
+
 ЗАДАЧА: Создать сервис для сохранения данных в БД
 
 ДО НАЧАЛА:
@@ -2502,6 +2582,7 @@ git add -A && git commit -m "feat(utils): add euro layout detector"
 □ Прочитай /DECOMPOSITION.md секцию "1.2 Импорт в базу данных"
 
 ДЕЙСТВИЯ:
+
 1. Создай backend/src/services/import.service.ts:
 
 import db from '../config/database';
@@ -2510,17 +2591,17 @@ import { ParsedOffer } from '../parsers/types';
 import { detectEuroLayout, RoomType } from '../utils/euro-detector';
 
 export interface ImportResult {
-  totalInFeed: number;
-  created: number;
-  updated: number;
-  deleted: number;
-  errors: number;
-  durationMs: number;
+totalInFeed: number;
+created: number;
+updated: number;
+deleted: number;
+errors: number;
+durationMs: number;
 }
 
 class ImportService {
-  async importFeed(filePath: string): Promise<ImportResult> {
-    const startTime = Date.now();
+async importFeed(filePath: string): Promise<ImportResult> {
+const startTime = Date.now();
 
     console.log('Parsing feed...');
     const parseResult = await feedParser.parse(filePath);
@@ -2571,16 +2652,17 @@ class ImportService {
       errors: errors + parseResult.errors.length,
       durationMs: Date.now() - startTime,
     };
-  }
 
-  private async getExistingOfferIds(): Promise<Set<string>> {
-    const result = await db.query('SELECT id::text FROM offers WHERE is_active = true');
-    return new Set(result.rows.map(r => r.id));
-  }
+}
 
-  private async upsertOffer(parsed: ParsedOffer): Promise<'created' | 'updated'> {
-    // 1. Upsert district
-    const districtId = await this.upsertDistrict(parsed.district);
+private async getExistingOfferIds(): Promise<Set<string>> {
+const result = await db.query('SELECT id::text FROM offers WHERE is_active = true');
+return new Set(result.rows.map(r => r.id));
+}
+
+private async upsertOffer(parsed: ParsedOffer): Promise<'created' | 'updated'> {
+// 1. Upsert district
+const districtId = await this.upsertDistrict(parsed.district);
 
     // 2. Upsert metro
     const metroId = await this.upsertMetro(parsed.metroName);
@@ -2618,10 +2700,11 @@ class ImportService {
     await this.upsertImages(parsed.externalId, parsed.images);
 
     return isNew ? 'created' : 'updated';
-  }
 
-  private async upsertDistrict(name: string | null): Promise<number | null> {
-    if (!name) return null;
+}
+
+private async upsertDistrict(name: string | null): Promise<number | null> {
+if (!name) return null;
 
     const result = await db.query(`
       INSERT INTO districts (name, region)
@@ -2631,10 +2714,11 @@ class ImportService {
     `, [name]);
 
     return result.rows[0]?.id || null;
-  }
 
-  private async upsertMetro(name: string | null): Promise<number | null> {
-    if (!name) return null;
+}
+
+private async upsertMetro(name: string | null): Promise<number | null> {
+if (!name) return null;
 
     // Ищем существующую станцию
     const existing = await db.query(
@@ -2655,10 +2739,11 @@ class ImportService {
     `, [name]);
 
     return result.rows[0]?.id || null;
-  }
 
-  private async upsertDeveloper(organization: string | null): Promise<number | null> {
-    if (!organization) return null;
+}
+
+private async upsertDeveloper(organization: string | null): Promise<number | null> {
+if (!organization) return null;
 
     const result = await db.query(`
       INSERT INTO developers (name)
@@ -2668,14 +2753,15 @@ class ImportService {
     `, [organization]);
 
     return result.rows[0]?.id || null;
-  }
 
-  private async upsertComplex(
-    parsed: ParsedOffer,
-    developerId: number | null,
-    districtId: number | null
-  ): Promise<number | null> {
-    if (!parsed.buildingName) return null;
+}
+
+private async upsertComplex(
+parsed: ParsedOffer,
+developerId: number | null,
+districtId: number | null
+): Promise<number | null> {
+if (!parsed.buildingName) return null;
 
     // Используем nmarket-complex-id если есть, иначе генерируем из имени
     const complexId = parsed.nmarketComplexId ||
@@ -2693,13 +2779,14 @@ class ImportService {
     `, [complexId, parsed.buildingName, developerId, districtId, parsed.address]);
 
     return result.rows[0]?.id || null;
-  }
 
-  private async upsertBuilding(
-    parsed: ParsedOffer,
-    complexId: number | null
-  ): Promise<number | null> {
-    if (!complexId) return null;
+}
+
+private async upsertBuilding(
+parsed: ParsedOffer,
+complexId: number | null
+): Promise<number | null> {
+if (!complexId) return null;
 
     const buildingId = parsed.nmarketBuildingId ||
       Math.abs(this.hashCode(`${complexId}-${parsed.address}`));
@@ -2726,18 +2813,19 @@ class ImportService {
     ]);
 
     return result.rows[0]?.id || null;
-  }
 
-  private async upsertOfferRecord(
-    parsed: ParsedOffer,
-    complexId: number | null,
-    buildingId: number | null,
-    districtId: number | null,
-    metroId: number | null,
-    roomType: RoomType,
-    isEuro: boolean
-  ): Promise<boolean> {
-    const offerId = parseInt(parsed.externalId, 10);
+}
+
+private async upsertOfferRecord(
+parsed: ParsedOffer,
+complexId: number | null,
+buildingId: number | null,
+districtId: number | null,
+metroId: number | null,
+roomType: RoomType,
+isEuro: boolean
+): Promise<boolean> {
+const offerId = parseInt(parsed.externalId, 10);
 
     const result = await db.query(`
       INSERT INTO offers (
@@ -2807,10 +2895,11 @@ class ImportService {
     ]);
 
     return result.rows[0]?.is_new || false;
-  }
 
-  private async upsertImages(offerId: string, images: { tag: string | null; url: string }[]): Promise<void> {
-    const id = parseInt(offerId, 10);
+}
+
+private async upsertImages(offerId: string, images: { tag: string | null; url: string }[]): Promise<void> {
+const id = parseInt(offerId, 10);
 
     // Удаляем старые
     await db.query('DELETE FROM images WHERE offer_id = $1', [id]);
@@ -2823,10 +2912,11 @@ class ImportService {
         VALUES ($1, $2, $3, $4)
       `, [id, img.tag, img.url, i]);
     }
-  }
 
-  private async markDeleted(existingIds: Set<string>, processedIds: Set<string>): Promise<number> {
-    const toDelete = [...existingIds].filter(id => !processedIds.has(id));
+}
+
+private async markDeleted(existingIds: Set<string>, processedIds: Set<string>): Promise<number> {
+const toDelete = [...existingIds].filter(id => !processedIds.has(id));
 
     if (toDelete.length === 0) return 0;
 
@@ -2837,11 +2927,11 @@ class ImportService {
     `, [toDelete.map(id => parseInt(id, 10))]);
 
     return toDelete.length;
-  }
 
-  private async updateComplexStats(): Promise<void> {
-    await db.query(`
-      UPDATE complexes c SET
+}
+
+private async updateComplexStats(): Promise<void> {
+await db.query(`       UPDATE complexes c SET
         min_price = sub.min_price,
         max_price = sub.max_price,
         avg_price_per_sqm = sub.avg_price_per_sqm,
@@ -2859,17 +2949,17 @@ class ImportService {
       ) sub
       WHERE c.id = sub.complex_id
     `);
-  }
+}
 
-  private hashCode(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    return hash;
-  }
+private hashCode(str: string): number {
+let hash = 0;
+for (let i = 0; i < str.length; i++) {
+const char = str.charCodeAt(i);
+hash = ((hash << 5) - hash) + char;
+hash = hash & hash;
+}
+return hash;
+}
 }
 
 export const importService = new ImportService();
@@ -2879,17 +2969,17 @@ export const importService = new ImportService();
 
 3. Создай тестовый скрипт backend/src/scripts/run-import.ts:
 
-import * as path from 'path';
+import \* as path from 'path';
 import { importService } from '../services/import.service';
 
 async function runImport() {
-  const feedPath = path.join(__dirname, '../../../feeds/spb.xml');
+const feedPath = path.join(\_\_dirname, '../../../feeds/spb.xml');
 
-  console.log('Starting import...');
-  console.log('Feed path:', feedPath);
+console.log('Starting import...');
+console.log('Feed path:', feedPath);
 
-  try {
-    const result = await importService.importFeed(feedPath);
+try {
+const result = await importService.importFeed(feedPath);
 
     console.log('\n=== IMPORT RESULTS ===');
     console.log('Total in feed:', result.totalInFeed);
@@ -2900,12 +2990,12 @@ async function runImport() {
     console.log('Duration:', result.durationMs, 'ms');
     console.log('Rate:', Math.round(result.totalInFeed / (result.durationMs / 1000)), 'offers/sec');
 
-  } catch (error) {
-    console.error('Import error:', error);
-    process.exit(1);
-  }
+} catch (error) {
+console.error('Import error:', error);
+process.exit(1);
+}
 
-  process.exit(0);
+process.exit(0);
 }
 
 runImport();
@@ -2918,7 +3008,7 @@ runImport();
 □ Импорт завершается без критических ошибок
 □ Created показывает ~12000
 □ Проверь данные:
-  docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT COUNT(*) FROM offers WHERE is_active = true"
+docker-compose -f docker-compose.dev.yml exec postgres psql -U housler -c "SELECT COUNT(\*) FROM offers WHERE is_active = true"
 
 КОММИТ:
 git add -A && git commit -m "feat(import): add import service with euro detection"
@@ -2927,7 +3017,8 @@ git add -A && git commit -m "feat(import): add import service with euro detectio
 □ Отметь F4.6 как completed
 □ git push origin main
 □ Переходи к F5
-```
+
+````
 
 ### Критерии завершения F4
 - [ ] XML-парсер работает корректно
@@ -2961,9 +3052,10 @@ cd frontend && npm run dev
 
 # 4. Импорт фида (один раз)
 cd backend && npx ts-node src/scripts/run-import.ts
-```
+````
 
 ### Проверка состояния
+
 ```bash
 # Статус контейнеров
 docker-compose -f docker-compose.dev.yml ps
@@ -2976,6 +3068,7 @@ docker-compose -f docker-compose.dev.yml logs -f postgres
 ```
 
 ### Откат при проблемах
+
 ```bash
 # Сбросить изменения в коде
 git stash && git checkout .
