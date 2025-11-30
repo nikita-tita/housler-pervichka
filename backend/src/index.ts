@@ -14,7 +14,8 @@ const PORT = process.env.API_PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(helmet());
-app.use(compression());
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+app.use(compression() as any);
 app.use(express.json());
 
 // Initialize Redis
