@@ -1,0 +1,18 @@
+# Ignore documentation - don't auto-format
+*.md
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# Generated files
+*.lock
+package-lock.json
+
+# Large data files
+feeds/
