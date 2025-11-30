@@ -5,6 +5,7 @@ import compression from 'compression';
 import dotenv from 'dotenv';
 import db from './config/database';
 import redis from './config/redis';
+import apiRouter from './api';
 
 dotenv.config();
 
@@ -41,7 +42,7 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-// API routes placeholder
+// API version info
 app.get('/api/v1', (_req, res) => {
   res.json({
     name: 'Housler Pervichka API',
@@ -54,6 +55,9 @@ app.get('/api/v1', (_req, res) => {
     },
   });
 });
+
+// API routes
+app.use('/api/v1', apiRouter);
 
 // 404 handler
 app.use((_req, res) => {
