@@ -244,6 +244,33 @@ export class OffersService {
   }
 
   /**
+   * Получить маркеры для карты (с фильтрами)
+   */
+  async getMapMarkers(filters: OfferFilters): Promise<{ id: number; lat: number; lng: number; price: number; rooms: number; is_studio: boolean }[]> {
+    const { conditions, params } = this.buildWhereClause(filters);
+
+    const query = `
+      SELECT
+        o.id,
+        o.latitude::float as lat,
+        o.longitude::float as lng,
+        o.price::float as price,
+        o.rooms,
+        o.is_studio
+      FROM offers o
+      LEFT JOIN districts d ON o.district_id = d.id
+      WHERE o.is_active = true
+        AND o.latitude IS NOT NULL
+        AND o.longitude IS NOT NULL
+        ${conditions}
+      LIMIT 5000
+    `;
+
+    const result = await pool.query(query, params);
+    return result.rows;
+  }
+
+  /**
    * Получить доступные фильтры (для UI)
    */
   async getAvailableFilters(): Promise<{

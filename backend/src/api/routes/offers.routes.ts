@@ -1,10 +1,13 @@
 import { Router } from 'express';
-import { searchOffers, getOfferById, getFilters, getPriceHistory } from '../controllers/offers.controller';
+import { searchOffers, getOfferById, getFilters, getPriceHistory, getMapMarkers } from '../controllers/offers.controller';
 
 const router = Router();
 
 // GET /api/offers - Поиск объявлений
 router.get('/', searchOffers);
+
+// GET /api/offers/map/markers - Маркеры для карты (до :id!)
+router.get('/map/markers', getMapMarkers);
 
 // GET /api/offers/:id - Детали объявления
 router.get('/:id', getOfferById);

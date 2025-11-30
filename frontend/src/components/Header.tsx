@@ -32,6 +32,12 @@ export function Header() {
             >
               Жилые комплексы
             </Link>
+            <Link
+              href="/map"
+              className="text-[15px] font-medium transition-colors hover:text-[var(--color-text-light)]"
+            >
+              Карта
+            </Link>
 
             {isAuthenticated && (
               <>
@@ -109,6 +115,13 @@ export function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Жилые комплексы
+            </Link>
+            <Link
+              href="/map"
+              className="block text-[15px] font-medium py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Карта
             </Link>
 
             {isAuthenticated && (

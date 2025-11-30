@@ -125,6 +125,11 @@ class ApiService {
     return this.fetch(`/api/offers/${offerId}/price-history`);
   }
 
+  async getMapMarkers(filters?: OfferFilters): Promise<ApiResponse<{ id: number; lat: number; lng: number; price: number; rooms: number; is_studio: boolean }[]>> {
+    const query = this.buildQuery(filters);
+    return this.fetch(`/api/offers/map/markers${query}`);
+  }
+
   // Filters
   async getFilters(): Promise<ApiResponse<FilterOptions>> {
     return this.fetch('/api/filters');
