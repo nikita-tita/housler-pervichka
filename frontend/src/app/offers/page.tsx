@@ -7,6 +7,16 @@ import { Filters } from '@/components/Filters';
 import { api } from '@/services/api';
 import type { OfferListItem, OfferFilters, PaginatedResponse } from '@/types';
 
+type SortOption = 'price_asc' | 'price_desc' | 'area_asc' | 'area_desc' | 'updated_desc';
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'price_asc', label: 'Сначала дешевле' },
+  { value: 'price_desc', label: 'Сначала дороже' },
+  { value: 'area_asc', label: 'По площади (меньше)' },
+  { value: 'area_desc', label: 'По площади (больше)' },
+  { value: 'updated_desc', label: 'По дате обновления' },
+];
+
 function OffersContent() {
   const searchParams = useSearchParams();
   const [offers, setOffers] = useState<OfferListItem[]>([]);
@@ -14,6 +24,7 @@ function OffersContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentFilters, setCurrentFilters] = useState<OfferFilters>({});
+  const [sortBy, setSortBy] = useState<SortOption>('updated_desc');
 
   const page = Number(searchParams.get('page')) || 1;
 
@@ -21,8 +32,11 @@ function OffersContent() {
     setIsLoading(true);
     setError(null);
 
+    // Parse sort option
+    const [sort_by, sort_order] = sortBy.split('_') as [string, 'asc' | 'desc'];
+
     try {
-      const response = await api.getOffers(currentFilters, { page, limit: 20 });
+      const response = await api.getOffers(currentFilters, { page, limit: 20, sort_by, sort_order });
       if (response.success && response.data) {
         setOffers(response.data.data);
         setPagination(response.data.pagination);
@@ -35,7 +49,7 @@ function OffersContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentFilters, page]);
+  }, [currentFilters, page, sortBy]);
 
   useEffect(() => {
     loadOffers();
@@ -48,15 +62,33 @@ function OffersContent() {
   return (
     <div className="section">
       <div className="container">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">
-            Квартиры в новостройках
-          </h1>
-          <p className="text-[var(--color-text-light)]">
-            {pagination?.total
-              ? `Найдено ${pagination.total.toLocaleString('ru-RU')} квартир`
-              : 'Загрузка...'}
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">
+              Квартиры в новостройках
+            </h1>
+            <p className="text-[var(--color-text-light)]">
+              {pagination?.total
+                ? `Найдено ${pagination.total.toLocaleString('ru-RU')} квартир`
+                : 'Загрузка...'}
+            </p>
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[var(--color-text-light)]">Сортировка:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] bg-white"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-8">

@@ -27,6 +27,8 @@ export interface OfferDetail extends OfferListItem {
   developer_name: string | null;
   completion_date: string | null;
   images: string[];
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface OfferFilters {

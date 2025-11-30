@@ -7,6 +7,8 @@ import { api, formatPrice, formatArea, formatRooms, formatFloor } from '@/servic
 import { FavoriteButton } from '@/components/FavoriteButton';
 import { BookingForm } from '@/components/BookingForm';
 import { AddToSelectionButton } from '@/components/AddToSelectionButton';
+import { MortgageCalculator } from '@/components/MortgageCalculator';
+import { YandexMap } from '@/components/YandexMap';
 import type { OfferDetail } from '@/types';
 
 export default function OfferDetailPage() {
@@ -240,6 +242,9 @@ export default function OfferDetailPage() {
 
             {/* CTA */}
             <BookingForm offerId={offer.id} complexName={offer.complex_name} />
+
+            {/* Mortgage Calculator */}
+            <MortgageCalculator price={offer.price} className="mt-6" />
           </div>
         </div>
 
@@ -250,6 +255,18 @@ export default function OfferDetailPage() {
             <div className="prose max-w-none text-[var(--color-text-light)]">
               {offer.description}
             </div>
+          </div>
+        )}
+
+        {/* Map */}
+        {offer.latitude && offer.longitude && (
+          <div className="mt-12">
+            <h2 className="text-xl font-semibold mb-4">Расположение</h2>
+            <YandexMap
+              latitude={offer.latitude}
+              longitude={offer.longitude}
+              address={offer.complex_address}
+            />
           </div>
         )}
       </div>
