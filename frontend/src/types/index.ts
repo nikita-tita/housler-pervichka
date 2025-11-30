@@ -45,6 +45,7 @@ export interface OfferFilters {
   has_finishing?: boolean;
   complexes?: string[];
   complex_id?: number;
+  search?: string;
 }
 
 export interface PaginationParams {

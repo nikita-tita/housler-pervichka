@@ -62,14 +62,21 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     const hasFinishing = searchParams.get('has_finishing');
     if (hasFinishing) newFilters.has_finishing = hasFinishing === 'true';
 
+    const search = searchParams.get('search');
+    if (search) newFilters.search = search;
+
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // Update URL with new filters
+  // Update URL with new filters (preserving sort)
   const applyFilters = (newFilters: OfferFilters) => {
     const params = new URLSearchParams();
+
+    // Preserve sort param
+    const currentSort = searchParams.get('sort');
+    if (currentSort) params.set('sort', currentSort);
 
     if (newFilters.rooms?.length) {
       newFilters.rooms.forEach(r => params.append('rooms', r.toString()));
@@ -90,7 +97,11 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     if (newFilters.has_finishing !== undefined) {
       params.set('has_finishing', newFilters.has_finishing.toString());
     }
+    if (newFilters.search) {
+      params.set('search', newFilters.search);
+    }
 
+    // Reset page to 1 when filters change
     const query = params.toString();
     router.push(`/offers${query ? `?${query}` : ''}`);
   };
@@ -129,8 +140,37 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     );
   }
 
+  // Search input with debounce
+  const [searchInput, setSearchInput] = useState(filters.search || '');
+
+  useEffect(() => {
+    setSearchInput(filters.search || '');
+  }, [filters.search]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchInput !== (filters.search || '')) {
+        applyFilters({ ...filters, search: searchInput || undefined });
+      }
+    }, 500);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
   return (
     <div className="card p-6">
+      {/* Search */}
+      <div className="mb-6">
+        <div className="text-sm font-medium mb-3">Поиск по ЖК или адресу</div>
+        <input
+          type="text"
+          placeholder="Название ЖК или адрес..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+        />
+      </div>
+
       {/* Rooms Filter */}
       <div className="mb-6">
         <div className="text-sm font-medium mb-3">Комнатность</div>

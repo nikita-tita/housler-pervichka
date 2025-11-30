@@ -92,6 +92,9 @@ class ApiService {
       if (filters.complex_id) {
         params.set('complex_id', filters.complex_id.toString());
       }
+      if (filters.search) {
+        params.set('search', filters.search);
+      }
     }
 
     if (pagination) {

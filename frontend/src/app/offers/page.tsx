@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { OfferCard } from '@/components/OfferCard';
 import { Filters } from '@/components/Filters';
 import { api } from '@/services/api';
@@ -19,14 +19,30 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 function OffersContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [offers, setOffers] = useState<OfferListItem[]>([]);
   const [pagination, setPagination] = useState<PaginatedResponse<OfferListItem>['pagination'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentFilters, setCurrentFilters] = useState<OfferFilters>({});
-  const [sortBy, setSortBy] = useState<SortOption>('updated_desc');
 
   const page = Number(searchParams.get('page')) || 1;
+  const sortBy = (searchParams.get('sort') as SortOption) || 'updated_desc';
+
+  // Build URL with current params
+  const buildUrl = useCallback((newParams: Record<string, string | number | undefined>) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        params.set(key, String(value));
+      } else {
+        params.delete(key);
+      }
+    });
+
+    return `/offers?${params.toString()}`;
+  }, [searchParams]);
 
   const loadOffers = useCallback(async () => {
     setIsLoading(true);
@@ -84,7 +100,7 @@ function OffersContent() {
             <span className="text-sm text-[var(--color-text-light)]">Сортировка:</span>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              onChange={(e) => router.push(buildUrl({ sort: e.target.value, page: 1 }))}
               className="px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] bg-white"
             >
               {SORT_OPTIONS.map((opt) => (
@@ -141,21 +157,52 @@ function OffersContent() {
 
                 {/* Pagination */}
                 {pagination && pagination.total_pages > 1 && (
-                  <div className="mt-12 flex justify-center gap-2">
+                  <div className="mt-12 flex justify-center items-center gap-2 flex-wrap">
                     {pagination.page > 1 && (
                       <a
-                        href={`/offers?page=${pagination.page - 1}`}
+                        href={buildUrl({ page: pagination.page - 1 })}
                         className="btn btn-secondary"
                       >
                         ← Назад
                       </a>
                     )}
-                    <span className="btn btn-secondary pointer-events-none">
-                      {pagination.page} из {pagination.total_pages}
-                    </span>
+
+                    {/* Page numbers */}
+                    {(() => {
+                      const pages: (number | string)[] = [];
+                      const current = pagination.page;
+                      const total = pagination.total_pages;
+
+                      if (total <= 7) {
+                        for (let i = 1; i <= total; i++) pages.push(i);
+                      } else {
+                        pages.push(1);
+                        if (current > 3) pages.push('...');
+                        for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+                          pages.push(i);
+                        }
+                        if (current < total - 2) pages.push('...');
+                        pages.push(total);
+                      }
+
+                      return pages.map((p, i) =>
+                        typeof p === 'number' ? (
+                          <a
+                            key={i}
+                            href={buildUrl({ page: p })}
+                            className={`btn btn-sm ${p === current ? 'btn-primary' : 'btn-secondary'}`}
+                          >
+                            {p}
+                          </a>
+                        ) : (
+                          <span key={i} className="px-2 text-[var(--color-text-light)]">{p}</span>
+                        )
+                      );
+                    })()}
+
                     {pagination.page < pagination.total_pages && (
                       <a
-                        href={`/offers?page=${pagination.page + 1}`}
+                        href={buildUrl({ page: pagination.page + 1 })}
                         className="btn btn-secondary"
                       >
                         Далее →
