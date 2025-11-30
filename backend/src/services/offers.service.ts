@@ -73,9 +73,9 @@ export interface PaginatedResult<T> {
   data: T[];
   pagination: {
     page: number;
-    perPage: number;
+    limit: number;
     total: number;
-    totalPages: number;
+    total_pages: number;
   };
 }
 
