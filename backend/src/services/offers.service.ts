@@ -237,7 +237,7 @@ export class OffersService {
     price_range: { min: number; max: number };
     area_range: { min: number; max: number };
   }> {
-    const [districts, metro, priceRange, areaRange, roomsCount] = await Promise.all([
+    const [districts, metro, complexes, priceRange, areaRange, roomsCount] = await Promise.all([
       pool.query(`
         SELECT d.name, COUNT(o.id)::int as count
         FROM districts d
@@ -252,6 +252,14 @@ export class OffersService {
         WHERE is_active = true AND metro_name IS NOT NULL
         GROUP BY metro_name
         ORDER BY count DESC
+      `),
+      pool.query(`
+        SELECT building_name as name, COUNT(*)::int as count
+        FROM offers
+        WHERE is_active = true AND building_name IS NOT NULL AND building_name != ''
+        GROUP BY building_name
+        ORDER BY count DESC
+        LIMIT 100
       `),
       pool.query(`
         SELECT
@@ -279,7 +287,7 @@ export class OffersService {
     return {
       districts: districts.rows,
       metro_stations: metro.rows,
-      complexes: [],
+      complexes: complexes.rows,
       rooms: roomsCount.rows,
       price_range: priceRange.rows[0] || { min: 0, max: 0 },
       area_range: areaRange.rows[0] || { min: 0, max: 0 }

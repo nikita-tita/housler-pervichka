@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { FilterOptions, OfferFilters } from '@/types';
 import { api } from '@/services/api';
+import { SearchAutocomplete } from './SearchAutocomplete';
 
 interface FiltersProps {
   onFiltersChange?: (filters: OfferFilters) => void;
@@ -159,15 +160,25 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
   return (
     <div className="card p-6">
-      {/* Search */}
+      {/* Search with Autocomplete */}
       <div className="mb-6">
         <div className="text-sm font-medium mb-3">Поиск по ЖК или адресу</div>
-        <input
-          type="text"
-          placeholder="Название ЖК или адрес..."
+        <SearchAutocomplete
           value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+          onChange={setSearchInput}
+          onSelect={(suggestion) => {
+            if (suggestion.type === 'complex') {
+              setSearchInput(suggestion.name);
+            } else if (suggestion.type === 'district') {
+              applyFilters({ ...filters, districts: [suggestion.name], search: undefined });
+              setSearchInput('');
+            } else if (suggestion.type === 'metro') {
+              applyFilters({ ...filters, metro_stations: [suggestion.name], search: undefined });
+              setSearchInput('');
+            }
+          }}
+          suggestions={filterOptions}
+          placeholder="Название ЖК, район или метро..."
         />
       </div>
 
