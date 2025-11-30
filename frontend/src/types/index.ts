@@ -75,3 +75,89 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+// User & Auth types
+export type UserRole = 'client' | 'agent' | 'operator' | 'admin';
+
+export interface User {
+  id: number;
+  email: string;
+  phone: string | null;
+  name: string | null;
+  role: UserRole;
+  is_active: boolean;
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+// Favorites
+export interface FavoriteOffer extends OfferListItem {
+  added_at: string;
+}
+
+// Selections
+export interface Selection {
+  id: number;
+  name: string;
+  client_name: string | null;
+  client_email: string | null;
+  share_code: string;
+  items_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SelectionItem {
+  id: number;
+  offer_id: number;
+  comment: string | null;
+  added_at: string;
+  offer?: OfferListItem;
+}
+
+export interface SelectionDetail extends Selection {
+  items: SelectionItem[];
+}
+
+// Bookings
+export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+
+export interface Booking {
+  id: number;
+  offer_id: number;
+  client_name: string;
+  client_phone: string;
+  client_email: string | null;
+  comment: string | null;
+  status: BookingStatus;
+  created_at: string;
+  updated_at: string;
+  offer?: OfferListItem;
+}
+
+// Complex
+export interface Complex {
+  id: number;
+  name: string;
+  district: string | null;
+  address: string;
+  offers_count: number;
+  min_price: string;
+  max_price: string;
+  min_area: string;
+  max_area: string;
+  building_state: string | null;
+}
+
+export interface ComplexDetail extends Complex {
+  metro_station: string | null;
+  metro_distance: number | null;
+  developer_name: string | null;
+  description: string | null;
+  image_url: string | null;
+}

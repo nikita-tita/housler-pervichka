@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { OfferListItem } from '@/types';
 import { formatPrice, formatArea, formatRooms, formatFloor } from '@/services/api';
+import { FavoriteButton } from './FavoriteButton';
 
 interface OfferCardProps {
   offer: OfferListItem;
@@ -37,6 +38,11 @@ export function OfferCard({ offer }: OfferCardProps) {
               С отделкой
             </span>
           )}
+        </div>
+
+        {/* Favorite button */}
+        <div className="absolute top-3 right-3">
+          <FavoriteButton offerId={offer.id} size="sm" />
         </div>
       </div>
 

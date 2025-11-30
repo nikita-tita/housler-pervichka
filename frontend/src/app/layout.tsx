@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
+import { Providers } from "./providers";
+import { Header } from "@/components/Header";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -21,44 +22,9 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${inter.className} antialiased`}>
-        {/* Navigation */}
-        <nav className="py-8 border-b border-[var(--color-border)] bg-white">
-          <div className="container">
-            <div className="flex justify-between items-center">
-              <Link href="/" className="text-xl font-semibold tracking-tight">
-                HOUSLER
-              </Link>
-              <div className="hidden md:flex gap-10">
-                <Link
-                  href="/offers"
-                  className="text-[15px] font-medium transition-colors hover:text-[var(--color-text-light)]"
-                >
-                  Квартиры
-                </Link>
-                <Link
-                  href="/complexes"
-                  className="text-[15px] font-medium transition-colors hover:text-[var(--color-text-light)]"
-                >
-                  Жилые комплексы
-                </Link>
-                <Link
-                  href="/districts"
-                  className="text-[15px] font-medium transition-colors hover:text-[var(--color-text-light)]"
-                >
-                  Районы
-                </Link>
-              </div>
-              {/* Mobile menu button */}
-              <button className="md:hidden flex flex-col gap-1.5 p-2">
-                <span className="w-6 h-0.5 bg-[var(--color-text)]"></span>
-                <span className="w-6 h-0.5 bg-[var(--color-text)]"></span>
-                <span className="w-6 h-0.5 bg-[var(--color-text)]"></span>
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        <main className="min-h-[calc(100vh-200px)]">{children}</main>
+        <Providers>
+          <Header />
+          <main className="min-h-[calc(100vh-200px)]">{children}</main>
 
         {/* Footer */}
         <footer className="py-16 border-t border-[var(--color-border)]">
@@ -115,6 +81,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        </Providers>
       </body>
     </html>
   );

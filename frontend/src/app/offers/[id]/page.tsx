@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { api, formatPrice, formatArea, formatRooms, formatFloor } from '@/services/api';
+import { FavoriteButton } from '@/components/FavoriteButton';
+import { BookingForm } from '@/components/BookingForm';
+import { AddToSelectionButton } from '@/components/AddToSelectionButton';
 import type { OfferDetail } from '@/types';
 
 export default function OfferDetailPage() {
@@ -229,10 +232,14 @@ export default function OfferDetailPage() {
               </div>
             </div>
 
+            {/* Actions */}
+            <div className="flex gap-3 mb-6">
+              <FavoriteButton offerId={offer.id} size="lg" />
+              <AddToSelectionButton offerId={offer.id} />
+            </div>
+
             {/* CTA */}
-            <button className="btn btn-primary w-full btn-lg">
-              Оставить заявку
-            </button>
+            <BookingForm offerId={offer.id} complexName={offer.complex_name} />
           </div>
         </div>
 

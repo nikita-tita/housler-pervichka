@@ -1,0 +1,153 @@
+'use client';
+
+import { useState } from 'react';
+import { api } from '@/services/api';
+
+interface BookingFormProps {
+  offerId: number;
+  complexName: string;
+}
+
+export function BookingForm({ offerId, complexName }: BookingFormProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    clientName: '',
+    clientPhone: '',
+    clientEmail: '',
+    comment: '',
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const response = await api.createBooking({
+        offerId,
+        clientName: formData.clientName,
+        clientPhone: formData.clientPhone,
+        clientEmail: formData.clientEmail || undefined,
+        comment: formData.comment || undefined,
+      });
+
+      if (response.success) {
+        setIsSuccess(true);
+        setFormData({ clientName: '', clientPhone: '', clientEmail: '', comment: '' });
+      } else {
+        setError(response.error || 'Ошибка отправки заявки');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка отправки заявки');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isSuccess) {
+    return (
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+        <div className="text-green-600 text-lg font-medium mb-2">Заявка отправлена!</div>
+        <div className="text-sm text-green-700">
+          Мы свяжемся с вами в ближайшее время
+        </div>
+        <button
+          onClick={() => setIsSuccess(false)}
+          className="mt-4 text-sm text-green-600 hover:text-green-700"
+        >
+          Отправить ещё одну заявку
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-[var(--color-border)] rounded-lg">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+      >
+        <span className="font-medium">Оставить заявку на просмотр</span>
+        <svg
+          className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+          <div className="text-sm text-[var(--color-text-light)] mb-4">
+            Объект: {complexName}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Ваше имя *</label>
+            <input
+              type="text"
+              value={formData.clientName}
+              onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+              required
+              className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Телефон *</label>
+            <input
+              type="tel"
+              value={formData.clientPhone}
+              onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
+              placeholder="+7 (___) ___-__-__"
+              required
+              className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              type="email"
+              value={formData.clientEmail}
+              onChange={(e) => setFormData({ ...formData, clientEmail: e.target.value })}
+              className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Комментарий</label>
+            <textarea
+              value={formData.comment}
+              onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+              rows={3}
+              placeholder="Удобное время для связи, вопросы..."
+              className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] resize-none"
+            />
+          </div>
+
+          {error && (
+            <div className="text-red-600 text-sm">{error}</div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting || !formData.clientName || !formData.clientPhone}
+            className="w-full py-3 bg-[var(--color-text)] text-white font-medium rounded-lg hover:bg-[var(--color-text-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
+          </button>
+
+          <div className="text-xs text-[var(--color-text-light)] text-center">
+            Нажимая кнопку, вы соглашаетесь на обработку персональных данных
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}

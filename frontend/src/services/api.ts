@@ -6,22 +6,54 @@ import type {
   PaginatedResponse,
   FilterOptions,
   ApiResponse,
+  User,
+  FavoriteOffer,
+  Selection,
+  SelectionDetail,
+  Booking,
+  Complex,
+  ComplexDetail,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+// Token storage helpers
+const TOKEN_KEY = 'housler_token';
+
+export function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setStoredToken(token: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function removeStoredToken(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 class ApiService {
+  private getAuthHeaders(): Record<string, string> {
+    const token = getStoredToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   private async fetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
         ...options?.headers,
       },
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
+      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(error.error || `API Error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -86,6 +118,122 @@ class ApiService {
   // Filters
   async getFilters(): Promise<ApiResponse<FilterOptions>> {
     return this.fetch('/api/filters');
+  }
+
+  // ============ AUTH ============
+  async requestCode(email: string): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch('/api/auth/request-code', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async verifyCode(email: string, code: string): Promise<ApiResponse<{ user: User; token: string }>> {
+    return this.fetch('/api/auth/verify-code', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+  }
+
+  async getMe(): Promise<ApiResponse<User>> {
+    return this.fetch('/api/auth/me');
+  }
+
+  // ============ FAVORITES ============
+  async getFavorites(): Promise<ApiResponse<FavoriteOffer[]>> {
+    return this.fetch('/api/favorites');
+  }
+
+  async getFavoriteIds(): Promise<ApiResponse<number[]>> {
+    return this.fetch('/api/favorites/ids');
+  }
+
+  async addFavorite(offerId: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch('/api/favorites', {
+      method: 'POST',
+      body: JSON.stringify({ offerId }),
+    });
+  }
+
+  async removeFavorite(offerId: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/favorites/${offerId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ============ SELECTIONS ============
+  async getSelections(): Promise<ApiResponse<Selection[]>> {
+    return this.fetch('/api/selections');
+  }
+
+  async createSelection(data: {
+    name: string;
+    clientName?: string;
+    clientEmail?: string;
+  }): Promise<ApiResponse<Selection>> {
+    return this.fetch('/api/selections', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getSelection(id: number): Promise<ApiResponse<SelectionDetail>> {
+    return this.fetch(`/api/selections/${id}`);
+  }
+
+  async getSharedSelection(code: string): Promise<ApiResponse<SelectionDetail>> {
+    return this.fetch(`/api/selections/shared/${code}`);
+  }
+
+  async addSelectionItem(selectionId: number, offerId: number, comment?: string): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/selections/${selectionId}/items`, {
+      method: 'POST',
+      body: JSON.stringify({ offerId, comment }),
+    });
+  }
+
+  async removeSelectionItem(selectionId: number, offerId: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/selections/${selectionId}/items/${offerId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async deleteSelection(id: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/selections/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ============ BOOKINGS ============
+  async createBooking(data: {
+    offerId: number;
+    clientName: string;
+    clientPhone: string;
+    clientEmail?: string;
+    comment?: string;
+  }): Promise<ApiResponse<Booking>> {
+    return this.fetch('/api/bookings', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getMyBookings(): Promise<ApiResponse<Booking[]>> {
+    return this.fetch('/api/bookings');
+  }
+
+  // ============ COMPLEXES ============
+  async getComplexes(params?: { page?: number; limit?: number; search?: string }): Promise<ApiResponse<PaginatedResponse<Complex>>> {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.search) searchParams.set('search', params.search);
+    const query = searchParams.toString();
+    return this.fetch(`/api/complexes${query ? `?${query}` : ''}`);
+  }
+
+  async getComplexById(id: number): Promise<ApiResponse<ComplexDetail>> {
+    return this.fetch(`/api/complexes/${id}`);
   }
 }
 
