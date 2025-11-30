@@ -78,7 +78,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: https://agent.housler.ru/api
+        NEXT_PUBLIC_API_URL: https://agent.housler.ru
     container_name: agent-frontend
     restart: unless-stopped
     environment:
