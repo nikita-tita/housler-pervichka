@@ -109,17 +109,18 @@ export class OffersService {
         o.price,
         o.price_per_sqm,
         o.address,
-        d.name as district,
-        o.metro_name,
-        o.metro_time_on_foot,
-        o.building_name,
+        d.name as district_name,
+        o.metro_name as metro_station,
+        o.metro_time_on_foot as metro_distance,
+        o.building_name as complex_name,
         o.building_state,
         o.renovation,
+        CASE WHEN o.renovation IS NOT NULL AND o.renovation != '' THEN true ELSE false END as has_finishing,
         (
           SELECT url FROM images
           WHERE offer_id = o.id AND (tag = 'housemain' OR tag IS NULL)
           ORDER BY display_order LIMIT 1
-        ) as main_image
+        ) as image_url
       FROM offers o
       LEFT JOIN districts d ON o.district_id = d.id
       WHERE o.is_active = true ${conditions}
@@ -146,9 +147,9 @@ export class OffersService {
       data: dataResult.rows,
       pagination: {
         page: pagination.page,
-        perPage: pagination.perPage,
+        limit: pagination.perPage,
         total,
-        totalPages: Math.ceil(total / pagination.perPage)
+        total_pages: Math.ceil(total / pagination.perPage)
       }
     };
   }
