@@ -188,6 +188,7 @@ export class YandexFeedParser {
         this.currentOffer.address = text || null;
         break;
       case 'district':
+      case 'sub-locality-name':
         this.currentOffer.district = text || null;
         break;
       case 'latitude':
