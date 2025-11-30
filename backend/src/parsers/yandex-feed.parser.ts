@@ -9,13 +9,18 @@ interface SaxTag {
 
 export class YandexFeedParser {
   private currentOffer: Partial<ParsedOffer> | null = null;
-  private currentElement: string = '';
+  private elementStack: string[] = []; // Стек элементов для контекста
   private currentText: string = '';
   private currentImageTag: string | null = null;
   private offers: ParsedOffer[] = [];
   private errors: ParseError[] = [];
 
   async parse(filePath: string): Promise<ParseResult> {
+    // Сбрасываем состояние
+    this.offers = [];
+    this.errors = [];
+    this.elementStack = [];
+
     const startTime = Date.now();
 
     return new Promise((resolve, reject) => {
@@ -31,7 +36,6 @@ export class YandexFeedParser {
           field: 'xml',
           message: err.message,
         });
-        // Продолжаем парсинг
         parser.resume();
       });
 
@@ -49,13 +53,19 @@ export class YandexFeedParser {
     });
   }
 
+  private getParentElement(): string | null {
+    return this.elementStack.length > 1
+      ? this.elementStack[this.elementStack.length - 2]
+      : null;
+  }
+
   private onOpenTag(node: SaxTag): void {
-    this.currentElement = node.name;
+    this.elementStack.push(node.name);
     this.currentText = '';
 
     if (node.name === 'offer') {
       this.currentOffer = {
-        externalId: node.attributes['internal-id'] as string,
+        externalId: node.attributes['internal-id'],
         images: [],
         type: 'продажа',
         propertyType: 'жилая',
@@ -63,21 +73,52 @@ export class YandexFeedParser {
         currency: 'RUR',
         isStudio: false,
         mortgage: false,
+        rooms: 0,
+        areaTotal: 0,
+        floor: 1,
+        floorsTotal: 1,
+        price: 0,
+        latitude: 0,
+        longitude: 0,
       };
     }
 
     if (node.name === 'image' && this.currentOffer) {
-      this.currentImageTag = (node.attributes['tag'] as string) || null;
+      this.currentImageTag = node.attributes['tag'] || null;
     }
   }
 
   private onCloseTag(tagName: string): void {
+    const text = this.currentText.trim();
+    const parent = this.getParentElement();
+
+    this.elementStack.pop();
+
     if (!this.currentOffer) return;
 
-    const text = this.currentText.trim();
-
+    // Обрабатываем с учётом родительского элемента
     switch (tagName) {
-      // Основные поля
+      // Значения с родителем
+      case 'value':
+        if (parent === 'area') {
+          this.currentOffer.areaTotal = parseFloat(text) || 0;
+        } else if (parent === 'living-space') {
+          this.currentOffer.areaLiving = parseFloat(text) || null;
+        } else if (parent === 'kitchen-space') {
+          this.currentOffer.areaKitchen = parseFloat(text) || null;
+        } else if (parent === 'price') {
+          this.currentOffer.price = parseFloat(text) || 0;
+        }
+        break;
+
+      case 'name':
+        if (parent === 'metro') {
+          this.currentOffer.metroName = text || null;
+        }
+        // sales-agent/name игнорируем
+        break;
+
+      // Прямые поля (без вложенности)
       case 'type':
         this.currentOffer.type = text;
         break;
@@ -87,8 +128,6 @@ export class YandexFeedParser {
       case 'category':
         this.currentOffer.category = text;
         break;
-
-      // Характеристики
       case 'rooms':
         this.currentOffer.rooms = parseInt(text, 10) || 0;
         this.currentOffer.isStudio = this.currentOffer.rooms === 0;
@@ -116,22 +155,6 @@ export class YandexFeedParser {
         break;
       case 'ceiling-height':
         this.currentOffer.ceilingHeight = parseFloat(text) || null;
-        break;
-
-      // Площади (внутри <area>, <living-space>, <kitchen-space>)
-      case 'value':
-        if (this.currentElement === 'value') {
-          // Определяем родительский элемент по контексту
-          // Это упрощение — в реальности нужен стек элементов
-        }
-        break;
-      case 'area':
-        // Площадь приходит как вложенный <value>
-        break;
-
-      // Цена
-      case 'price':
-        // Цена тоже как вложенный <value>
         break;
       case 'mortgage':
         this.currentOffer.mortgage = text === 'true' || text === '1';
@@ -174,27 +197,36 @@ export class YandexFeedParser {
         this.currentOffer.longitude = parseFloat(text) || 0;
         break;
 
-      // Метро
-      case 'name':
-        // Может быть имя метро или имя агента
-        // Нужен стек для правильного определения
-        break;
+      // Метро (вложенные в metro)
       case 'time-on-foot':
-        this.currentOffer.metroTimeOnFoot = parseInt(text, 10) || null;
+        if (parent === 'metro') {
+          this.currentOffer.metroTimeOnFoot = parseInt(text, 10) || null;
+        }
         break;
       case 'time-on-transport':
-        this.currentOffer.metroTimeOnTransport = parseInt(text, 10) || null;
+        if (parent === 'metro') {
+          this.currentOffer.metroTimeOnTransport = parseInt(text, 10) || null;
+        }
         break;
 
-      // Контакты
+      // Контакты (вложенные в sales-agent)
       case 'phone':
-        this.currentOffer.salesAgentPhone = text || null;
+        if (parent === 'sales-agent') {
+          this.currentOffer.salesAgentPhone = text || null;
+        }
         break;
       case 'email':
-        this.currentOffer.salesAgentEmail = text?.trim() || null;
+        if (parent === 'sales-agent') {
+          this.currentOffer.salesAgentEmail = text?.trim() || null;
+        }
         break;
       case 'organization':
-        this.currentOffer.salesAgentOrganization = text || null;
+        if (parent === 'sales-agent') {
+          this.currentOffer.salesAgentOrganization = text || null;
+        }
+        break;
+      case 'sales-agent-category':
+        this.currentOffer.salesAgentCategory = text || null;
         break;
 
       // Описание
@@ -236,32 +268,27 @@ export class YandexFeedParser {
   }
 
   private validateOffer(offer: Partial<ParsedOffer>): boolean {
-    // Минимальная валидация
+    const errors: ParseError[] = [];
+
     if (!offer.externalId) {
-      this.errors.push({
-        offerId: null,
-        field: 'externalId',
-        message: 'Missing internal-id',
-      });
-      return false;
+      errors.push({ offerId: null, field: 'externalId', message: 'Missing internal-id' });
     }
-
     if (!offer.price || offer.price <= 0) {
-      // Попробуем извлечь цену из других полей
-      this.errors.push({
-        offerId: offer.externalId,
-        field: 'price',
-        message: 'Invalid or missing price',
+      errors.push({ offerId: offer.externalId || null, field: 'price', message: 'Invalid price' });
+    }
+    if (!offer.areaTotal || offer.areaTotal <= 0) {
+      errors.push({ offerId: offer.externalId || null, field: 'areaTotal', message: 'Invalid area' });
+    }
+    if (!offer.latitude || !offer.longitude) {
+      errors.push({
+        offerId: offer.externalId || null,
+        field: 'coordinates',
+        message: 'Missing coordinates',
       });
-      return false;
     }
 
-    if (!offer.areaTotal || offer.areaTotal <= 0) {
-      this.errors.push({
-        offerId: offer.externalId,
-        field: 'areaTotal',
-        message: 'Invalid or missing area',
-      });
+    if (errors.length > 0) {
+      this.errors.push(...errors);
       return false;
     }
 
