@@ -17,6 +17,8 @@ export interface OfferFilters {
   renovation?: string[];
   buildingState?: string[];
   search?: string;
+  isStudio?: boolean;
+  hasFinishing?: boolean;
 }
 
 export interface PaginationParams {
@@ -103,11 +105,11 @@ export class OffersService {
         o.is_studio,
         o.floor,
         o.floors_total,
-        o.area_total,
-        o.area_living,
-        o.area_kitchen,
-        o.price,
-        o.price_per_sqm,
+        o.area_total::float as area_total,
+        o.area_living::float as area_living,
+        o.area_kitchen::float as area_kitchen,
+        o.price::float as price,
+        o.price_per_sqm::float as price_per_sqm,
         o.address,
         d.name as district_name,
         o.metro_name as metro_station,
@@ -160,8 +162,45 @@ export class OffersService {
   async getOfferById(id: number): Promise<OfferDetail | null> {
     const query = `
       SELECT
-        o.*,
-        d.name as district
+        o.id,
+        o.external_id,
+        o.rooms,
+        o.is_studio,
+        o.floor,
+        o.floors_total,
+        o.area_total::float as area_total,
+        o.area_living::float as area_living,
+        o.area_kitchen::float as area_kitchen,
+        o.price::float as price,
+        o.price_per_sqm::float as price_per_sqm,
+        o.ceiling_height::float as ceiling_height,
+        o.balcony,
+        o.bathroom_unit as bathroom,
+        o.renovation,
+        CASE WHEN o.renovation IS NOT NULL AND o.renovation != '' THEN true ELSE false END as has_finishing,
+        o.building_name as complex_name,
+        o.address as complex_address,
+        d.name as district_name,
+        o.metro_name as metro_station,
+        o.metro_time_on_foot as metro_distance,
+        o.description,
+        o.latitude::float as latitude,
+        o.longitude::float as longitude,
+        o.building_state,
+        o.built_year,
+        o.ready_quarter,
+        CASE
+          WHEN o.building_state = 'hand-over' THEN 'Сдан'
+          WHEN o.ready_quarter IS NOT NULL AND o.built_year IS NOT NULL
+            THEN o.ready_quarter || ' кв. ' || o.built_year
+          WHEN o.built_year IS NOT NULL THEN o.built_year::text
+          ELSE NULL
+        END as completion_date,
+        o.agent_phone,
+        o.agent_email,
+        o.agent_organization as developer_name,
+        o.created_at,
+        o.updated_at
       FROM offers o
       LEFT JOIN districts d ON o.district_id = d.id
       WHERE o.id = $1 AND o.is_active = true
@@ -175,15 +214,15 @@ export class OffersService {
 
     const offer = result.rows[0];
 
-    // Получить изображения
+    // Получить изображения (как массив строк URL)
     const imagesResult = await pool.query(
-      'SELECT url, tag FROM images WHERE offer_id = $1 ORDER BY display_order',
+      'SELECT url FROM images WHERE offer_id = $1 ORDER BY display_order',
       [id]
     );
 
     return {
       ...offer,
-      images: imagesResult.rows
+      images: imagesResult.rows.map(row => row.url)
     };
   }
 
@@ -192,10 +231,11 @@ export class OffersService {
    */
   async getAvailableFilters(): Promise<{
     districts: { name: string; count: number }[];
-    metro: { name: string; count: number }[];
-    priceRange: { min: number; max: number };
-    areaRange: { min: number; max: number };
-    roomsCount: { rooms: number; count: number }[];
+    metro_stations: { name: string; count: number }[];
+    complexes: { name: string; count: number }[];
+    rooms: { value: number; count: number }[];
+    price_range: { min: number; max: number };
+    area_range: { min: number; max: number };
   }> {
     const [districts, metro, priceRange, areaRange, roomsCount] = await Promise.all([
       pool.query(`
@@ -228,7 +268,7 @@ export class OffersService {
         WHERE is_active = true
       `),
       pool.query(`
-        SELECT rooms, COUNT(*)::int as count
+        SELECT rooms as value, COUNT(*)::int as count
         FROM offers
         WHERE is_active = true
         GROUP BY rooms
@@ -238,10 +278,11 @@ export class OffersService {
 
     return {
       districts: districts.rows,
-      metro: metro.rows,
-      priceRange: priceRange.rows[0] || { min: 0, max: 0 },
-      areaRange: areaRange.rows[0] || { min: 0, max: 0 },
-      roomsCount: roomsCount.rows
+      metro_stations: metro.rows,
+      complexes: [],
+      rooms: roomsCount.rows,
+      price_range: priceRange.rows[0] || { min: 0, max: 0 },
+      area_range: areaRange.rows[0] || { min: 0, max: 0 }
     };
   }
 
@@ -349,6 +390,18 @@ export class OffersService {
       paramIndex++;
     }
 
+    // Студия
+    if (filters.isStudio !== undefined) {
+      conditions.push(`o.is_studio = $${paramIndex}`);
+      params.push(filters.isStudio);
+      paramIndex++;
+    }
+
+    // С отделкой
+    if (filters.hasFinishing !== undefined && filters.hasFinishing) {
+      conditions.push(`o.renovation IS NOT NULL AND o.renovation != ''`);
+    }
+
     return {
       conditions: conditions.length > 0 ? ' AND ' + conditions.join(' AND ') : '',
       params
@@ -365,9 +418,10 @@ export class OffersService {
       area: 'o.area_total',
       floor: 'o.floor',
       date: 'o.updated_at',
+      updated: 'o.updated_at',
       rooms: 'o.rooms'
     };
 
-    return allowedColumns[sortBy || 'date'] || 'o.updated_at';
+    return allowedColumns[sortBy || 'updated'] || 'o.updated_at';
   }
 }

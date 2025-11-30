@@ -21,18 +21,20 @@ export async function searchOffers(req: Request, res: Response): Promise<void> {
       notFirstFloor: req.query.not_first_floor === 'true',
       notLastFloor: req.query.not_last_floor === 'true',
       districts: parseStringArrayParam(req.query.districts),
-      metro: parseStringArrayParam(req.query.metro),
+      metro: parseStringArrayParam(req.query.metro) || parseStringArrayParam(req.query.metro_stations),
       metroTimeMax: parseNumberParam(req.query.metro_time_max),
       complexId: parseNumberParam(req.query.complex_id),
       renovation: parseStringArrayParam(req.query.renovation),
       buildingState: parseStringArrayParam(req.query.building_state),
-      search: req.query.search as string | undefined
+      search: req.query.search as string | undefined,
+      isStudio: req.query.is_studio === 'true' ? true : (req.query.is_studio === 'false' ? false : undefined),
+      hasFinishing: req.query.has_finishing === 'true' ? true : undefined
     };
 
-    // Пагинация
+    // Пагинация (поддержка limit как альтернативы per_page)
     const pagination: PaginationParams = {
       page: Math.max(1, parseNumberParam(req.query.page) || 1),
-      perPage: Math.min(100, Math.max(1, parseNumberParam(req.query.per_page) || 20)),
+      perPage: Math.min(100, Math.max(1, parseNumberParam(req.query.per_page) || parseNumberParam(req.query.limit) || 20)),
       sortBy: req.query.sort_by as string | undefined,
       sortOrder: (req.query.sort_order as 'asc' | 'desc') || 'desc'
     };
