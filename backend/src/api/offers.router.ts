@@ -168,4 +168,76 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/v1/offers/:id — детали объявления
+router.get('/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ success: false, error: 'Invalid ID' });
+      return;
+    }
+
+    const result = await db.query(
+      `
+      SELECT
+        o.*,
+        c.name as complex_name,
+        c.address as complex_address,
+        d.name as district_name,
+        dev.name as developer_name
+      FROM offers o
+      LEFT JOIN complexes c ON o.complex_id = c.id
+      LEFT JOIN districts d ON o.district_id = d.id
+      LEFT JOIN developers dev ON c.developer_id = dev.id
+      WHERE o.id = $1 AND o.is_active = true
+    `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ success: false, error: 'Offer not found' });
+      return;
+    }
+
+    const offer = result.rows[0];
+
+    // Получаем все изображения
+    const imagesResult = await db.query(
+      `
+      SELECT url, tag, display_order
+      FROM images
+      WHERE offer_id = $1
+      ORDER BY display_order ASC
+    `,
+      [id]
+    );
+
+    // Получаем метро
+    const metroResult = await db.query(
+      `
+      SELECT
+        ms.name,
+        ms.line,
+        o.metro_time_on_foot
+      FROM metro_stations ms
+      JOIN offers o ON o.metro_station_id = ms.id
+      WHERE o.id = $1
+    `,
+      [id]
+    );
+
+    res.json({
+      success: true,
+      data: {
+        ...offer,
+        images: imagesResult.rows,
+        metro: metroResult.rows,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching offer:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
 export default router;
