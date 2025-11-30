@@ -60,9 +60,9 @@ function OffersContent() {
     loadOffers();
   }, [loadOffers]);
 
-  const handleFiltersChange = (filters: OfferFilters) => {
+  const handleFiltersChange = useCallback((filters: OfferFilters) => {
     setCurrentFilters(filters);
-  };
+  }, []);
 
   return (
     <div className="section">

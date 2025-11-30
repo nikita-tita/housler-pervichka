@@ -64,7 +64,8 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
-  }, [searchParams, onFiltersChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Update URL with new filters
   const applyFilters = (newFilters: OfferFilters) => {
