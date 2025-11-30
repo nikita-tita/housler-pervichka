@@ -1,6 +1,7 @@
 # Примеры API запросов агрегатора недвижимости
 
 ## Базовый URL
+
 ```
 https://api.housler.ru/v1
 ```
@@ -12,16 +13,19 @@ https://api.housler.ru/v1
 ### 1.1 Базовый поиск
 
 **Запрос:**
+
 ```http
 GET /api/offers?rooms[]=1&rooms[]=2&price_max=15000000&district=Василеостровский
 ```
 
 **Параметры:**
+
 - `rooms[]` - массив количества комнат
 - `price_max` - максимальная цена в рублях
 - `district` - название района
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -112,6 +116,7 @@ GET /api/offers?rooms[]=1&rooms[]=2&price_max=15000000&district=Василеос
 ### 1.2 Расширенный поиск с множественными фильтрами
 
 **Запрос:**
+
 ```http
 GET /api/offers?rooms[]=2&rooms[]=3
   &price_min=10000000&price_max=20000000
@@ -132,6 +137,7 @@ GET /api/offers?rooms[]=2&rooms[]=3
 ```
 
 **Параметры:**
+
 - `price_min`, `price_max` - диапазон цены
 - `area_min`, `area_max` - диапазон площади
 - `floor_min`, `floor_max` - диапазон этажей
@@ -148,6 +154,7 @@ GET /api/offers?rooms[]=2&rooms[]=3
 ### 1.3 Поиск только студий
 
 **Запрос:**
+
 ```http
 GET /api/offers?studio=true&price_max=10000000&sort=price_asc
 ```
@@ -155,6 +162,7 @@ GET /api/offers?studio=true&price_max=10000000&sort=price_asc
 ### 1.4 Поиск в конкретном ЖК
 
 **Запрос:**
+
 ```http
 GET /api/offers?complex_id=47106&sort=floor_asc
 ```
@@ -162,16 +170,19 @@ GET /api/offers?complex_id=47106&sort=floor_asc
 ### 1.5 Геопоиск (в радиусе от точки)
 
 **Запрос:**
+
 ```http
 GET /api/offers/nearby?lat=59.9382061026&lng=30.2486448592&radius=1000&limit=20
 ```
 
 **Параметры:**
+
 - `lat`, `lng` - координаты центра
 - `radius` - радиус в метрах
 - `limit` - максимальное количество результатов
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -204,11 +215,13 @@ GET /api/offers/nearby?lat=59.9382061026&lng=30.2486448592&radius=1000&limit=20
 ### 2.1 Получить полную информацию
 
 **Запрос:**
+
 ```http
 GET /api/offers/1458634
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -369,11 +382,13 @@ GET /api/offers/1458634
 ### 3.1 Список ЖК
 
 **Запрос:**
+
 ```http
 GET /api/complexes?district=Василеостровский&building_state=hand-over&sort=offers_count_desc
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -429,11 +444,13 @@ GET /api/complexes?district=Василеостровский&building_state=hand
 ### 3.2 Детали ЖК
 
 **Запрос:**
+
 ```http
 GET /api/complexes/47106
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -469,18 +486,12 @@ GET /api/complexes/47106
 
     "infrastructure": {
       "schools": [
-        {"name": "Школа №4", "distance": 450},
-        {"name": "Гимназия №11", "distance": 650}
+        { "name": "Школа №4", "distance": 450 },
+        { "name": "Гимназия №11", "distance": 650 }
       ],
-      "kindergartens": [
-        {"name": "Детский сад №34", "distance": 320}
-      ],
-      "shops": [
-        {"name": "Перекресток", "distance": 200}
-      ],
-      "parks": [
-        {"name": "Сад Василеостровец", "distance": 350}
-      ]
+      "kindergartens": [{ "name": "Детский сад №34", "distance": 320 }],
+      "shops": [{ "name": "Перекресток", "distance": 200 }],
+      "parks": [{ "name": "Сад Василеостровец", "distance": 350 }]
     },
 
     "buildings": [
@@ -561,6 +572,7 @@ GET /api/complexes/47106
 ### 3.3 Доступные квартиры в ЖК
 
 **Запрос:**
+
 ```http
 GET /api/complexes/47106/offers?rooms=2&building_id=47105&sort=price_asc
 ```
@@ -572,11 +584,13 @@ GET /api/complexes/47106/offers?rooms=2&building_id=47105&sort=price_asc
 ### 4.1 Обзор рынка
 
 **Запрос:**
+
 ```http
 GET /api/analytics/market-overview
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -658,11 +672,13 @@ GET /api/analytics/market-overview
 ### 4.2 Статистика по району
 
 **Запрос:**
+
 ```http
 GET /api/analytics/districts/Василеостровский
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -695,11 +711,13 @@ GET /api/analytics/districts/Василеостровский
 ### 4.3 Динамика цен
 
 **Запрос:**
+
 ```http
 GET /api/analytics/price-trends?district=Василеостровский&rooms=2&period=year
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -740,6 +758,7 @@ GET /api/analytics/price-trends?district=Василеостровский&rooms=
 ### 5.1 Добавить в избранное
 
 **Запрос:**
+
 ```http
 POST /api/favorites
 Content-Type: application/json
@@ -753,6 +772,7 @@ Authorization: Bearer {token}
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -770,6 +790,7 @@ Authorization: Bearer {token}
 ### 5.2 Список избранного
 
 **Запрос:**
+
 ```http
 GET /api/favorites
 Authorization: Bearer {token}
@@ -778,6 +799,7 @@ Authorization: Bearer {token}
 ### 5.3 Сохранить поиск
 
 **Запрос:**
+
 ```http
 POST /api/saved-searches
 Content-Type: application/json
@@ -799,6 +821,7 @@ Authorization: Bearer {token}
 ### 5.4 Создать сравнение
 
 **Запрос:**
+
 ```http
 POST /api/comparisons
 Content-Type: application/json
@@ -811,6 +834,7 @@ Authorization: Bearer {token}
 ```
 
 **Ответ с детальным сравнением:**
+
 ```json
 {
   "success": true,
@@ -868,6 +892,7 @@ Authorization: Bearer {token}
 ### 6.1 Ипотечный калькулятор
 
 **Запрос:**
+
 ```http
 POST /api/calculators/mortgage
 Content-Type: application/json
@@ -881,6 +906,7 @@ Content-Type: application/json
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
@@ -910,30 +936,32 @@ Content-Type: application/json
 ### 7.1 Доступные значения фильтров
 
 **Запрос:**
+
 ```http
 GET /api/filters
 ```
 
 **Ответ:**
+
 ```json
 {
   "success": true,
   "data": {
     "districts": [
-      {"value": "Василеостровский", "count": 489},
-      {"value": "Невский", "count": 940},
-      {"value": "Приморский", "count": 710}
+      { "value": "Василеостровский", "count": 489 },
+      { "value": "Невский", "count": 940 },
+      { "value": "Приморский", "count": 710 }
     ],
     "metro_stations": [
-      {"value": "Горный Институт", "line": "Фрунзенско-Приморская", "count": 125}
+      { "value": "Горный Институт", "line": "Фрунзенско-Приморская", "count": 125 }
     ],
     "building_types": [
-      {"value": "кирпично-монолитный", "count": 7051},
-      {"value": "монолитный", "count": 2040}
+      { "value": "кирпично-монолитный", "count": 7051 },
+      { "value": "монолитный", "count": 2040 }
     ],
     "renovation_types": [
-      {"value": "Подготовка под чистовую отделку", "count": 3637},
-      {"value": "Отделка \"под ключ\"", "count": 3307}
+      { "value": "Подготовка под чистовую отделку", "count": 3637 },
+      { "value": "Отделка \"под ключ\"", "count": 3307 }
     ],
     "price_range": {
       "min": 3000000,
@@ -954,6 +982,7 @@ GET /api/filters
 ### 8.1 Подписаться на новые объявления
 
 **Запрос:**
+
 ```http
 POST /api/subscriptions
 Content-Type: application/json
@@ -969,6 +998,7 @@ Authorization: Bearer {token}
 ### 8.2 Уведомления об изменении цены
 
 **Webhook callback:**
+
 ```json
 {
   "type": "price_change",
@@ -999,6 +1029,7 @@ Authorization: Bearer {token}
 ```
 
 **Коды ошибок:**
+
 - `400` - Некорректный запрос
 - `401` - Требуется авторизация
 - `403` - Доступ запрещен
