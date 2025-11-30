@@ -44,6 +44,7 @@ export interface OfferFilters {
   metro_stations?: string[];
   has_finishing?: boolean;
   complexes?: string[];
+  complex_id?: number;
 }
 
 export interface PaginationParams {

@@ -89,6 +89,9 @@ class ApiService {
       if (filters.complexes?.length) {
         filters.complexes.forEach(c => params.append('complexes', c));
       }
+      if (filters.complex_id) {
+        params.set('complex_id', filters.complex_id.toString());
+      }
     }
 
     if (pagination) {

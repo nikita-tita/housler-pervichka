@@ -34,7 +34,7 @@ export default function ComplexDetailPage() {
     if (!complex) return;
 
     setOffersLoading(true);
-    api.getOffers({ complexes: [complex.name] }, { page, limit: 12 })
+    api.getOffers({ complex_id: complex.id }, { page, limit: 12 })
       .then(res => {
         if (res.success && res.data) {
           setOffers(res.data.data);
