@@ -1,26 +1,66 @@
-import { api, formatPrice, formatArea, formatRooms } from '@/services/api';
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { api, formatPrice, formatArea, formatRooms } from '@/services/api';
+import { useClientSelection } from '@/contexts/ClientSelectionContext';
+import { AddToClientSelectionButton } from '@/components/AddToClientSelectionButton';
 import type { SelectionDetail } from '@/types';
 
-interface Props {
-  params: Promise<{ code: string }>;
-}
+export default function SharedSelectionPage() {
+  const params = useParams();
+  const code = params.code as string;
 
-export default async function SharedSelectionPage({ params }: Props) {
-  const { code } = await params;
+  const { setActiveSelectionCode, activeSelectionCode } = useClientSelection();
+  const [selection, setSelection] = useState<SelectionDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  let selection: SelectionDetail | null = null;
-  let error: string | null = null;
-
-  try {
-    const response = await api.getSharedSelection(code);
-    if (response.success && response.data) {
-      selection = response.data;
-    } else {
-      error = response.error || 'Подборка не найдена';
+  // Активируем подборку при загрузке страницы
+  useEffect(() => {
+    if (code && code !== activeSelectionCode) {
+      setActiveSelectionCode(code);
     }
-  } catch (e) {
-    error = 'Ошибка загрузки подборки';
+  }, [code, activeSelectionCode, setActiveSelectionCode]);
+
+  // Загружаем данные подборки
+  useEffect(() => {
+    if (!code) return;
+
+    const loadSelection = async () => {
+      setIsLoading(true);
+      try {
+        const response = await api.getSharedSelection(code);
+        if (response.success && response.data) {
+          setSelection(response.data);
+        } else {
+          setError(response.error || 'Подборка не найдена');
+        }
+      } catch {
+        setError('Ошибка загрузки подборки');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSelection();
+  }, [code]);
+
+  if (isLoading) {
+    return (
+      <div className="container py-12">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/4 mx-auto mb-8"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-80 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error || !selection) {
@@ -42,7 +82,8 @@ export default async function SharedSelectionPage({ params }: Props) {
 
   return (
     <div className="container py-12">
-      <div className="text-center mb-12">
+      {/* Header */}
+      <div className="text-center mb-8">
         <h1 className="text-3xl font-semibold mb-3">{selection.name}</h1>
         {selection.client_name && (
           <p className="text-lg text-[var(--color-text-light)]">
@@ -54,66 +95,110 @@ export default async function SharedSelectionPage({ params }: Props) {
         </p>
       </div>
 
+      {/* CTA: Search more */}
+      <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-lg text-center">
+        <p className="text-sm text-blue-800 mb-3">
+          Хотите найти ещё варианты? Ищите по всей базе и добавляйте в эту подборку!
+        </p>
+        <Link
+          href="/offers"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Искать квартиры
+        </Link>
+      </div>
+
+      {/* Items */}
       {selection.items.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 rounded-lg">
-          <div className="text-[var(--color-text-light)]">
+          <div className="text-[var(--color-text-light)] mb-4">
             В подборке пока нет объектов
           </div>
+          <Link
+            href="/offers"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+          >
+            Найти квартиры
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {selection.items.map((item) => (
-            <Link
+            <div
               key={item.id}
-              href={`/offers/${item.offer_id}`}
-              className="bg-white rounded-lg overflow-hidden border border-[var(--color-border)] hover:shadow-lg transition-shadow"
+              className="bg-white rounded-lg overflow-hidden border border-[var(--color-border)] hover:shadow-lg transition-shadow relative"
             >
-              <div className="aspect-[4/3] bg-gray-100">
-                {item.offer?.image_url ? (
-                  <img
-                    src={item.offer.image_url}
-                    alt={item.offer.complex_name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    Нет фото
-                  </div>
-                )}
+              {/* Added by badge */}
+              {item.added_by === 'client' && (
+                <div className="absolute top-3 left-3 z-10 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                  Вы добавили
+                </div>
+              )}
+
+              {/* Selection button */}
+              <div className="absolute top-3 right-3 z-10">
+                <AddToClientSelectionButton offerId={item.offer_id} size="sm" />
               </div>
 
-              <div className="p-4">
-                {item.offer && (
-                  <>
-                    <div className="text-lg font-semibold mb-1">
-                      {formatPrice(item.offer.price)}
+              <Link href={`/offers/${item.offer_id}`}>
+                <div className="aspect-[4/3] bg-gray-100">
+                  {item.main_image ? (
+                    <img
+                      src={item.main_image}
+                      alt={item.building_name || 'Квартира'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      Нет фото
                     </div>
-                    <div className="text-sm text-[var(--color-text-light)] mb-2">
-                      {formatRooms(item.offer.rooms, item.offer.is_studio)} · {formatArea(item.offer.area_total)} · {item.offer.floor}/{item.offer.floors_total} эт.
-                    </div>
-                    <div className="text-sm font-medium">{item.offer.complex_name}</div>
-                    {item.offer.district_name && (
-                      <div className="text-sm text-[var(--color-text-light)]">
-                        {item.offer.district_name}
-                      </div>
-                    )}
-                  </>
-                )}
-                {item.comment && (
-                  <div className="mt-3 p-2 bg-gray-50 rounded text-sm text-[var(--color-text-light)] italic">
-                    Комментарий агента: {item.comment}
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <div className="text-lg font-semibold mb-1">
+                    {formatPrice(item.price)}
                   </div>
-                )}
-              </div>
-            </Link>
+                  <div className="text-sm text-[var(--color-text-light)] mb-2">
+                    {formatRooms(item.rooms, item.is_studio)} · {formatArea(item.area_total)} · {item.floor}/{item.floors_total} эт.
+                  </div>
+                  <div className="text-sm font-medium">{item.building_name}</div>
+                  {item.district && (
+                    <div className="text-sm text-[var(--color-text-light)]">
+                      {item.district}
+                      {item.metro_name && ` · м. ${item.metro_name}`}
+                    </div>
+                  )}
+
+                  {item.comment && (
+                    <div className="mt-3 p-2 bg-gray-50 rounded text-sm text-[var(--color-text-light)] italic">
+                      Комментарий: {item.comment}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       )}
 
+      {/* Footer */}
       <div className="mt-12 text-center">
         <p className="text-sm text-[var(--color-text-light)] mb-4">
           Понравился объект? Свяжитесь с агентом для получения дополнительной информации
         </p>
+        <Link
+          href="/offers"
+          className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:underline"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Искать ещё квартиры
+        </Link>
       </div>
     </div>
   );

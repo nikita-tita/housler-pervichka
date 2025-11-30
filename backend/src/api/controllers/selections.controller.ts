@@ -242,3 +242,114 @@ export async function removeSelectionItem(req: Request, res: Response) {
     res.status(500).json({ success: false, error: 'Ошибка при удалении объекта' });
   }
 }
+
+/**
+ * POST /api/selections/shared/:code/items - Клиент добавляет объект в подборку
+ */
+export async function addSharedSelectionItem(req: Request, res: Response) {
+  try {
+    const { code } = req.params;
+    const { offerId, comment, clientId } = req.body;
+
+    if (!code || !offerId) {
+      return res.status(400).json({ success: false, error: 'Код и offerId обязательны' });
+    }
+
+    // clientId - идентификатор клиента (генерируется на фронте, хранится в localStorage)
+    const clientIdentifier = clientId || req.ip || 'anonymous';
+
+    const result = await selectionsService.addItemByClient(code, offerId, clientIdentifier, comment);
+
+    if (!result.success) {
+      return res.status(404).json({ success: false, error: result.error });
+    }
+
+    res.json({
+      success: true,
+      message: 'Объект добавлен в подборку'
+    });
+  } catch (error) {
+    console.error('Error in addSharedSelectionItem:', error);
+    res.status(500).json({ success: false, error: 'Ошибка при добавлении объекта' });
+  }
+}
+
+/**
+ * DELETE /api/selections/shared/:code/items/:offerId - Клиент удаляет объект из подборки
+ */
+export async function removeSharedSelectionItem(req: Request, res: Response) {
+  try {
+    const { code, offerId } = req.params;
+    const { clientId } = req.body;
+
+    if (!code || !offerId) {
+      return res.status(400).json({ success: false, error: 'Некорректные параметры' });
+    }
+
+    const clientIdentifier = clientId || req.ip || 'anonymous';
+
+    const result = await selectionsService.removeItemByClient(code, parseInt(offerId), clientIdentifier);
+
+    if (!result.success) {
+      return res.status(400).json({ success: false, error: result.error });
+    }
+
+    res.json({
+      success: true,
+      message: 'Объект удалён из подборки'
+    });
+  } catch (error) {
+    console.error('Error in removeSharedSelectionItem:', error);
+    res.status(500).json({ success: false, error: 'Ошибка при удалении объекта' });
+  }
+}
+
+/**
+ * POST /api/selections/shared/:code/view - Записать просмотр подборки
+ */
+export async function recordSharedSelectionView(req: Request, res: Response) {
+  try {
+    const { code } = req.params;
+    const { clientId } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ success: false, error: 'Код обязателен' });
+    }
+
+    const clientIdentifier = clientId || req.ip || 'anonymous';
+
+    await selectionsService.recordView(code, clientIdentifier);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error in recordSharedSelectionView:', error);
+    res.status(500).json({ success: false, error: 'Ошибка' });
+  }
+}
+
+/**
+ * GET /api/selections/:id/activity - Лог действий подборки (для агента)
+ */
+export async function getSelectionActivity(req: Request, res: Response) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Не авторизован' });
+    }
+
+    const id = parseInt(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ success: false, error: 'Некорректный ID' });
+    }
+
+    const activity = await selectionsService.getActivityLog(id, req.user.id);
+
+    res.json({
+      success: true,
+      data: activity
+    });
+  } catch (error) {
+    console.error('Error in getSelectionActivity:', error);
+    res.status(500).json({ success: false, error: 'Ошибка при получении активности' });
+  }
+}

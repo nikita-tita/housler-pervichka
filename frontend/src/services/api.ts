@@ -200,6 +200,30 @@ class ApiService {
     return this.fetch(`/api/selections/shared/${code}`);
   }
 
+  // Клиент добавляет объект в подборку по share_code
+  async addToSharedSelection(code: string, offerId: number, clientId: string, comment?: string): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/selections/shared/${code}/items`, {
+      method: 'POST',
+      body: JSON.stringify({ offerId, clientId, comment }),
+    });
+  }
+
+  // Клиент удаляет объект из подборки
+  async removeFromSharedSelection(code: string, offerId: number, clientId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/selections/shared/${code}/items/${offerId}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ clientId }),
+    });
+  }
+
+  // Записать просмотр подборки
+  async recordSelectionView(code: string, clientId: string): Promise<ApiResponse<{ success: boolean }>> {
+    return this.fetch(`/api/selections/shared/${code}/view`, {
+      method: 'POST',
+      body: JSON.stringify({ clientId }),
+    });
+  }
+
   async addSelectionItem(selectionId: number, offerId: number, comment?: string): Promise<ApiResponse<{ message: string }>> {
     return this.fetch(`/api/selections/${selectionId}/items`, {
       method: 'POST',

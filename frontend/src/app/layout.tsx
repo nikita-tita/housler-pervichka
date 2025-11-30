@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
+import { CompareFloatingBar } from "@/components/CompareFloatingBar";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -25,6 +26,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           <main className="min-h-[calc(100vh-200px)]">{children}</main>
+          <CompareFloatingBar />
 
         {/* Footer */}
         <footer className="py-16 border-t border-[var(--color-border)]">

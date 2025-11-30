@@ -183,6 +183,7 @@ export class SelectionsService {
           ORDER BY display_order LIMIT 1
         ) as main_image,
         si.comment,
+        si.added_by,
         si.created_at as added_at
       FROM selection_items si
       JOIN offers o ON si.offer_id = o.id
@@ -344,5 +345,169 @@ export class SelectionsService {
     `, [selectionId, agentId]);
 
     return (result.rowCount || 0) > 0;
+  }
+
+  /**
+   * Добавить объект в подборку КЛИЕНТОМ (по share_code)
+   */
+  async addItemByClient(shareCode: string, offerId: number, clientIdentifier: string, comment?: string): Promise<{ success: boolean; error?: string }> {
+    // Находим подборку по share_code
+    const selectionResult = await pool.query(
+      'SELECT id FROM selections WHERE share_code = $1',
+      [shareCode]
+    );
+
+    if (selectionResult.rows.length === 0) {
+      return { success: false, error: 'Подборка не найдена' };
+    }
+
+    const selectionId = selectionResult.rows[0].id;
+
+    // Проверяем существование объявления
+    const offerExists = await pool.query(
+      'SELECT id FROM offers WHERE id = $1 AND is_active = true',
+      [offerId]
+    );
+
+    if (offerExists.rows.length === 0) {
+      return { success: false, error: 'Объявление не найдено' };
+    }
+
+    try {
+      // Получаем максимальный order
+      const maxOrder = await pool.query(
+        'SELECT COALESCE(MAX(display_order), 0) as max_order FROM selection_items WHERE selection_id = $1',
+        [selectionId]
+      );
+
+      // Добавляем объект с пометкой что добавил клиент
+      await pool.query(`
+        INSERT INTO selection_items (selection_id, offer_id, comment, display_order, added_by, client_identifier)
+        VALUES ($1, $2, $3, $4, 'client', $5)
+        ON CONFLICT (selection_id, offer_id) DO UPDATE SET
+          comment = COALESCE(EXCLUDED.comment, selection_items.comment)
+      `, [selectionId, offerId, comment || null, maxOrder.rows[0].max_order + 1, clientIdentifier]);
+
+      // Логируем действие
+      await this.logActivity(selectionId, 'item_added', offerId, 'client', clientIdentifier, { comment });
+
+      // Обновляем updated_at подборки
+      await pool.query(
+        'UPDATE selections SET updated_at = NOW() WHERE id = $1',
+        [selectionId]
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding selection item by client:', error);
+      return { success: false, error: 'Ошибка при добавлении объекта' };
+    }
+  }
+
+  /**
+   * Удалить объект из подборки КЛИЕНТОМ (только то что сам добавил)
+   */
+  async removeItemByClient(shareCode: string, offerId: number, clientIdentifier: string): Promise<{ success: boolean; error?: string }> {
+    const selectionResult = await pool.query(
+      'SELECT id FROM selections WHERE share_code = $1',
+      [shareCode]
+    );
+
+    if (selectionResult.rows.length === 0) {
+      return { success: false, error: 'Подборка не найдена' };
+    }
+
+    const selectionId = selectionResult.rows[0].id;
+
+    // Удаляем только если клиент сам добавил
+    const result = await pool.query(`
+      DELETE FROM selection_items
+      WHERE selection_id = $1 AND offer_id = $2 AND added_by = 'client' AND client_identifier = $3
+    `, [selectionId, offerId, clientIdentifier]);
+
+    if ((result.rowCount || 0) > 0) {
+      await this.logActivity(selectionId, 'item_removed', offerId, 'client', clientIdentifier);
+      await pool.query('UPDATE selections SET updated_at = NOW() WHERE id = $1', [selectionId]);
+      return { success: true };
+    }
+
+    return { success: false, error: 'Объект не найден или вы не можете его удалить' };
+  }
+
+  /**
+   * Логирование действия в подборке
+   */
+  private async logActivity(
+    selectionId: number,
+    action: string,
+    offerId: number | null,
+    actorType: 'agent' | 'client',
+    actorIdentifier: string,
+    metadata?: object
+  ): Promise<void> {
+    try {
+      await pool.query(`
+        INSERT INTO selection_activity_log (selection_id, action, offer_id, actor_type, actor_identifier, metadata)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [selectionId, action, offerId, actorType, actorIdentifier, metadata ? JSON.stringify(metadata) : null]);
+    } catch (error) {
+      console.error('Error logging selection activity:', error);
+      // Не бросаем ошибку, логирование не должно ломать основной функционал
+    }
+  }
+
+  /**
+   * Записать просмотр подборки
+   */
+  async recordView(shareCode: string, clientIdentifier: string): Promise<void> {
+    try {
+      const result = await pool.query(`
+        UPDATE selections
+        SET view_count = view_count + 1, last_viewed_at = NOW()
+        WHERE share_code = $1
+        RETURNING id
+      `, [shareCode]);
+
+      if (result.rows.length > 0) {
+        await this.logActivity(result.rows[0].id, 'viewed', null, 'client', clientIdentifier);
+      }
+    } catch (error) {
+      console.error('Error recording view:', error);
+    }
+  }
+
+  /**
+   * Получить лог действий подборки (для агента)
+   */
+  async getActivityLog(selectionId: number, agentId: number, limit = 50): Promise<any[]> {
+    // Проверяем владельца
+    const ownerCheck = await pool.query(
+      'SELECT id FROM selections WHERE id = $1 AND agent_id = $2',
+      [selectionId, agentId]
+    );
+
+    if (ownerCheck.rows.length === 0) {
+      return [];
+    }
+
+    const result = await pool.query(`
+      SELECT
+        sal.id,
+        sal.action,
+        sal.offer_id,
+        sal.actor_type,
+        sal.metadata,
+        sal.created_at,
+        o.building_name as offer_name,
+        o.rooms,
+        o.price
+      FROM selection_activity_log sal
+      LEFT JOIN offers o ON sal.offer_id = o.id
+      WHERE sal.selection_id = $1
+      ORDER BY sal.created_at DESC
+      LIMIT $2
+    `, [selectionId, limit]);
+
+    return result.rows;
   }
 }

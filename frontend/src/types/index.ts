@@ -121,6 +121,19 @@ export interface SelectionItem {
   offer_id: number;
   comment: string | null;
   added_at: string;
+  added_by?: 'agent' | 'client';
+  // Inline offer data from backend
+  rooms: number | null;
+  is_studio: boolean;
+  floor: number;
+  floors_total: number;
+  area_total: number;
+  price: number;
+  price_per_sqm: number;
+  building_name: string | null;
+  district: string | null;
+  metro_name: string | null;
+  main_image: string | null;
   offer?: OfferListItem;
 }
 

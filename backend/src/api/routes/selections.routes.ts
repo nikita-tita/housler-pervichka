@@ -7,16 +7,32 @@ import {
   updateSelection,
   deleteSelection,
   addSelectionItem,
-  removeSelectionItem
+  removeSelectionItem,
+  addSharedSelectionItem,
+  removeSharedSelectionItem,
+  recordSharedSelectionView,
+  getSelectionActivity
 } from '../controllers/selections.controller';
 import { requireAuthWithUser, requireAgent } from '../../middleware/auth.middleware';
 
 const router = Router();
 
-// Публичный роут для просмотра по коду (без авторизации)
+// ============ ПУБЛИЧНЫЕ РОУТЫ (для клиентов по share_code) ============
+
+// GET /api/selections/shared/:code - Просмотр подборки по коду
 router.get('/shared/:code', getSharedSelection);
 
-// Остальные роуты требуют авторизации агента
+// POST /api/selections/shared/:code/items - Клиент добавляет объект
+router.post('/shared/:code/items', addSharedSelectionItem);
+
+// DELETE /api/selections/shared/:code/items/:offerId - Клиент удаляет объект
+router.delete('/shared/:code/items/:offerId', removeSharedSelectionItem);
+
+// POST /api/selections/shared/:code/view - Записать просмотр
+router.post('/shared/:code/view', recordSharedSelectionView);
+
+// ============ ЗАЩИЩЁННЫЕ РОУТЫ (для агентов) ============
+
 router.use(requireAuthWithUser);
 router.use(requireAgent);
 
@@ -28,6 +44,9 @@ router.post('/', createSelection);
 
 // GET /api/selections/:id - Получить
 router.get('/:id', getSelection);
+
+// GET /api/selections/:id/activity - Лог действий
+router.get('/:id/activity', getSelectionActivity);
 
 // PATCH /api/selections/:id - Обновить
 router.patch('/:id', updateSelection);
