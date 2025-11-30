@@ -121,6 +121,10 @@ class ApiService {
     return this.fetch(`/api/offers/${id}`);
   }
 
+  async getPriceHistory(offerId: number): Promise<ApiResponse<{ price: number; price_per_sqm: number | null; recorded_at: string }[]>> {
+    return this.fetch(`/api/offers/${offerId}/price-history`);
+  }
+
   // Filters
   async getFilters(): Promise<ApiResponse<FilterOptions>> {
     return this.fetch('/api/filters');

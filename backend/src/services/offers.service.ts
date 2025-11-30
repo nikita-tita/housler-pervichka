@@ -227,6 +227,23 @@ export class OffersService {
   }
 
   /**
+   * Получить историю цен для объявления
+   */
+  async getPriceHistory(offerId: number): Promise<{ price: number; price_per_sqm: number | null; recorded_at: string }[]> {
+    const result = await pool.query(`
+      SELECT
+        price::float as price,
+        price_per_sqm::float as price_per_sqm,
+        recorded_at
+      FROM price_history
+      WHERE offer_id = $1
+      ORDER BY recorded_at ASC
+    `, [offerId]);
+
+    return result.rows;
+  }
+
+  /**
    * Получить доступные фильтры (для UI)
    */
   async getAvailableFilters(): Promise<{

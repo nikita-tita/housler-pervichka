@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { searchOffers, getOfferById, getFilters } from '../controllers/offers.controller';
+import { searchOffers, getOfferById, getFilters, getPriceHistory } from '../controllers/offers.controller';
 
 const router = Router();
 
@@ -8,5 +8,8 @@ router.get('/', searchOffers);
 
 // GET /api/offers/:id - Детали объявления
 router.get('/:id', getOfferById);
+
+// GET /api/offers/:id/price-history - История цен
+router.get('/:id/price-history', getPriceHistory);
 
 export default router;

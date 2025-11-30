@@ -94,6 +94,37 @@ export async function getOfferById(req: Request, res: Response): Promise<void> {
 }
 
 /**
+ * GET /api/offers/:id/price-history
+ * История цен объявления
+ */
+export async function getPriceHistory(req: Request, res: Response): Promise<void> {
+  try {
+    const id = parseInt(req.params.id);
+
+    if (isNaN(id)) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid offer ID'
+      });
+      return;
+    }
+
+    const history = await offersService.getPriceHistory(id);
+
+    res.json({
+      success: true,
+      data: history
+    });
+  } catch (error) {
+    console.error('Error getting price history:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+}
+
+/**
  * GET /api/filters
  * Доступные значения фильтров
  */

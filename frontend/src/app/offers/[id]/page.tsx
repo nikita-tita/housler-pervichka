@@ -9,6 +9,7 @@ import { BookingForm } from '@/components/BookingForm';
 import { AddToSelectionButton } from '@/components/AddToSelectionButton';
 import { MortgageCalculator } from '@/components/MortgageCalculator';
 import { YandexMap } from '@/components/YandexMap';
+import { PriceHistoryChart } from '@/components/PriceHistoryChart';
 import type { OfferDetail } from '@/types';
 
 export default function OfferDetailPage() {
@@ -135,6 +136,11 @@ export default function OfferDetailPage() {
               <div className="text-[var(--color-text-light)]">
                 {formatPrice(offer.price_per_sqm)}/м²
               </div>
+            </div>
+
+            {/* Price History */}
+            <div className="mb-6">
+              <PriceHistoryChart offerId={offer.id} />
             </div>
 
             {/* Title */}
