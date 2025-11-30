@@ -41,3 +41,8 @@ docker-compose.override.yml
 # Misc
 *.tgz
 .cache/
+
+# Project specific
+feeds/
+logs/
+*.xml
