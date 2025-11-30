@@ -1,5 +1,5 @@
 import { pool } from '../config/database';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 
 export type UserRole = 'client' | 'agent' | 'operator' | 'admin';
@@ -237,7 +237,8 @@ export class AuthService {
       role: user.role
     };
 
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    const options: SignOptions = { expiresIn: JWT_EXPIRES_IN as string };
+    return jwt.sign(payload, JWT_SECRET, options);
   }
 
   /**
