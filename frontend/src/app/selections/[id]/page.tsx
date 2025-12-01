@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { api, formatPrice, formatArea, formatRooms } from '@/services/api';
 import { ShareSelectionModal } from '@/components/ShareSelectionModal';
 import { SelectionItemStatus, type ItemStatus } from '@/components/SelectionItemStatus';
+import { SelectionActivityLog } from '@/components/SelectionActivityLog';
 import type { SelectionDetail } from '@/types';
 
 export default function SelectionDetailPage() {
@@ -126,8 +127,15 @@ export default function SelectionDetailPage() {
           {selection.items.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-lg overflow-hidden border border-[var(--color-border)]"
+              className="bg-white rounded-lg overflow-hidden border border-[var(--color-border)] relative"
             >
+              {/* Badge for client-added items */}
+              {item.added_by === 'client' && (
+                <div className="absolute top-3 left-3 z-10 bg-green-500 text-white text-xs px-2 py-1 rounded font-medium">
+                  Добавлено клиентом
+                </div>
+              )}
+
               <Link href={`/offers/${item.offer_id}`}>
                 <div className="aspect-[4/3] bg-gray-100">
                   {item.offer?.image_url ? (
@@ -183,6 +191,13 @@ export default function SelectionDetailPage() {
           ))}
         </div>
       )}
+
+      {/* Client Activity Log */}
+      <div className="mt-12">
+        <div className="bg-white border border-[var(--color-border)] rounded-lg p-6">
+          <SelectionActivityLog selectionId={selection.id} />
+        </div>
+      </div>
 
       {/* Share Modal */}
       <ShareSelectionModal

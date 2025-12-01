@@ -10,6 +10,7 @@ import type {
   FavoriteOffer,
   Selection,
   SelectionDetail,
+  SelectionActivity,
   Booking,
   Complex,
   ComplexDetail,
@@ -270,6 +271,10 @@ class ApiService {
     return this.fetch(`/api/selections/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  async getSelectionActivity(id: number): Promise<ApiResponse<SelectionActivity[]>> {
+    return this.fetch(`/api/selections/${id}/activity`);
   }
 
   // ============ BOOKINGS ============

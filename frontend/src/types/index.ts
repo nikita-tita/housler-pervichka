@@ -152,6 +152,21 @@ export interface SelectionItem {
 
 export interface SelectionDetail extends Selection {
   items: SelectionItem[];
+  view_count?: number;
+  last_viewed_at?: string;
+}
+
+// Selection Activity Log
+export interface SelectionActivity {
+  id: number;
+  action: 'viewed' | 'item_added' | 'item_removed';
+  offer_id: number | null;
+  actor_type: 'agent' | 'client';
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  offer_name?: string | null;
+  rooms?: number | null;
+  price?: number | null;
 }
 
 // Bookings
