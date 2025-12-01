@@ -88,6 +88,16 @@ export default function LoginPage() {
             >
               {isLoading ? 'Отправка...' : 'Получить код'}
             </button>
+
+            {email.endsWith('@test.housler.ru') && (
+              <button
+                type="button"
+                onClick={() => setStep('code')}
+                className="w-full py-2 text-sm text-[var(--color-accent)] hover:underline"
+              >
+                У меня есть постоянный код
+              </button>
+            )}
           </form>
         ) : (
           <form onSubmit={handleVerifyCode} className="space-y-6">
