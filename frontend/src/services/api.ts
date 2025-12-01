@@ -205,6 +205,11 @@ class ApiService {
     return this.fetch('/api/selections');
   }
 
+  // Подборки для клиента (где он указан по email)
+  async getMySelections(): Promise<ApiResponse<(Selection & { agent_name?: string })[]>> {
+    return this.fetch('/api/selections/my');
+  }
+
   async createSelection(data: {
     name: string;
     clientName?: string;

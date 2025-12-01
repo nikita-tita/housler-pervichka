@@ -328,6 +328,31 @@ export async function recordSharedSelectionView(req: Request, res: Response) {
 }
 
 /**
+ * GET /api/selections/my - Подборки для клиента (по его email)
+ */
+export async function getMySelections(req: Request, res: Response) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'Не авторизован' });
+    }
+
+    if (!req.user.email) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const selections = await selectionsService.getClientSelections(req.user.email);
+
+    res.json({
+      success: true,
+      data: selections
+    });
+  } catch (error) {
+    console.error('Error in getMySelections:', error);
+    res.status(500).json({ success: false, error: 'Ошибка при получении подборок' });
+  }
+}
+
+/**
  * GET /api/selections/:id/activity - Лог действий подборки (для агента)
  */
 export async function getSelectionActivity(req: Request, res: Response) {

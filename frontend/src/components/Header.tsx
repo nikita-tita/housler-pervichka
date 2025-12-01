@@ -75,17 +75,19 @@ export function Header() {
             {isLoading ? (
               <span className="text-[15px] text-[var(--color-text-light)]">...</span>
             ) : isAuthenticated ? (
-              <div className="flex items-center gap-4">
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="w-7 h-7 bg-[var(--color-accent)] rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">
+                    {user?.name?.charAt(0) || user?.email?.charAt(0) || '?'}
+                  </span>
+                </div>
                 <span className="text-[13px] text-[var(--color-text-light)]">
-                  {user?.email}
+                  {user?.name || user?.email?.split('@')[0]}
                 </span>
-                <button
-                  onClick={logout}
-                  className="text-[15px] font-medium text-[var(--color-text-light)] hover:text-[var(--color-text)]"
-                >
-                  Выйти
-                </button>
-              </div>
+              </Link>
             ) : (
               <Link
                 href="/login"
@@ -165,15 +167,31 @@ export function Header() {
             <div className="pt-4 border-t border-[var(--color-border)]">
               {isAuthenticated ? (
                 <div className="space-y-2">
-                  <div className="text-[13px] text-[var(--color-text-light)]">
-                    {user?.email}
-                  </div>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <div className="w-8 h-8 bg-[var(--color-accent)] rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">
+                        {user?.name?.charAt(0) || user?.email?.charAt(0) || '?'}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-[15px] font-medium">
+                        {user?.name || 'Мой профиль'}
+                      </div>
+                      <div className="text-[13px] text-[var(--color-text-light)]">
+                        {user?.email}
+                      </div>
+                    </div>
+                  </Link>
                   <button
                     onClick={() => {
                       logout();
                       setMobileMenuOpen(false);
                     }}
-                    className="text-[15px] font-medium text-[var(--color-text-light)]"
+                    className="text-[15px] font-medium text-red-600 py-2"
                   >
                     Выйти
                   </button>

@@ -516,4 +516,33 @@ export class SelectionsService {
 
     return result.rows;
   }
+
+  /**
+   * Получить подборки для клиента по его email
+   * (подборки, где client_email совпадает с email пользователя)
+   */
+  async getClientSelections(clientEmail: string): Promise<Selection[]> {
+    const result = await pool.query(`
+      SELECT
+        s.id,
+        s.name,
+        s.agent_id,
+        s.client_email,
+        s.client_name,
+        s.share_code,
+        s.is_public,
+        s.view_count,
+        s.last_viewed_at,
+        s.created_at,
+        s.updated_at,
+        (SELECT COUNT(*) FROM selection_items WHERE selection_id = s.id)::int as items_count,
+        u.name as agent_name
+      FROM selections s
+      LEFT JOIN users u ON s.agent_id = u.id
+      WHERE LOWER(s.client_email) = LOWER($1)
+      ORDER BY s.updated_at DESC
+    `, [clientEmail]);
+
+    return result.rows;
+  }
 }

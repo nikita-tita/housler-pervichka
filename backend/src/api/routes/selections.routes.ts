@@ -11,7 +11,8 @@ import {
   addSharedSelectionItem,
   removeSharedSelectionItem,
   recordSharedSelectionView,
-  getSelectionActivity
+  getSelectionActivity,
+  getMySelections
 } from '../controllers/selections.controller';
 import { requireAuthWithUser, requireAgent } from '../../middleware/auth.middleware';
 
@@ -30,6 +31,11 @@ router.delete('/shared/:code/items/:offerId', removeSharedSelectionItem);
 
 // POST /api/selections/shared/:code/view - Записать просмотр
 router.post('/shared/:code/view', recordSharedSelectionView);
+
+// ============ РОУТЫ ДЛЯ АВТОРИЗОВАННЫХ КЛИЕНТОВ ============
+
+// GET /api/selections/my - Подборки где клиент указан по email
+router.get('/my', requireAuthWithUser, getMySelections);
 
 // ============ ЗАЩИЩЁННЫЕ РОУТЫ (для агентов) ============
 
