@@ -60,11 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, code: string) => {
     const response = await api.verifyCode(email, code);
-    if (!response.success || !response.data) {
-      throw new Error(response.error || 'Invalid code');
+    // API возвращает user/token напрямую, не в data
+    const data = response.data || response as unknown as { user: User; token: string; success?: boolean };
+    if (!response.success || !data.user || !data.token) {
+      throw new Error((response as { error?: string }).error || 'Invalid code');
     }
 
-    const { user, token } = response.data;
+    const { user, token } = data;
     setStoredToken(token);
     setState({
       user,
