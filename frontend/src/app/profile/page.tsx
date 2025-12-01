@@ -31,23 +31,26 @@ export default function ProfilePage() {
 
   const loadData = async () => {
     try {
-      // Загружаем подборки и агентства параллельно
-      const [selectionsRes, agenciesRes] = await Promise.all([
-        api.getMySelections(),
-        api.getMyAgencies()
-      ]);
-
+      // Загружаем подборки
+      const selectionsRes = await api.getMySelections();
       if (selectionsRes.success && selectionsRes.data) {
         setSelections(selectionsRes.data);
       }
+    } catch (error) {
+      console.warn('Failed to load selections:', error);
+    }
+
+    try {
+      // Загружаем агентства (может быть недоступно)
+      const agenciesRes = await api.getMyAgencies();
       if (agenciesRes.success && agenciesRes.data) {
         setAgencies(agenciesRes.data);
       }
     } catch (error) {
-      console.error('Failed to load profile data:', error);
-    } finally {
-      setIsLoading(false);
+      console.warn('Agencies API not available:', error);
     }
+
+    setIsLoading(false);
   };
 
   const handleLogout = () => {

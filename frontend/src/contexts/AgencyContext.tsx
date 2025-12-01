@@ -83,7 +83,8 @@ export function AgencyProvider({ children }: { children: ReactNode }) {
             setAgencySlugState(storedSlug);
           }
         } catch (error) {
-          console.error('Error loading agency:', error);
+          // Игнорируем ошибку если API agencies не доступен
+          console.warn('Agency API not available:', error);
         }
       }
 
@@ -104,7 +105,7 @@ export function AgencyProvider({ children }: { children: ReactNode }) {
           setCurrentAgency(response.data);
         }
       } catch (error) {
-        console.error('Error loading agency:', error);
+        console.warn('Agency API not available:', error);
       }
     } else {
       setCurrentAgency(null);

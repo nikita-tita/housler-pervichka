@@ -42,7 +42,8 @@ export function AgencyRefTracker() {
           localStorage.removeItem('housler_agency_ref');
         }
       } catch (error) {
-        console.error('Error linking to agency:', error);
+        // Игнорируем если API не доступен
+        console.warn('Agency link API not available:', error);
       }
     };
 
