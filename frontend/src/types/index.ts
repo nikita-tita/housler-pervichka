@@ -135,6 +135,8 @@ export interface Selection {
   client_email: string | null;
   share_code: string;
   items_count: number;
+  view_count: number;
+  last_viewed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -165,8 +167,6 @@ export interface SelectionItem {
 
 export interface SelectionDetail extends Selection {
   items: SelectionItem[];
-  view_count?: number;
-  last_viewed_at?: string;
 }
 
 // Selection Activity Log

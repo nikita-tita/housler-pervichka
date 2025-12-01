@@ -10,6 +10,8 @@ export interface Selection {
   share_code: string | null;
   is_public: boolean;
   items_count: number;
+  view_count: number;
+  last_viewed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -59,6 +61,8 @@ export class SelectionsService {
         s.client_name,
         s.share_code,
         s.is_public,
+        s.view_count,
+        s.last_viewed_at,
         s.created_at,
         s.updated_at,
         (SELECT COUNT(*) FROM selection_items WHERE selection_id = s.id)::int as items_count
@@ -110,6 +114,8 @@ export class SelectionsService {
         s.client_name,
         s.share_code,
         s.is_public,
+        s.view_count,
+        s.last_viewed_at,
         s.created_at,
         s.updated_at,
         (SELECT COUNT(*) FROM selection_items WHERE selection_id = s.id)::int as items_count

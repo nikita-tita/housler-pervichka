@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { api } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface BookingFormProps {
   offerId: number;
@@ -9,6 +11,7 @@ interface BookingFormProps {
 }
 
 export function BookingForm({ offerId, complexName }: BookingFormProps) {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     clientName: '',
@@ -19,6 +22,18 @@ export function BookingForm({ offerId, complexName }: BookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  // Предзаполняем данные из профиля пользователя
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        clientName: user.name || prev.clientName,
+        clientPhone: user.phone || prev.clientPhone,
+        clientEmail: user.email || prev.clientEmail,
+      }));
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +75,48 @@ export function BookingForm({ offerId, complexName }: BookingFormProps) {
         >
           Отправить ещё одну заявку
         </button>
+      </div>
+    );
+  }
+
+  // Блок для неавторизованных — блюр с призывом войти
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="border border-[var(--color-border)] rounded-lg relative overflow-hidden">
+        {/* Заблюренная форма */}
+        <div className="blur-[4px] opacity-50 pointer-events-none select-none">
+          <div className="w-full px-6 py-4 flex items-center justify-between">
+            <span className="font-medium">Оставить заявку на просмотр</span>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div className="px-6 pb-6 space-y-4">
+            <div className="h-10 bg-gray-200 rounded-lg"></div>
+            <div className="h-10 bg-gray-200 rounded-lg"></div>
+            <div className="h-10 bg-gray-200 rounded-lg"></div>
+          </div>
+        </div>
+
+        {/* Оверлей с призывом */}
+        <div className="absolute inset-0 flex items-center justify-center bg-white/40">
+          <div className="bg-white p-5 rounded-xl shadow-lg text-center max-w-xs border border-[var(--color-border)]">
+            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <p className="text-sm text-[var(--color-text)] mb-3">
+              Войдите, чтобы оставить заявку на просмотр
+            </p>
+            <Link
+              href="/login"
+              className="inline-block px-5 py-2 bg-[var(--color-accent)] text-white text-sm rounded-lg hover:opacity-90 transition-opacity font-medium"
+            >
+              Войти
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
