@@ -13,6 +13,15 @@ import type {
   Booking,
   Complex,
   ComplexDetail,
+  Client,
+  ClientListItem,
+  ClientDetail,
+  ClientFilters,
+  ClientStage,
+  FunnelStats,
+  CreateClientDto,
+  UpdateClientDto,
+  ClientActivity,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -279,6 +288,70 @@ class ApiService {
 
   async getMyBookings(): Promise<ApiResponse<Booking[]>> {
     return this.fetch('/api/bookings');
+  }
+
+  // ============ CLIENTS CRM ============
+  async getClients(filters?: ClientFilters): Promise<ApiResponse<ClientListItem[]>> {
+    const params = new URLSearchParams();
+    if (filters?.search) params.set('search', filters.search);
+    if (filters?.stage) params.set('stage', filters.stage);
+    if (filters?.priority) params.set('priority', filters.priority);
+    if (filters?.hasNextContact) params.set('hasNextContact', 'true');
+    const query = params.toString();
+    return this.fetch(`/api/clients${query ? `?${query}` : ''}`);
+  }
+
+  async createClient(data: CreateClientDto): Promise<ApiResponse<Client>> {
+    return this.fetch('/api/clients', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getClient(id: number): Promise<ApiResponse<ClientDetail>> {
+    return this.fetch(`/api/clients/${id}`);
+  }
+
+  async updateClient(id: number, data: UpdateClientDto): Promise<ApiResponse<Client>> {
+    return this.fetch(`/api/clients/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteClient(id: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/clients/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateClientStage(id: number, stage: ClientStage): Promise<ApiResponse<Client>> {
+    return this.fetch(`/api/clients/${id}/stage`, {
+      method: 'PATCH',
+      body: JSON.stringify({ stage }),
+    });
+  }
+
+  async getClientActivity(id: number): Promise<ApiResponse<ClientActivity[]>> {
+    return this.fetch(`/api/clients/${id}/activity`);
+  }
+
+  async getClientsStats(): Promise<ApiResponse<FunnelStats>> {
+    return this.fetch('/api/clients/stats');
+  }
+
+  async linkSelectionToClient(clientId: number, selectionId: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/clients/${clientId}/link-selection`, {
+      method: 'POST',
+      body: JSON.stringify({ selectionId }),
+    });
+  }
+
+  async recordClientContact(clientId: number, comment?: string): Promise<ApiResponse<Client>> {
+    return this.fetch(`/api/clients/${clientId}/contact`, {
+      method: 'POST',
+      body: JSON.stringify({ comment }),
+    });
   }
 
   // ============ COMPLEXES ============

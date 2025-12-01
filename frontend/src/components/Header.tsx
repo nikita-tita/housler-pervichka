@@ -53,12 +53,20 @@ export function Header() {
                   )}
                 </Link>
                 {(user?.role === 'agent' || user?.role === 'admin') && (
-                  <Link
-                    href="/selections"
-                    className="text-[15px] font-medium transition-colors hover:text-[var(--color-text-light)]"
-                  >
-                    Подборки
-                  </Link>
+                  <>
+                    <Link
+                      href="/selections"
+                      className="text-[15px] font-medium transition-colors hover:text-[var(--color-text-light)]"
+                    >
+                      Подборки
+                    </Link>
+                    <Link
+                      href="/clients"
+                      className="text-[15px] font-medium transition-colors hover:text-[var(--color-text-light)]"
+                    >
+                      Клиенты
+                    </Link>
+                  </>
                 )}
               </>
             )}
@@ -134,13 +142,22 @@ export function Header() {
                   Избранное {favoriteIds.size > 0 && `(${favoriteIds.size})`}
                 </Link>
                 {(user?.role === 'agent' || user?.role === 'admin') && (
-                  <Link
-                    href="/selections"
-                    className="block text-[15px] font-medium py-2"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Подборки
-                  </Link>
+                  <>
+                    <Link
+                      href="/selections"
+                      className="block text-[15px] font-medium py-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Подборки
+                    </Link>
+                    <Link
+                      href="/clients"
+                      className="block text-[15px] font-medium py-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Клиенты
+                    </Link>
+                  </>
                 )}
               </>
             )}

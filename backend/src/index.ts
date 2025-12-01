@@ -11,6 +11,7 @@ import authRoutes from './api/routes/auth.routes';
 import favoritesRoutes from './api/routes/favorites.routes';
 import selectionsRoutes from './api/routes/selections.routes';
 import bookingsRoutes, { operatorBookingsRouter } from './api/routes/bookings.routes';
+import clientsRoutes from './api/routes/clients.routes';
 import { testConnection } from './config/database';
 
 dotenv.config();
@@ -42,6 +43,7 @@ app.use('/api/favorites', favoritesRoutes);
 app.use('/api/selections', selectionsRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/operator/bookings', operatorBookingsRouter);
+app.use('/api/clients', clientsRoutes);
 
 // 404 handler
 app.use((_req, res) => {

@@ -10,6 +10,9 @@ export interface OfferFilters {
   floorMax?: number;
   notFirstFloor?: boolean;
   notLastFloor?: boolean;
+  kitchenAreaMin?: number;
+  kitchenAreaMax?: number;
+  ceilingHeightMin?: number;
   districts?: string[];
   metro?: string[];
   metroTimeMax?: number;
@@ -19,6 +22,8 @@ export interface OfferFilters {
   search?: string;
   isStudio?: boolean;
   hasFinishing?: boolean;
+  completionYears?: number[];
+  developers?: string[];
 }
 
 export interface PaginationParams {
@@ -280,8 +285,10 @@ export class OffersService {
     rooms: { value: number; count: number }[];
     price_range: { min: number; max: number };
     area_range: { min: number; max: number };
+    completion_years: { year: number; count: number }[];
+    developers: { name: string; count: number }[];
   }> {
-    const [districts, metro, complexes, priceRange, areaRange, roomsCount] = await Promise.all([
+    const [districts, metro, complexes, priceRange, areaRange, roomsCount, completionYears, developers] = await Promise.all([
       pool.query(`
         SELECT d.name, COUNT(o.id)::int as count
         FROM districts d
@@ -325,6 +332,23 @@ export class OffersService {
         WHERE is_active = true
         GROUP BY rooms
         ORDER BY rooms
+      `),
+      // Год сдачи (completion_years)
+      pool.query(`
+        SELECT built_year as year, COUNT(*)::int as count
+        FROM offers
+        WHERE is_active = true AND built_year IS NOT NULL
+        GROUP BY built_year
+        ORDER BY built_year ASC
+      `),
+      // Застройщики (developers)
+      pool.query(`
+        SELECT agent_organization as name, COUNT(*)::int as count
+        FROM offers
+        WHERE is_active = true AND agent_organization IS NOT NULL AND agent_organization != ''
+        GROUP BY agent_organization
+        ORDER BY count DESC
+        LIMIT 50
       `)
     ]);
 
@@ -334,7 +358,9 @@ export class OffersService {
       complexes: complexes.rows,
       rooms: roomsCount.rows,
       price_range: priceRange.rows[0] || { min: 0, max: 0 },
-      area_range: areaRange.rows[0] || { min: 0, max: 0 }
+      area_range: areaRange.rows[0] || { min: 0, max: 0 },
+      completion_years: completionYears.rows,
+      developers: developers.rows
     };
   }
 
@@ -452,6 +478,39 @@ export class OffersService {
     // С отделкой
     if (filters.hasFinishing !== undefined && filters.hasFinishing) {
       conditions.push(`o.renovation IS NOT NULL AND o.renovation != ''`);
+    }
+
+    // Год сдачи
+    if (filters.completionYears && filters.completionYears.length > 0) {
+      conditions.push(`o.built_year = ANY($${paramIndex})`);
+      params.push(filters.completionYears);
+      paramIndex++;
+    }
+
+    // Застройщики
+    if (filters.developers && filters.developers.length > 0) {
+      conditions.push(`o.agent_organization = ANY($${paramIndex})`);
+      params.push(filters.developers);
+      paramIndex++;
+    }
+
+    // Площадь кухни
+    if (filters.kitchenAreaMin !== undefined) {
+      conditions.push(`o.area_kitchen >= $${paramIndex}`);
+      params.push(filters.kitchenAreaMin);
+      paramIndex++;
+    }
+    if (filters.kitchenAreaMax !== undefined) {
+      conditions.push(`o.area_kitchen <= $${paramIndex}`);
+      params.push(filters.kitchenAreaMax);
+      paramIndex++;
+    }
+
+    // Высота потолков
+    if (filters.ceilingHeightMin !== undefined) {
+      conditions.push(`o.ceiling_height >= $${paramIndex}`);
+      params.push(filters.ceilingHeightMin);
+      paramIndex++;
     }
 
     return {

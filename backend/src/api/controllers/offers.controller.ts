@@ -28,7 +28,12 @@ export async function searchOffers(req: Request, res: Response): Promise<void> {
       buildingState: parseStringArrayParam(req.query.building_state),
       search: req.query.search as string | undefined,
       isStudio: req.query.is_studio === 'true' ? true : (req.query.is_studio === 'false' ? false : undefined),
-      hasFinishing: req.query.has_finishing === 'true' ? true : undefined
+      hasFinishing: req.query.has_finishing === 'true' ? true : undefined,
+      completionYears: parseArrayParam(req.query.completion_years),
+      developers: parseStringArrayParam(req.query.developers),
+      kitchenAreaMin: parseNumberParam(req.query.kitchen_area_min),
+      kitchenAreaMax: parseNumberParam(req.query.kitchen_area_max),
+      ceilingHeightMin: parseNumberParam(req.query.ceiling_height_min)
     };
 
     // Пагинация (поддержка limit как альтернативы per_page)

@@ -200,3 +200,100 @@ export interface ComplexDetail extends Complex {
   class?: string | null;
   parking?: string | null;
 }
+
+// ============ CLIENTS CRM ============
+
+export type ClientSource = 'manual' | 'selection' | 'booking' | 'import' | 'website';
+export type ClientStage = 'new' | 'in_progress' | 'fixation' | 'booking' | 'deal' | 'completed' | 'failed';
+export type ClientPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export interface Client {
+  id: number;
+  agent_id: number;
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+  telegram: string | null;
+  whatsapp: string | null;
+  source: ClientSource;
+  stage: ClientStage;
+  priority: ClientPriority;
+  comment: string | null;
+  budget_min: number | null;
+  budget_max: number | null;
+  desired_rooms: number[] | null;
+  desired_districts: number[] | null;
+  desired_deadline: string | null;
+  next_contact_date: string | null;
+  last_contact_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClientListItem extends Client {
+  selections_count: number;
+  bookings_count: number;
+}
+
+export interface ClientActivity {
+  id: number;
+  action: string;
+  old_value: string | null;
+  new_value: string | null;
+  created_at: string;
+}
+
+export interface ClientDetail extends Client {
+  selections: {
+    id: number;
+    name: string;
+    items_count: number;
+    created_at: string;
+  }[];
+  bookings: {
+    id: number;
+    offer_id: number;
+    status: string;
+    created_at: string;
+    complex_name: string | null;
+  }[];
+  activity: ClientActivity[];
+}
+
+export interface ClientFilters {
+  search?: string;
+  stage?: ClientStage;
+  priority?: ClientPriority;
+  hasNextContact?: boolean;
+}
+
+export interface FunnelStats {
+  new: number;
+  in_progress: number;
+  fixation: number;
+  booking: number;
+  deal: number;
+  completed: number;
+  failed: number;
+  total: number;
+}
+
+export interface CreateClientDto {
+  name?: string;
+  phone?: string;
+  email?: string;
+  telegram?: string;
+  whatsapp?: string;
+  source?: ClientSource;
+  stage?: ClientStage;
+  priority?: ClientPriority;
+  comment?: string;
+  budget_min?: number;
+  budget_max?: number;
+  desired_rooms?: number[];
+  desired_districts?: number[];
+  desired_deadline?: string;
+  next_contact_date?: string;
+}
+
+export interface UpdateClientDto extends Partial<CreateClientDto> {}
