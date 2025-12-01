@@ -2,7 +2,7 @@ import { pool } from '../config/database';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-export type UserRole = 'client' | 'agent' | 'operator' | 'admin';
+export type UserRole = 'client' | 'agent' | 'agency_admin' | 'operator' | 'admin';
 
 export interface User {
   id: number;
@@ -10,6 +10,7 @@ export interface User {
   phone: string | null;
   name: string | null;
   role: UserRole;
+  agency_id: number | null;  // Для агентов — их агентство
   is_active: boolean;
   last_login_at: string | null;
   created_at: string;
@@ -19,6 +20,7 @@ export interface JwtPayload {
   userId: number;
   email: string;
   role: UserRole;
+  agencyId: number | null;
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
@@ -157,7 +159,7 @@ export class AuthService {
    */
   async findUserByEmail(email: string): Promise<User | null> {
     const result = await pool.query(`
-      SELECT id, email, phone, name, role, is_active, last_login_at, created_at
+      SELECT id, email, phone, name, role, agency_id, is_active, last_login_at, created_at
       FROM users
       WHERE email = $1
     `, [email.toLowerCase().trim()]);
@@ -170,7 +172,7 @@ export class AuthService {
    */
   async findUserById(id: number): Promise<User | null> {
     const result = await pool.query(`
-      SELECT id, email, phone, name, role, is_active, last_login_at, created_at
+      SELECT id, email, phone, name, role, agency_id, is_active, last_login_at, created_at
       FROM users
       WHERE id = $1
     `, [id]);
@@ -181,12 +183,12 @@ export class AuthService {
   /**
    * Создание нового пользователя
    */
-  async createUser(email: string, role: UserRole = 'client'): Promise<User> {
+  async createUser(email: string, role: UserRole = 'client', agencyId?: number): Promise<User> {
     const result = await pool.query(`
-      INSERT INTO users (email, role)
-      VALUES ($1, $2)
-      RETURNING id, email, phone, name, role, is_active, last_login_at, created_at
-    `, [email.toLowerCase().trim(), role]);
+      INSERT INTO users (email, role, agency_id)
+      VALUES ($1, $2, $3)
+      RETURNING id, email, phone, name, role, agency_id, is_active, last_login_at, created_at
+    `, [email.toLowerCase().trim(), role, agencyId || null]);
 
     return result.rows[0];
   }
@@ -221,7 +223,7 @@ export class AuthService {
       UPDATE users
       SET ${updates.join(', ')}
       WHERE id = $${paramIndex}
-      RETURNING id, email, phone, name, role, is_active, last_login_at, created_at
+      RETURNING id, email, phone, name, role, agency_id, is_active, last_login_at, created_at
     `, params);
 
     return result.rows[0] || null;
@@ -234,7 +236,8 @@ export class AuthService {
     const payload: JwtPayload = {
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
+      agencyId: user.agency_id
     };
 
     // 7 дней в секундах

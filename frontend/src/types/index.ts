@@ -91,7 +91,7 @@ export interface ApiResponse<T> {
 }
 
 // User & Auth types
-export type UserRole = 'client' | 'agent' | 'operator' | 'admin';
+export type UserRole = 'client' | 'agent' | 'agency_admin' | 'operator' | 'admin';
 
 export interface User {
   id: number;
@@ -99,7 +99,20 @@ export interface User {
   phone: string | null;
   name: string | null;
   role: UserRole;
+  agency_id: number | null;
   is_active: boolean;
+}
+
+// Agency types
+export interface Agency {
+  id: number;
+  name: string;
+  slug: string;
+  is_default: boolean;
+  logo_url: string | null;
+  phone: string | null;
+  email: string | null;
+  description: string | null;
 }
 
 export interface AuthState {

@@ -23,6 +23,7 @@ import type {
   CreateClientDto,
   UpdateClientDto,
   ClientActivity,
+  Agency,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -371,6 +372,30 @@ class ApiService {
 
   async getComplexById(id: number): Promise<ApiResponse<ComplexDetail>> {
     return this.fetch(`/api/complexes/${id}`);
+  }
+
+  // ============ AGENCIES ============
+  async getAgencies(): Promise<ApiResponse<Agency[]>> {
+    return this.fetch('/api/agencies');
+  }
+
+  async getAgencyBySlug(slug: string): Promise<ApiResponse<Agency>> {
+    return this.fetch(`/api/agencies/${slug}`);
+  }
+
+  async getDefaultAgency(): Promise<ApiResponse<Agency>> {
+    return this.fetch('/api/agencies/default');
+  }
+
+  async getMyAgencies(): Promise<ApiResponse<Agency[]>> {
+    return this.fetch('/api/agencies/my');
+  }
+
+  async linkToAgency(slug: string, source: string = 'direct'): Promise<ApiResponse<{ id: number }>> {
+    return this.fetch(`/api/agencies/${slug}/link`, {
+      method: 'POST',
+      body: JSON.stringify({ source }),
+    });
   }
 }
 

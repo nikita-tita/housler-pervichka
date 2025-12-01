@@ -1,4 +1,5 @@
 import { pool } from '../config/database';
+import { AgenciesService } from './agencies.service';
 
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
@@ -6,6 +7,7 @@ export interface Booking {
   id: number;
   offer_id: number;
   agent_id: number | null;
+  agency_id: number | null;
   client_name: string;
   client_phone: string;
   client_email: string | null;
@@ -18,6 +20,8 @@ export interface Booking {
   updated_at: string;
 }
 
+const agenciesService = new AgenciesService();
+
 export interface BookingWithOffer extends Booking {
   offer_external_id: string;
   offer_address: string;
@@ -29,10 +33,14 @@ export interface BookingWithOffer extends Booking {
 export class BookingsService {
   /**
    * Создать заявку на бронирование
+   * Заявка роутится в агентство:
+   * - Если userId указан и клиент привязан к агентству — туда
+   * - Иначе — в дефолтное агентство (Housler)
    */
   async createBooking(data: {
     offerId: number;
     agentId?: number;
+    userId?: number;  // ID авторизованного клиента
     clientName: string;
     clientPhone: string;
     clientEmail?: string;
@@ -48,13 +56,17 @@ export class BookingsService {
       return null;
     }
 
+    // Определяем агентство для заявки
+    const agencyId = await agenciesService.getAgencyForBooking(data.userId || null);
+
     const result = await pool.query(`
-      INSERT INTO bookings (offer_id, agent_id, client_name, client_phone, client_email, agent_comment)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO bookings (offer_id, agent_id, agency_id, client_name, client_phone, client_email, agent_comment)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `, [
       data.offerId,
       data.agentId || null,
+      agencyId,
       data.clientName,
       data.clientPhone,
       data.clientEmail || null,
@@ -82,6 +94,54 @@ export class BookingsService {
       ORDER BY b.created_at DESC
     `, [agentId]);
 
+    return result.rows;
+  }
+
+  /**
+   * Получить заявки агентства (для agency_admin)
+   */
+  async getAgencyBookings(agencyId: number, filters?: {
+    status?: BookingStatus;
+    dateFrom?: Date;
+    dateTo?: Date;
+  }): Promise<BookingWithOffer[]> {
+    let query = `
+      SELECT
+        b.*,
+        o.external_id as offer_external_id,
+        o.address as offer_address,
+        o.rooms as offer_rooms,
+        o.price as offer_price,
+        o.building_name as offer_building_name
+      FROM bookings b
+      JOIN offers o ON b.offer_id = o.id
+      WHERE b.agency_id = $1
+    `;
+
+    const params: any[] = [agencyId];
+    let paramIndex = 2;
+
+    if (filters?.status) {
+      query += ` AND b.status = $${paramIndex}`;
+      params.push(filters.status);
+      paramIndex++;
+    }
+
+    if (filters?.dateFrom) {
+      query += ` AND b.created_at >= $${paramIndex}`;
+      params.push(filters.dateFrom);
+      paramIndex++;
+    }
+
+    if (filters?.dateTo) {
+      query += ` AND b.created_at <= $${paramIndex}`;
+      params.push(filters.dateTo);
+      paramIndex++;
+    }
+
+    query += ' ORDER BY b.created_at DESC';
+
+    const result = await pool.query(query, params);
     return result.rows;
   }
 
