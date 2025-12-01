@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 interface Suggestion {
   type: 'complex' | 'district' | 'metro';
@@ -31,11 +31,10 @@ export function SearchAutocomplete({
   const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([]);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Filter suggestions based on input
-  useEffect(() => {
+  // Filter suggestions based on input using useMemo instead of effect
+  const computedSuggestions = useMemo(() => {
     if (!value.trim() || !suggestions) {
-      setFilteredSuggestions([]);
-      return;
+      return [];
     }
 
     const query = value.toLowerCase();
@@ -59,8 +58,13 @@ export function SearchAutocomplete({
       .slice(0, 3)
       .forEach(m => results.push({ type: 'metro', name: m.name, count: m.count }));
 
-    setFilteredSuggestions(results);
+    return results;
   }, [value, suggestions]);
+
+  // Sync computed suggestions with state
+  useEffect(() => {
+    setFilteredSuggestions(computedSuggestions);
+  }, [computedSuggestions]);
 
   // Close dropdown on outside click
   useEffect(() => {

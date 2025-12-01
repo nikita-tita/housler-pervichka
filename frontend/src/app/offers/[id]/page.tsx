@@ -10,6 +10,7 @@ import { AddToSelectionButton } from '@/components/AddToSelectionButton';
 import { MortgageCalculator } from '@/components/MortgageCalculator';
 import { YandexMap } from '@/components/YandexMap';
 import { PriceHistoryChart } from '@/components/PriceHistoryChart';
+import { OfferPdfButton } from '@/components/OfferPdfButton';
 import type { OfferDetail } from '@/types';
 
 export default function OfferDetailPage() {
@@ -241,9 +242,10 @@ export default function OfferDetailPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-wrap gap-3 mb-6">
               <FavoriteButton offerId={offer.id} size="lg" />
               <AddToSelectionButton offerId={offer.id} />
+              <OfferPdfButton offer={offer} />
             </div>
 
             {/* CTA */}

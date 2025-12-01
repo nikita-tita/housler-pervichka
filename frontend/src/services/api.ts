@@ -95,6 +95,19 @@ class ApiService {
       if (filters.search) {
         params.set('search', filters.search);
       }
+      if (filters.completion_years?.length) {
+        filters.completion_years.forEach(y => params.append('completion_years', y.toString()));
+      }
+      if (filters.developers?.length) {
+        filters.developers.forEach(d => params.append('developers', d));
+      }
+      if (filters.floor_min) params.set('floor_min', filters.floor_min.toString());
+      if (filters.floor_max) params.set('floor_max', filters.floor_max.toString());
+      if (filters.not_first_floor) params.set('not_first_floor', 'true');
+      if (filters.not_last_floor) params.set('not_last_floor', 'true');
+      if (filters.kitchen_area_min) params.set('kitchen_area_min', filters.kitchen_area_min.toString());
+      if (filters.kitchen_area_max) params.set('kitchen_area_max', filters.kitchen_area_max.toString());
+      if (filters.ceiling_height_min) params.set('ceiling_height_min', filters.ceiling_height_min.toString());
     }
 
     if (pagination) {
@@ -234,6 +247,13 @@ class ApiService {
   async removeSelectionItem(selectionId: number, offerId: number): Promise<ApiResponse<{ message: string }>> {
     return this.fetch(`/api/selections/${selectionId}/items/${offerId}`, {
       method: 'DELETE',
+    });
+  }
+
+  async updateSelectionItemStatus(selectionId: number, offerId: number, status: string): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/selections/${selectionId}/items/${offerId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
     });
   }
 

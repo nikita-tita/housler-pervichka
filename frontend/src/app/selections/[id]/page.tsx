@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { api, formatPrice, formatArea, formatRooms } from '@/services/api';
+import { ShareSelectionModal } from '@/components/ShareSelectionModal';
+import { SelectionItemStatus, type ItemStatus } from '@/components/SelectionItemStatus';
 import type { SelectionDetail } from '@/types';
 
 export default function SelectionDetailPage() {
@@ -13,6 +15,7 @@ export default function SelectionDetailPage() {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
   const [selection, setSelection] = useState<SelectionDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const id = Number(params.id);
 
@@ -52,13 +55,6 @@ export default function SelectionDetailPage() {
     } catch (error) {
       console.error('Failed to remove item:', error);
     }
-  };
-
-  const copyShareLink = () => {
-    if (!selection) return;
-    const url = `${window.location.origin}/s/${selection.share_code}`;
-    navigator.clipboard.writeText(url);
-    alert('Ссылка скопирована!');
   };
 
   if (authLoading || isLoading) {
@@ -103,10 +99,13 @@ export default function SelectionDetailPage() {
           )}
         </div>
         <button
-          onClick={copyShareLink}
-          className="px-5 py-2.5 border border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors"
+          onClick={() => setShowShareModal(true)}
+          className="px-5 py-2.5 bg-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
         >
-          Копировать ссылку для клиента
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          Поделиться
         </button>
       </div>
 
@@ -164,17 +163,33 @@ export default function SelectionDetailPage() {
                     {item.comment}
                   </div>
                 )}
-                <button
-                  onClick={() => handleRemoveItem(item.offer_id)}
-                  className="mt-3 text-sm text-red-600 hover:text-red-700"
-                >
-                  Удалить из подборки
-                </button>
+
+                {/* Status & Actions */}
+                <div className="mt-3 flex items-center justify-between">
+                  <SelectionItemStatus
+                    selectionId={selection.id}
+                    offerId={item.offer_id}
+                    currentStatus={(item.status as ItemStatus) || 'pending'}
+                  />
+                  <button
+                    onClick={() => handleRemoveItem(item.offer_id)}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    Удалить
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Share Modal */}
+      <ShareSelectionModal
+        selection={selection}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 }

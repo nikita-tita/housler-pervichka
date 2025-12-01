@@ -14,6 +14,7 @@ export interface OfferListItem {
   metro_distance: number | null;
   has_finishing: boolean;
   image_url: string | null;
+  building_name?: string | null;
 }
 
 export interface OfferDetail extends OfferListItem {
@@ -40,12 +41,19 @@ export interface OfferFilters {
   area_max?: number;
   floor_min?: number;
   floor_max?: number;
+  not_first_floor?: boolean;
+  not_last_floor?: boolean;
+  kitchen_area_min?: number;
+  kitchen_area_max?: number;
+  ceiling_height_min?: number;
   districts?: string[];
   metro_stations?: string[];
   has_finishing?: boolean;
   complexes?: string[];
   complex_id?: number;
   search?: string;
+  completion_years?: number[];
+  developers?: string[];
 }
 
 export interface PaginationParams {
@@ -72,6 +80,8 @@ export interface FilterOptions {
   rooms: { value: number; count: number }[];
   price_range: { min: number; max: number };
   area_range: { min: number; max: number };
+  completion_years: { year: number; count: number }[];
+  developers: { name: string; count: number }[];
 }
 
 export interface ApiResponse<T> {
@@ -116,12 +126,15 @@ export interface Selection {
   updated_at: string;
 }
 
+export type SelectionItemStatus = 'pending' | 'shown' | 'interested' | 'rejected';
+
 export interface SelectionItem {
   id: number;
   offer_id: number;
   comment: string | null;
   added_at: string;
   added_by?: 'agent' | 'client';
+  status?: SelectionItemStatus;
   // Inline offer data from backend
   rooms: number | null;
   is_studio: boolean;
@@ -175,6 +188,15 @@ export interface ComplexDetail extends Complex {
   metro_station: string | null;
   metro_distance: number | null;
   developer_name: string | null;
+  developer_id?: number | null;
   description: string | null;
   image_url: string | null;
+  main_image?: string | null;
+  images?: string[];
+  latitude?: number | null;
+  longitude?: number | null;
+  floors_total?: number | null;
+  completion_date?: string | null;
+  class?: string | null;
+  parking?: string | null;
 }

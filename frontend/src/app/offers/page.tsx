@@ -4,10 +4,24 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { OfferCard } from '@/components/OfferCard';
 import { Filters } from '@/components/Filters';
+import { ViewModeSwitcher, type ViewMode } from '@/components/ViewModeSwitcher';
+import { OffersTable } from '@/components/OffersTable';
+import { PlansGrid } from '@/components/PlansGrid';
+import { SplitMapView } from '@/components/SplitMapView';
+import { BulkActionsBar } from '@/components/BulkActionsBar';
 import { api } from '@/services/api';
 import type { OfferListItem, OfferFilters, PaginatedResponse } from '@/types';
 
 type SortOption = 'price_asc' | 'price_desc' | 'area_asc' | 'area_desc' | 'updated_desc';
+
+interface MapMarker {
+  id: number;
+  lat: number;
+  lng: number;
+  price: number;
+  rooms: number;
+  is_studio: boolean;
+}
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'price_asc', label: 'Сначала дешевле' },
@@ -25,9 +39,12 @@ function OffersContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentFilters, setCurrentFilters] = useState<OfferFilters>({});
+  const [markers, setMarkers] = useState<MapMarker[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   const page = Number(searchParams.get('page')) || 1;
   const sortBy = (searchParams.get('sort') as SortOption) || 'updated_desc';
+  const viewMode = (searchParams.get('view') as ViewMode) || 'cards';
 
   // Build URL with current params
   const buildUrl = useCallback((newParams: Record<string, string | number | undefined>) => {
@@ -76,8 +93,52 @@ function OffersContent() {
     loadOffers();
   }, [loadOffers]);
 
+  // Load map markers when in map mode
+  useEffect(() => {
+    if (viewMode === 'map') {
+      api.getMapMarkers(currentFilters).then((res) => {
+        if (res.success && res.data) {
+          setMarkers(res.data);
+        }
+      });
+    }
+  }, [viewMode, currentFilters]);
+
   const handleFiltersChange = useCallback((filters: OfferFilters) => {
     setCurrentFilters(filters);
+  }, []);
+
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    router.push(buildUrl({ view: mode, page: 1 }));
+  }, [router, buildUrl]);
+
+  const handleTableSort = useCallback((column: string) => {
+    const newSortOrder = sortBy.startsWith(column) && sortBy.endsWith('asc') ? 'desc' : 'asc';
+    router.push(buildUrl({ sort: `${column}_${newSortOrder}`, page: 1 }));
+  }, [router, buildUrl, sortBy]);
+
+  const handleSelectChange = useCallback((id: number, selected: boolean) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (selected) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback((selected: boolean) => {
+    if (selected) {
+      setSelectedIds(new Set(offers.map(o => o.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }, [offers]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedIds(new Set());
   }, []);
 
   return (
@@ -95,20 +156,26 @@ function OffersContent() {
             </p>
           </div>
 
-          {/* Sort Dropdown */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--color-text-light)]">Сортировка:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => router.push(buildUrl({ sort: e.target.value, page: 1 }))}
-              className="px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] bg-white"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+          {/* View Mode & Sort */}
+          <div className="flex items-center gap-4">
+            <ViewModeSwitcher
+              mode={viewMode}
+              onChange={handleViewModeChange}
+            />
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[var(--color-text-light)] hidden sm:inline">Сортировка:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => router.push(buildUrl({ sort: e.target.value, page: 1 }))}
+                className="px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] bg-white"
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -149,14 +216,42 @@ function OffersContent() {
               </div>
             ) : (
               <>
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {offers.map(offer => (
-                    <OfferCard key={offer.id} offer={offer} />
-                  ))}
-                </div>
+                {/* View Mode Content */}
+                {viewMode === 'cards' && (
+                  <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {offers.map(offer => (
+                      <OfferCard key={offer.id} offer={offer} />
+                    ))}
+                  </div>
+                )}
 
-                {/* Pagination */}
-                {pagination && pagination.total_pages > 1 && (
+                {viewMode === 'table' && (
+                  <OffersTable
+                    offers={offers}
+                    sortBy={sortBy.split('_')[0]}
+                    sortOrder={sortBy.split('_')[1] as 'asc' | 'desc'}
+                    onSort={handleTableSort}
+                    selectedIds={selectedIds}
+                    onSelectChange={handleSelectChange}
+                    onSelectAll={handleSelectAll}
+                  />
+                )}
+
+                {viewMode === 'plans' && (
+                  <PlansGrid offers={offers} />
+                )}
+
+                {viewMode === 'map' && (
+                  <SplitMapView
+                    offers={offers}
+                    markers={markers}
+                    showMap={true}
+                    onToggleMap={() => handleViewModeChange('cards')}
+                  />
+                )}
+
+                {/* Pagination (not shown for map mode) */}
+                {viewMode !== 'map' && pagination && pagination.total_pages > 1 && (
                   <div className="mt-12 flex justify-center items-center gap-2 flex-wrap">
                     {pagination.page > 1 && (
                       <a
@@ -215,6 +310,12 @@ function OffersContent() {
           </div>
         </div>
       </div>
+
+      {/* Bulk Actions Bar */}
+      <BulkActionsBar
+        selectedIds={selectedIds}
+        onClearSelection={handleClearSelection}
+      />
     </div>
   );
 }

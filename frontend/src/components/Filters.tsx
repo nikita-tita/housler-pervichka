@@ -5,6 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { FilterOptions, OfferFilters } from '@/types';
 import { api } from '@/services/api';
 import { SearchAutocomplete } from './SearchAutocomplete';
+import { MultiSelect } from './filters/MultiSelect';
+import { FloorFilter } from './filters/FloorFilter';
+import { KitchenAreaFilter } from './filters/KitchenAreaFilter';
+import { CeilingHeightFilter } from './filters/CeilingHeightFilter';
 
 interface FiltersProps {
   onFiltersChange?: (filters: OfferFilters) => void;
@@ -66,6 +70,33 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     const search = searchParams.get('search');
     if (search) newFilters.search = search;
 
+    const completionYears = searchParams.getAll('completion_years');
+    if (completionYears.length) newFilters.completion_years = completionYears.map(Number);
+
+    const developers = searchParams.getAll('developers');
+    if (developers.length) newFilters.developers = developers;
+
+    const floorMin = searchParams.get('floor_min');
+    if (floorMin) newFilters.floor_min = Number(floorMin);
+
+    const floorMax = searchParams.get('floor_max');
+    if (floorMax) newFilters.floor_max = Number(floorMax);
+
+    const notFirstFloor = searchParams.get('not_first_floor');
+    if (notFirstFloor) newFilters.not_first_floor = notFirstFloor === 'true';
+
+    const notLastFloor = searchParams.get('not_last_floor');
+    if (notLastFloor) newFilters.not_last_floor = notLastFloor === 'true';
+
+    const kitchenAreaMin = searchParams.get('kitchen_area_min');
+    if (kitchenAreaMin) newFilters.kitchen_area_min = Number(kitchenAreaMin);
+
+    const kitchenAreaMax = searchParams.get('kitchen_area_max');
+    if (kitchenAreaMax) newFilters.kitchen_area_max = Number(kitchenAreaMax);
+
+    const ceilingHeightMin = searchParams.get('ceiling_height_min');
+    if (ceilingHeightMin) newFilters.ceiling_height_min = Number(ceilingHeightMin);
+
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -101,6 +132,19 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     if (newFilters.search) {
       params.set('search', newFilters.search);
     }
+    if (newFilters.completion_years?.length) {
+      newFilters.completion_years.forEach(y => params.append('completion_years', y.toString()));
+    }
+    if (newFilters.developers?.length) {
+      newFilters.developers.forEach(d => params.append('developers', d));
+    }
+    if (newFilters.floor_min) params.set('floor_min', newFilters.floor_min.toString());
+    if (newFilters.floor_max) params.set('floor_max', newFilters.floor_max.toString());
+    if (newFilters.not_first_floor) params.set('not_first_floor', 'true');
+    if (newFilters.not_last_floor) params.set('not_last_floor', 'true');
+    if (newFilters.kitchen_area_min) params.set('kitchen_area_min', newFilters.kitchen_area_min.toString());
+    if (newFilters.kitchen_area_max) params.set('kitchen_area_max', newFilters.kitchen_area_max.toString());
+    if (newFilters.ceiling_height_min) params.set('ceiling_height_min', newFilters.ceiling_height_min.toString());
 
     // Reset page to 1 when filters change
     const query = params.toString();
@@ -128,20 +172,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
   const hasActiveFilters = Object.keys(filters).length > 0;
 
-  if (isLoading) {
-    return (
-      <div className="card p-6 animate-pulse">
-        <div className="h-4 bg-[var(--color-bg-gray)] rounded w-1/4 mb-4"></div>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-10 w-16 bg-[var(--color-bg-gray)] rounded"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Search input with debounce
+  // Search input with debounce - must be before any conditional returns
   const [searchInput, setSearchInput] = useState(filters.search || '');
 
   useEffect(() => {
@@ -157,6 +188,19 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput]);
+
+  if (isLoading) {
+    return (
+      <div className="card p-6 animate-pulse">
+        <div className="h-4 bg-[var(--color-bg-gray)] rounded w-1/4 mb-4"></div>
+        <div className="flex gap-2">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-10 w-16 bg-[var(--color-bg-gray)] rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card p-6">
@@ -261,49 +305,130 @@ export function Filters({ onFiltersChange }: FiltersProps) {
             </div>
           </div>
 
-          {/* District Select */}
+          {/* District MultiSelect */}
           {filterOptions?.districts && filterOptions.districts.length > 0 && (
             <div className="mb-6">
               <div className="text-sm font-medium mb-3">Район</div>
-              <select
-                value={filters.districts?.[0] || ''}
-                onChange={e => applyFilters({
+              <MultiSelect
+                options={filterOptions.districts.map(d => ({
+                  value: d.name,
+                  label: d.name,
+                  count: d.count
+                }))}
+                value={filters.districts || []}
+                onChange={(values) => applyFilters({
                   ...filters,
-                  districts: e.target.value ? [e.target.value] : undefined,
+                  districts: values.length ? values : undefined,
                 })}
-                className="select"
-              >
-                <option value="">Любой район</option>
-                {filterOptions.districts.map(d => (
-                  <option key={d.name} value={d.name}>
-                    {d.name} ({d.count})
-                  </option>
-                ))}
-              </select>
+                placeholder="Выберите район"
+                searchPlaceholder="Поиск района..."
+              />
             </div>
           )}
 
-          {/* Metro Select */}
+          {/* Metro MultiSelect */}
           {filterOptions?.metro_stations && filterOptions.metro_stations.length > 0 && (
             <div className="mb-6">
               <div className="text-sm font-medium mb-3">Метро</div>
-              <select
-                value={filters.metro_stations?.[0] || ''}
-                onChange={e => applyFilters({
+              <MultiSelect
+                options={filterOptions.metro_stations.map(m => ({
+                  value: m.name,
+                  label: m.name,
+                  count: m.count
+                }))}
+                value={filters.metro_stations || []}
+                onChange={(values) => applyFilters({
                   ...filters,
-                  metro_stations: e.target.value ? [e.target.value] : undefined,
+                  metro_stations: values.length ? values : undefined,
                 })}
-                className="select"
-              >
-                <option value="">Любое метро</option>
-                {filterOptions.metro_stations.map(m => (
-                  <option key={m.name} value={m.name}>
-                    {m.name} ({m.count})
-                  </option>
-                ))}
-              </select>
+                placeholder="Выберите метро"
+                searchPlaceholder="Поиск станции..."
+              />
             </div>
           )}
+
+          {/* Completion Year MultiSelect */}
+          {filterOptions?.completion_years && filterOptions.completion_years.length > 0 && (
+            <div className="mb-6">
+              <div className="text-sm font-medium mb-3">Срок сдачи</div>
+              <MultiSelect
+                options={filterOptions.completion_years.map(y => ({
+                  value: y.year.toString(),
+                  label: y.year.toString(),
+                  count: y.count
+                }))}
+                value={(filters.completion_years || []).map(String)}
+                onChange={(values) => applyFilters({
+                  ...filters,
+                  completion_years: values.length ? values.map(Number) : undefined,
+                })}
+                placeholder="Выберите год"
+                searchPlaceholder="Поиск года..."
+              />
+            </div>
+          )}
+
+          {/* Developer MultiSelect */}
+          {filterOptions?.developers && filterOptions.developers.length > 0 && (
+            <div className="mb-6">
+              <div className="text-sm font-medium mb-3">Застройщик</div>
+              <MultiSelect
+                options={filterOptions.developers.map(d => ({
+                  value: d.name,
+                  label: d.name,
+                  count: d.count
+                }))}
+                value={filters.developers || []}
+                onChange={(values) => applyFilters({
+                  ...filters,
+                  developers: values.length ? values : undefined,
+                })}
+                placeholder="Выберите застройщика"
+                searchPlaceholder="Поиск застройщика..."
+              />
+            </div>
+          )}
+
+          {/* Floor Filter */}
+          <div className="mb-6">
+            <FloorFilter
+              floorMin={filters.floor_min}
+              floorMax={filters.floor_max}
+              notFirstFloor={filters.not_first_floor}
+              notLastFloor={filters.not_last_floor}
+              onChange={(floorFilters) => applyFilters({
+                ...filters,
+                floor_min: floorFilters.floor_min,
+                floor_max: floorFilters.floor_max,
+                not_first_floor: floorFilters.not_first_floor,
+                not_last_floor: floorFilters.not_last_floor,
+              })}
+            />
+          </div>
+
+          {/* Kitchen Area Filter */}
+          <div className="mb-6">
+            <KitchenAreaFilter
+              min={filters.kitchen_area_min}
+              max={filters.kitchen_area_max}
+              onChange={(kitchenFilters) => applyFilters({
+                ...filters,
+                kitchen_area_min: kitchenFilters.kitchen_area_min,
+                kitchen_area_max: kitchenFilters.kitchen_area_max,
+              })}
+            />
+          </div>
+
+          {/* Ceiling Height Filter */}
+          <div className="mb-6">
+            <CeilingHeightFilter
+              value={filters.ceiling_height_min}
+              onChange={(value) => applyFilters({
+                ...filters,
+                ceiling_height_min: value,
+              })}
+            />
+          </div>
 
           {/* Finishing Checkbox */}
           <div className="mb-6">

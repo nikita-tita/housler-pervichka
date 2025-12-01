@@ -5,13 +5,14 @@ import { FavoriteButton } from './FavoriteButton';
 import { AddToClientSelectionButton } from './AddToClientSelectionButton';
 import { CompareButton } from './CompareButton';
 
-interface OfferCardProps {
+export interface OfferCardProps {
   offer: OfferListItem;
+  highlighted?: boolean;
 }
 
-export function OfferCard({ offer }: OfferCardProps) {
+export function OfferCard({ offer, highlighted }: OfferCardProps) {
   return (
-    <Link href={`/offers/${offer.id}`} className="card block overflow-hidden group">
+    <Link href={`/offers/${offer.id}`} className={`card block overflow-hidden group ${highlighted ? 'ring-2 ring-[var(--color-accent)]' : ''}`}>
       {/* Image */}
       <div className="aspect-[4/3] bg-[var(--color-bg-gray)] relative overflow-hidden">
         {offer.image_url ? (

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
 import type { Selection } from '@/types';
@@ -83,12 +84,12 @@ export function AddToSelectionButton({ offerId }: AddToSelectionButtonProps) {
                 <div className="text-[var(--color-text-light)] mb-4">
                   У вас пока нет подборок
                 </div>
-                <a
+                <Link
                   href="/selections"
                   className="text-[var(--color-accent)] hover:underline"
                 >
                   Создать подборку
-                </a>
+                </Link>
               </div>
             ) : (
               <div className="space-y-4">
