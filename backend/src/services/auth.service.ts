@@ -126,10 +126,15 @@ export class AuthService {
       };
     }
 
-    // Отмечаем код как использованный
-    await pool.query(`
-      UPDATE auth_codes SET used_at = NOW() WHERE id = $1
-    `, [authCode.id]);
+    // Отмечаем код как использованный (кроме тестовых аккаунтов с постоянными кодами)
+    const isTestAccount = normalizedEmail.endsWith('@test.housler.ru');
+    const isTestCode = ['111111', '222222', '333333', '444444', '555555', '666666'].includes(code);
+
+    if (!(isTestAccount && isTestCode)) {
+      await pool.query(`
+        UPDATE auth_codes SET used_at = NOW() WHERE id = $1
+      `, [authCode.id]);
+    }
 
     // Находим или создаём пользователя
     let user = await this.findUserByEmail(normalizedEmail);
