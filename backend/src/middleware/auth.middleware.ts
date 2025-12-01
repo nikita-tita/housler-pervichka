@@ -132,7 +132,7 @@ export function requireRole(...roles: UserRole[]) {
 /**
  * Middleware: только для агентов
  */
-export const requireAgent = requireRole('agent', 'operator', 'admin');
+export const requireAgent = requireRole('agent', 'agency_admin', 'operator', 'admin');
 
 /**
  * Middleware: только для операторов
