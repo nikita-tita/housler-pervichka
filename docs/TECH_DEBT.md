@@ -245,11 +245,11 @@ app.use(Sentry.Handlers.errorHandler());
 ### Спринт 1 (срочно) — ВЫПОЛНЕНО:
 1. [x] Исправить BUG-001, BUG-002 — готово
 2. [x] Rate limiting на auth — готово (rate-limit.middleware.ts)
-3. [ ] Sentry интеграция
+3. [x] Sentry интеграция — готово (backend + frontend)
 
-### Спринт 2 (важно) — ЧАСТИЧНО ВЫПОЛНЕНО:
+### Спринт 2 (важно) — ВЫПОЛНЕНО:
 4. [x] Приведение типов в API (string → number) — готово (selections.service.ts)
-5. [ ] Структурированное логирование
+5. [x] Структурированное логирование — готово (winston logger)
 6. [ ] Unit тесты для selections.service
 
 ### Спринт 3 (улучшения):

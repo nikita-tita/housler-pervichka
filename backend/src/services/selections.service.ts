@@ -1,5 +1,6 @@
 import { pool } from '../config/database';
 import crypto from 'crypto';
+import { logger } from '../utils/logger';
 
 export interface Selection {
   id: number;
@@ -313,7 +314,7 @@ export class SelectionsService {
 
       return true;
     } catch (error) {
-      console.error('Error adding selection item:', error);
+      logger.error('Error adding selection item', { error: (error as Error).message, selectionId, offerId });
       return false;
     }
   }
@@ -472,7 +473,7 @@ export class SelectionsService {
 
       return { success: true };
     } catch (error) {
-      console.error('Error adding selection item by client:', error);
+      logger.error('Error adding selection item by client', { error: (error as Error).message, shareCode, offerId });
       return { success: false, error: 'Ошибка при добавлении объекта' };
     }
   }
@@ -524,7 +525,7 @@ export class SelectionsService {
         VALUES ($1, $2, $3, $4, $5, $6)
       `, [selectionId, action, offerId, actorType, actorIdentifier, metadata ? JSON.stringify(metadata) : null]);
     } catch (error) {
-      console.error('Error logging selection activity:', error);
+      logger.error('Error logging selection activity', { error: (error as Error).message, selectionId });
       // Не бросаем ошибку, логирование не должно ломать основной функционал
     }
   }
@@ -545,7 +546,7 @@ export class SelectionsService {
         await this.logActivity(result.rows[0].id, 'viewed', null, 'client', clientIdentifier);
       }
     } catch (error) {
-      console.error('Error recording view:', error);
+      logger.error('Error recording view', { error: (error as Error).message, shareCode });
     }
   }
 

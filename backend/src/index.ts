@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import dotenv from 'dotenv';
+import * as Sentry from '@sentry/node';
+import { logger } from './utils/logger';
 
 import offersRoutes from './api/routes/offers.routes';
 import filtersRoutes from './api/routes/filters.routes';
@@ -20,8 +22,27 @@ import { testConnection } from './config/database';
 
 dotenv.config();
 
+// Sentry initialization (before express)
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: 0.1, // 10% of transactions
+    integrations: [
+      Sentry.httpIntegration(),
+      Sentry.expressIntegration()
+    ]
+  });
+  logger.info('Sentry initialized', { environment: process.env.NODE_ENV });
+}
+
 const app = express();
 const PORT = process.env.API_PORT || 3001;
+
+// Sentry request handler (must be first middleware)
+if (process.env.SENTRY_DSN) {
+  Sentry.setupExpressErrorHandler(app);
+}
 
 // Middleware
 app.use(helmet());
@@ -63,7 +84,19 @@ app.use((_req, res) => {
 
 // Error handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Unhandled error:', err);
+  // Log error with structured logger
+  logger.error('Unhandled error', {
+    error: err.message,
+    stack: err.stack,
+    path: _req.path,
+    method: _req.method
+  });
+
+  // Capture error in Sentry
+  if (process.env.SENTRY_DSN) {
+    Sentry.captureException(err);
+  }
+
   res.status(500).json({
     success: false,
     error: 'Internal server error'
@@ -75,23 +108,11 @@ async function start() {
   // Check DB connection
   const dbConnected = await testConnection();
   if (!dbConnected) {
-    console.warn('⚠️  Database connection failed, starting anyway...');
+    logger.warn('Database connection failed, starting anyway...');
   }
 
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📋 Health check: http://localhost:${PORT}/health`);
-    console.log(`📦 API endpoints:`);
-    console.log(`   GET  /api/offers - Search offers`);
-    console.log(`   GET  /api/offers/:id - Get offer details`);
-    console.log(`   GET  /api/filters - Get available filters`);
-    console.log(`   GET  /api/complexes - List complexes`);
-    console.log(`   GET  /api/complexes/:id - Get complex details`);
-    console.log(`   POST /api/auth/request-code - Request auth code`);
-    console.log(`   POST /api/auth/verify-code - Verify code & get token`);
-    console.log(`   GET  /api/favorites - User favorites`);
-    console.log(`   GET  /api/selections - Agent selections`);
-    console.log(`   POST /api/bookings - Create booking`);
+    logger.info(`Server running on http://localhost:${PORT}`, { port: PORT });
   });
 }
 

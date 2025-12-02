@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
+import { logger } from '../utils/logger';
 
 dotenv.config();
 
@@ -15,11 +16,11 @@ export const pool = new Pool({
 });
 
 pool.on('connect', () => {
-  console.log('📦 Connected to PostgreSQL');
+  logger.debug('Connected to PostgreSQL');
 });
 
 pool.on('error', (err) => {
-  console.error('❌ PostgreSQL pool error:', err);
+  logger.error('PostgreSQL pool error', { error: err.message, stack: err.stack });
 });
 
 export async function testConnection(): Promise<boolean> {
@@ -27,9 +28,10 @@ export async function testConnection(): Promise<boolean> {
     const client = await pool.connect();
     await client.query('SELECT 1');
     client.release();
+    logger.info('Database connection successful');
     return true;
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    logger.error('Database connection failed', { error: (error as Error).message });
     return false;
   }
 }
