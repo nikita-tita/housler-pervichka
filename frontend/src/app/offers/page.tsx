@@ -14,14 +14,6 @@ import type { OfferListItem, OfferFilters, PaginatedResponse } from '@/types';
 
 type SortOption = 'price_asc' | 'price_desc' | 'area_asc' | 'area_desc' | 'updated_desc';
 
-interface MapMarker {
-  id: number;
-  lat: number;
-  lng: number;
-  price: number;
-  rooms: number;
-  is_studio: boolean;
-}
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'price_asc', label: 'Сначала дешевле' },
@@ -39,7 +31,6 @@ function OffersContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentFilters, setCurrentFilters] = useState<OfferFilters>({});
-  const [markers, setMarkers] = useState<MapMarker[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   const page = Number(searchParams.get('page')) || 1;
@@ -92,17 +83,6 @@ function OffersContent() {
   useEffect(() => {
     loadOffers();
   }, [loadOffers]);
-
-  // Load map markers when in map mode
-  useEffect(() => {
-    if (viewMode === 'map') {
-      api.getMapMarkers(currentFilters).then((res) => {
-        if (res.success && res.data) {
-          setMarkers(res.data);
-        }
-      });
-    }
-  }, [viewMode, currentFilters]);
 
   const handleFiltersChange = useCallback((filters: OfferFilters) => {
     setCurrentFilters(filters);
@@ -243,9 +223,7 @@ function OffersContent() {
 
                 {viewMode === 'map' && (
                   <SplitMapView
-                    offers={offers}
-                    markers={markers}
-                    showMap={true}
+                    filters={currentFilters}
                     onToggleMap={() => handleViewModeChange('cards')}
                   />
                 )}

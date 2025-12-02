@@ -24,6 +24,13 @@ export interface OfferFilters {
   hasFinishing?: boolean;
   completionYears?: number[];
   developers?: string[];
+  // Bounds для поиска по карте (lat_min, lat_max, lng_min, lng_max)
+  bounds?: {
+    latMin: number;
+    latMax: number;
+    lngMin: number;
+    lngMax: number;
+  };
 }
 
 export interface PaginationParams {
@@ -517,6 +524,22 @@ export class OffersService {
     if (filters.ceilingHeightMin !== undefined) {
       conditions.push(`o.ceiling_height >= $${paramIndex}`);
       params.push(filters.ceilingHeightMin);
+      paramIndex++;
+    }
+
+    // Bounds (поиск по области карты)
+    if (filters.bounds) {
+      conditions.push(`o.latitude >= $${paramIndex}`);
+      params.push(filters.bounds.latMin);
+      paramIndex++;
+      conditions.push(`o.latitude <= $${paramIndex}`);
+      params.push(filters.bounds.latMax);
+      paramIndex++;
+      conditions.push(`o.longitude >= $${paramIndex}`);
+      params.push(filters.bounds.lngMin);
+      paramIndex++;
+      conditions.push(`o.longitude <= $${paramIndex}`);
+      params.push(filters.bounds.lngMax);
       paramIndex++;
     }
 

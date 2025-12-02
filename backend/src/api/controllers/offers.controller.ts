@@ -33,7 +33,8 @@ export async function searchOffers(req: Request, res: Response): Promise<void> {
       developers: parseStringArrayParam(req.query.developers),
       kitchenAreaMin: parseNumberParam(req.query.kitchen_area_min),
       kitchenAreaMax: parseNumberParam(req.query.kitchen_area_max),
-      ceilingHeightMin: parseNumberParam(req.query.ceiling_height_min)
+      ceilingHeightMin: parseNumberParam(req.query.ceiling_height_min),
+      bounds: parseBoundsParam(req.query)
     };
 
     // Пагинация (поддержка limit как альтернативы per_page)
@@ -209,6 +210,18 @@ function parseStringArrayParam(value: any): string[] | undefined {
   }
   if (typeof value === 'string') {
     return value.split(',').map(s => s.trim());
+  }
+  return undefined;
+}
+
+function parseBoundsParam(query: any): { latMin: number; latMax: number; lngMin: number; lngMax: number } | undefined {
+  const latMin = parseNumberParam(query.lat_min);
+  const latMax = parseNumberParam(query.lat_max);
+  const lngMin = parseNumberParam(query.lng_min);
+  const lngMax = parseNumberParam(query.lng_max);
+
+  if (latMin !== undefined && latMax !== undefined && lngMin !== undefined && lngMax !== undefined) {
+    return { latMin, latMax, lngMin, lngMax };
   }
   return undefined;
 }

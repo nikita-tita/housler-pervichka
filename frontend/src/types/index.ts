@@ -32,6 +32,13 @@ export interface OfferDetail extends OfferListItem {
   longitude: number | null;
 }
 
+export interface MapBounds {
+  lat_min: number;
+  lat_max: number;
+  lng_min: number;
+  lng_max: number;
+}
+
 export interface OfferFilters {
   rooms?: number[];
   is_studio?: boolean;
@@ -54,6 +61,7 @@ export interface OfferFilters {
   search?: string;
   completion_years?: number[];
   developers?: string[];
+  bounds?: MapBounds;
 }
 
 export interface PaginationParams {

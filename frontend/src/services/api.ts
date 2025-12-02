@@ -120,6 +120,12 @@ class ApiService {
       if (filters.kitchen_area_min) params.set('kitchen_area_min', filters.kitchen_area_min.toString());
       if (filters.kitchen_area_max) params.set('kitchen_area_max', filters.kitchen_area_max.toString());
       if (filters.ceiling_height_min) params.set('ceiling_height_min', filters.ceiling_height_min.toString());
+      if (filters.bounds) {
+        params.set('lat_min', filters.bounds.lat_min.toString());
+        params.set('lat_max', filters.bounds.lat_max.toString());
+        params.set('lng_min', filters.bounds.lng_min.toString());
+        params.set('lng_max', filters.bounds.lng_max.toString());
+      }
     }
 
     if (pagination) {
