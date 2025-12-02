@@ -12,6 +12,7 @@ import { YandexMap } from '@/components/YandexMap';
 import { PriceHistoryChart } from '@/components/PriceHistoryChart';
 import { OfferPdfButton } from '@/components/OfferPdfButton';
 import { ImageGallery } from '@/components/ImageGallery';
+import { OfferDescription } from '@/components/OfferDescription';
 import type { OfferDetail } from '@/types';
 
 export default function OfferDetailPage() {
@@ -229,14 +230,7 @@ export default function OfferDetailPage() {
         </div>
 
         {/* Description */}
-        {offer.description && (
-          <div className="mt-12">
-            <h2 className="text-xl font-semibold mb-4">Описание</h2>
-            <div className="prose max-w-none text-[var(--color-text-light)]">
-              {offer.description}
-            </div>
-          </div>
-        )}
+        <OfferDescription description={offer.description} />
 
         {/* Map */}
         {offer.latitude && offer.longitude && (
