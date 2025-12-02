@@ -17,6 +17,11 @@ export interface OfferListItem {
   building_name?: string | null;
 }
 
+export interface OfferImage {
+  url: string;
+  tag: 'plan' | 'floorplan' | 'housemain' | 'complexscheme' | null;
+}
+
 export interface OfferDetail extends OfferListItem {
   area_living: number | null;
   area_kitchen: number | null;
@@ -27,7 +32,7 @@ export interface OfferDetail extends OfferListItem {
   complex_address: string;
   developer_name: string | null;
   completion_date: string | null;
-  images: string[];
+  images: OfferImage[];
   latitude: number | null;
   longitude: number | null;
 }

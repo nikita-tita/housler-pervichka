@@ -218,7 +218,7 @@ export default function ComparePage() {
                       <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-3">
                         {offer.images?.[0] ? (
                           <img
-                            src={offer.images[0]}
+                            src={typeof offer.images[0] === 'string' ? offer.images[0] : offer.images[0].url}
                             alt={offer.complex_name}
                             className="w-full h-full object-cover"
                           />

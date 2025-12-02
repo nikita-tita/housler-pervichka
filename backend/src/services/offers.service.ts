@@ -226,15 +226,15 @@ export class OffersService {
 
     const offer = result.rows[0];
 
-    // Получить изображения (как массив строк URL)
+    // Получить изображения с тегами
     const imagesResult = await pool.query(
-      'SELECT url FROM images WHERE offer_id = $1 ORDER BY display_order',
+      'SELECT url, tag FROM images WHERE offer_id = $1 ORDER BY tag NULLS LAST, display_order',
       [id]
     );
 
     return {
       ...offer,
-      images: imagesResult.rows.map(row => row.url)
+      images: imagesResult.rows.map(row => ({ url: row.url, tag: row.tag }))
     };
   }
 

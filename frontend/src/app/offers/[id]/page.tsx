@@ -11,6 +11,7 @@ import { MortgageCalculator } from '@/components/MortgageCalculator';
 import { YandexMap } from '@/components/YandexMap';
 import { PriceHistoryChart } from '@/components/PriceHistoryChart';
 import { OfferPdfButton } from '@/components/OfferPdfButton';
+import { ImageGallery } from '@/components/ImageGallery';
 import type { OfferDetail } from '@/types';
 
 export default function OfferDetailPage() {
@@ -20,7 +21,6 @@ export default function OfferDetailPage() {
   const [offer, setOffer] = useState<OfferDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
     if (!id) return;
@@ -76,7 +76,10 @@ export default function OfferDetailPage() {
     );
   }
 
-  const images = offer.images?.length ? offer.images : (offer.image_url ? [offer.image_url] : []);
+  // Изображения (API теперь возвращает {url, tag}[])
+  const images = offer.images?.length
+    ? offer.images
+    : (offer.image_url ? [{ url: offer.image_url, tag: null }] : []);
 
   return (
     <div className="section">
@@ -93,38 +96,7 @@ export default function OfferDetailPage() {
         <div className="grid lg:grid-cols-[1fr_400px] gap-8 lg:gap-12">
           {/* Gallery */}
           <div>
-            <div className="aspect-[4/3] bg-[var(--color-bg-gray)] rounded-lg overflow-hidden mb-4">
-              {images.length > 0 ? (
-                <img
-                  src={images[activeImage]}
-                  alt={`${formatRooms(offer.rooms, offer.is_studio)} в ЖК ${offer.complex_name}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[var(--color-text-light)]">
-                  <svg className="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(idx)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                      idx === activeImage ? 'border-black' : 'border-transparent'
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
+            <ImageGallery images={images} complexName={offer.complex_name} />
           </div>
 
           {/* Info */}
