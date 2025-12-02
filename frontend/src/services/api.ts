@@ -24,6 +24,22 @@ import type {
   UpdateClientDto,
   ClientActivity,
   Agency,
+  FixationWithOffer,
+  FixationDetail,
+  FixationStats,
+  FixationStatus,
+  CreateFixationDto,
+  DealWithOffer,
+  DealDetail,
+  DealStats,
+  DealStatus,
+  CreateDealDto,
+  UpdateDealDto,
+  FailureWithDetails,
+  FailureStats,
+  CancellationReason,
+  CancellationStage,
+  CreateFailureDto,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -408,6 +424,112 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ source }),
     });
+  }
+
+  // ============ FIXATIONS ============
+  async getFixations(filters?: { status?: FixationStatus; clientId?: number }): Promise<ApiResponse<FixationWithOffer[]>> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.clientId) params.set('clientId', filters.clientId.toString());
+    const query = params.toString();
+    return this.fetch(`/api/fixations${query ? `?${query}` : ''}`);
+  }
+
+  async getFixation(id: number): Promise<ApiResponse<FixationDetail>> {
+    return this.fetch(`/api/fixations/${id}`);
+  }
+
+  async createFixation(data: CreateFixationDto): Promise<ApiResponse<FixationWithOffer>> {
+    return this.fetch('/api/fixations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateFixationStatus(id: number, status: FixationStatus, data?: { approvedDays?: number; comment?: string }): Promise<ApiResponse<FixationWithOffer>> {
+    return this.fetch(`/api/fixations/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, ...data }),
+    });
+  }
+
+  async convertFixationToBooking(id: number): Promise<ApiResponse<{ booking_id: number }>> {
+    return this.fetch(`/api/fixations/${id}/convert`, {
+      method: 'POST',
+    });
+  }
+
+  async deleteFixation(id: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/fixations/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getFixationsStats(): Promise<ApiResponse<FixationStats>> {
+    return this.fetch('/api/fixations/stats');
+  }
+
+  // ============ DEALS ============
+  async getDeals(filters?: { status?: DealStatus; clientId?: number }): Promise<ApiResponse<DealWithOffer[]>> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.clientId) params.set('clientId', filters.clientId.toString());
+    const query = params.toString();
+    return this.fetch(`/api/deals${query ? `?${query}` : ''}`);
+  }
+
+  async getDeal(id: number): Promise<ApiResponse<DealDetail>> {
+    return this.fetch(`/api/deals/${id}`);
+  }
+
+  async createDeal(data: CreateDealDto): Promise<ApiResponse<DealWithOffer>> {
+    return this.fetch('/api/deals', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateDeal(id: number, data: UpdateDealDto): Promise<ApiResponse<DealWithOffer>> {
+    return this.fetch(`/api/deals/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateDealStatus(id: number, status: DealStatus): Promise<ApiResponse<DealWithOffer>> {
+    return this.fetch(`/api/deals/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async getDealsStats(): Promise<ApiResponse<DealStats>> {
+    return this.fetch('/api/deals/stats');
+  }
+
+  // ============ FAILURES ============
+  async getFailures(filters?: { stage?: CancellationStage; reason?: string }): Promise<ApiResponse<FailureWithDetails[]>> {
+    const params = new URLSearchParams();
+    if (filters?.stage) params.set('stage', filters.stage);
+    if (filters?.reason) params.set('reason', filters.reason);
+    const query = params.toString();
+    return this.fetch(`/api/failures${query ? `?${query}` : ''}`);
+  }
+
+  async createFailure(data: CreateFailureDto): Promise<ApiResponse<FailureWithDetails>> {
+    return this.fetch('/api/failures', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getCancellationReasons(stage?: CancellationStage): Promise<ApiResponse<CancellationReason[]>> {
+    const query = stage ? `?stage=${stage}` : '';
+    return this.fetch(`/api/failures/reasons${query}`);
+  }
+
+  async getFailuresStats(): Promise<ApiResponse<FailureStats>> {
+    return this.fetch('/api/failures/stats');
   }
 }
 

@@ -8,6 +8,9 @@ import { useEffect } from 'react';
 const TABS = [
   { href: '/clients', label: 'Все клиенты' },
   { href: '/clients/funnel', label: 'Воронка' },
+  { href: '/clients/fixations', label: 'Фиксации' },
+  { href: '/clients/deals', label: 'Сделки' },
+  { href: '/clients/failures', label: 'Срывы' },
 ];
 
 export default function ClientsLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +49,10 @@ export default function ClientsLayout({ children }: { children: React.ReactNode 
   // Определяем активный таб
   const isExactMatch = pathname === '/clients';
   const isFunnelMatch = pathname === '/clients/funnel';
-  const isDetailPage = pathname.startsWith('/clients/') && !isFunnelMatch && pathname !== '/clients/new';
+  const isFixationsMatch = pathname?.startsWith('/clients/fixations');
+  const isDealsMatch = pathname?.startsWith('/clients/deals');
+  const isFailuresMatch = pathname?.startsWith('/clients/failures');
+  const isDetailPage = pathname?.startsWith('/clients/') && !isFunnelMatch && !isFixationsMatch && !isDealsMatch && !isFailuresMatch && pathname !== '/clients/new';
 
   return (
     <div className="section">
@@ -68,7 +74,7 @@ export default function ClientsLayout({ children }: { children: React.ReactNode 
             {TABS.map(tab => {
               const isActive = tab.href === '/clients'
                 ? isExactMatch
-                : pathname === tab.href;
+                : pathname?.startsWith(tab.href);
 
               return (
                 <Link

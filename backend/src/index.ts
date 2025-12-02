@@ -13,6 +13,9 @@ import selectionsRoutes from './api/routes/selections.routes';
 import bookingsRoutes, { operatorBookingsRouter } from './api/routes/bookings.routes';
 import clientsRoutes from './api/routes/clients.routes';
 import agenciesRoutes from './api/routes/agencies.routes';
+import fixationsRoutes from './api/routes/fixations.routes';
+import dealsRoutes from './api/routes/deals.routes';
+import failuresRoutes from './api/routes/failures.routes';
 import { testConnection } from './config/database';
 
 dotenv.config();
@@ -46,6 +49,9 @@ app.use('/api/bookings', bookingsRoutes);
 app.use('/api/operator/bookings', operatorBookingsRouter);
 app.use('/api/clients', clientsRoutes);
 app.use('/api/agencies', agenciesRoutes);
+app.use('/api/fixations', fixationsRoutes);
+app.use('/api/deals', dealsRoutes);
+app.use('/api/failures', failuresRoutes);
 
 // 404 handler
 app.use((_req, res) => {

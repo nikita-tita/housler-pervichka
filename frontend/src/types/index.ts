@@ -340,3 +340,234 @@ export interface CreateClientDto {
 }
 
 export interface UpdateClientDto extends Partial<CreateClientDto> {}
+
+// ============ FIXATIONS (Фиксации цен) ============
+
+export type FixationStatus = 'pending' | 'approved' | 'rejected' | 'expired' | 'converted';
+
+export interface Fixation {
+  id: number;
+  lock_number: string;
+  agent_id: number;
+  client_id: number | null;
+  selection_id: number | null;
+  offer_id: number;
+  client_name: string;
+  client_phone: string;
+  client_email: string | null;
+  locked_price: number;
+  requested_days: number;
+  approved_days: number | null;
+  expires_at: string | null;
+  status: FixationStatus;
+  agent_comment: string | null;
+  operator_comment: string | null;
+  developer_response: string | null;
+  booking_id: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FixationWithOffer extends Fixation {
+  offer_address: string | null;
+  offer_rooms: number | null;
+  offer_area: number | null;
+  complex_name: string | null;
+  building_name: string | null;
+  client_stage?: string;
+}
+
+export interface FixationDetail extends FixationWithOffer {
+  offer_floor: number | null;
+  offer_floors_total: number | null;
+  offer_price_current: number | null;
+  offer_image: string | null;
+}
+
+export interface CreateFixationDto {
+  clientId?: number;
+  offerId: number;
+  clientName: string;
+  clientPhone: string;
+  clientEmail?: string;
+  requestedDays?: number;
+  comment?: string;
+}
+
+export interface FixationFilters {
+  status?: FixationStatus;
+  clientId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface FixationStats {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  expired: number;
+  converted: number;
+  expiringToday: number;
+}
+
+// ============ DEALS (Сделки) ============
+
+export type DealStatus = 'pending' | 'signed' | 'registered' | 'completed' | 'cancelled';
+export type CommissionStatus = 'pending' | 'invoiced' | 'paid';
+
+export interface Deal {
+  id: number;
+  deal_number: string;
+  booking_id: number | null;
+  client_id: number | null;
+  agent_id: number;
+  offer_id: number;
+  contract_number: string | null;
+  contract_date: string | null;
+  final_price: number;
+  discount_amount: number;
+  discount_reason: string | null;
+  commission_percent: number | null;
+  commission_amount: number | null;
+  commission_payment_status: CommissionStatus;
+  status: DealStatus;
+  signed_at: string | null;
+  registered_at: string | null;
+  registration_number: string | null;
+  completed_at: string | null;
+  cancelled_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DealWithOffer extends Deal {
+  offer_address: string | null;
+  offer_rooms: number | null;
+  offer_area: number | null;
+  complex_name: string | null;
+  building_name: string | null;
+  client_name: string | null;
+  client_phone: string | null;
+}
+
+export interface DealDetail extends DealWithOffer {
+  offer_floor: number | null;
+  offer_floors_total: number | null;
+  offer_image: string | null;
+  booking_status: string | null;
+}
+
+export interface CreateDealDto {
+  bookingId: number;
+  finalPrice?: number;
+  discountAmount?: number;
+  discountReason?: string;
+  commissionPercent?: number;
+  notes?: string;
+}
+
+export interface UpdateDealDto {
+  contractNumber?: string;
+  contractDate?: string;
+  finalPrice?: number;
+  discountAmount?: number;
+  discountReason?: string;
+  commissionPercent?: number;
+  registrationNumber?: string;
+  notes?: string;
+}
+
+export interface DealFilters {
+  status?: DealStatus;
+  clientId?: number;
+  commissionStatus?: CommissionStatus;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface DealStats {
+  total: number;
+  pending: number;
+  signed: number;
+  registered: number;
+  completed: number;
+  cancelled: number;
+  totalValue: number;
+  totalCommission: number;
+  pendingCommission: number;
+}
+
+// ============ FAILURES (Срывы) ============
+
+export type CancellationStage = 'at_fixation' | 'at_booking' | 'at_deal';
+export type InitiatedBy = 'client' | 'developer' | 'agent' | 'bank';
+
+export interface Failure {
+  id: number;
+  price_lock_id: number | null;
+  booking_id: number | null;
+  deal_id: number | null;
+  client_id: number | null;
+  agent_id: number;
+  offer_id: number | null;
+  stage: CancellationStage;
+  reason: string;
+  reason_details: string | null;
+  initiated_by: InitiatedBy;
+  penalty_amount: number;
+  created_at: string;
+}
+
+export interface FailureWithDetails extends Failure {
+  offer_address: string | null;
+  offer_rooms: number | null;
+  complex_name: string | null;
+  client_name: string | null;
+  client_phone: string | null;
+  reason_name: string | null;
+}
+
+export interface CancellationReason {
+  id: number;
+  stage: CancellationStage;
+  code: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+}
+
+export interface CreateFailureDto {
+  stage: CancellationStage;
+  priceLockId?: number;
+  bookingId?: number;
+  dealId?: number;
+  clientId?: number;
+  offerId?: number;
+  reason: string;
+  reasonDetails?: string;
+  initiatedBy: InitiatedBy;
+  penaltyAmount?: number;
+}
+
+export interface FailureFilters {
+  stage?: CancellationStage;
+  reason?: string;
+  initiatedBy?: InitiatedBy;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface FailureStats {
+  total: number;
+  atFixation: number;
+  atBooking: number;
+  atDeal: number;
+  byClient: number;
+  byDeveloper: number;
+  byAgent: number;
+  byBank: number;
+  totalPenalty: number;
+  topReasons: { reason: string; count: number }[];
+}

@@ -242,20 +242,20 @@ app.use(Sentry.Handlers.errorHandler());
 
 ## 6. Roadmap по приоритетам
 
-### Спринт 1 (срочно):
+### Спринт 1 (срочно) — ВЫПОЛНЕНО:
 1. [x] Исправить BUG-001, BUG-002 — готово
-2. [ ] Rate limiting на auth
+2. [x] Rate limiting на auth — готово (rate-limit.middleware.ts)
 3. [ ] Sentry интеграция
 
-### Спринт 2 (важно):
-4. [ ] Приведение типов в API (string → number)
+### Спринт 2 (важно) — ЧАСТИЧНО ВЫПОЛНЕНО:
+4. [x] Приведение типов в API (string → number) — готово (selections.service.ts)
 5. [ ] Структурированное логирование
 6. [ ] Unit тесты для selections.service
 
 ### Спринт 3 (улучшения):
 7. [ ] Zod валидация
 8. [ ] E2E тесты
-9. [ ] Колонка status в selection_items
+9. [x] Колонка status в selection_items — готово (миграция 007)
 
 ---
 
