@@ -252,9 +252,9 @@ app.use(Sentry.Handlers.errorHandler());
 5. [x] Структурированное логирование — готово (winston logger)
 6. [x] Unit тесты для selections.service — готово (33 теста)
 
-### Спринт 3 (улучшения):
+### Спринт 3 (улучшения) — ВЫПОЛНЕНО:
 7. [x] Zod валидация — готово (schemas.ts + middleware.ts)
-8. [ ] E2E тесты
+8. [x] E2E тесты — готово (Playwright, 22 теста)
 9. [x] Колонка status в selection_items — готово (миграция 007)
 
 ---
