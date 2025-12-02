@@ -250,7 +250,7 @@ app.use(Sentry.Handlers.errorHandler());
 ### Спринт 2 (важно) — ВЫПОЛНЕНО:
 4. [x] Приведение типов в API (string → number) — готово (selections.service.ts)
 5. [x] Структурированное логирование — готово (winston logger)
-6. [ ] Unit тесты для selections.service
+6. [x] Unit тесты для selections.service — готово (33 теста)
 
 ### Спринт 3 (улучшения):
 7. [ ] Zod валидация
