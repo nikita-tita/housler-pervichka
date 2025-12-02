@@ -189,6 +189,12 @@ export class YandexFeedParser {
           this.currentOffer.price = parseInt(value) || 0;
         }
         break;
+      case 'ceiling-height':
+        // Прямое значение без вложенного <value>
+        if (value && !isNaN(parseFloat(value))) {
+          this.currentOffer.ceiling_height = parseFloat(value) || null;
+        }
+        break;
       case 'renovation':
         this.currentOffer.renovation = value;
         break;
