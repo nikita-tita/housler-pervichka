@@ -196,7 +196,6 @@ export class SelectionsService {
         si.offer_id,
         si.comment,
         si.added_by,
-        si.status,
         si.created_at as added_at,
         o.external_id,
         o.rooms,
@@ -231,7 +230,7 @@ export class SelectionsService {
       offer_id: row.offer_id,
       comment: row.comment,
       added_by: row.added_by,
-      status: row.status || 'pending',
+      status: 'pending', // TODO: добавить колонку status в миграцию если нужно
       added_at: row.added_at,
       // Плоские поля (для публичной страницы /s/[code])
       external_id: row.external_id,
