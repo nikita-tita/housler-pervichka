@@ -62,12 +62,13 @@ class ApiService {
       },
     });
 
+    const data = await response.json().catch(() => ({ success: false, error: 'Invalid JSON response' }));
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(error.error || `API Error: ${response.status}`);
+      // Возвращаем объект с ошибкой вместо throw
+      return { success: false, error: data.error || `API Error: ${response.status}` } as T;
     }
 
-    const data = await response.json();
     return data;
   }
 

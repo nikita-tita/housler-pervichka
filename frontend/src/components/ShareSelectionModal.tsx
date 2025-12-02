@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/contexts/ToastContext';
 import type { SelectionDetail } from '@/types';
 
 interface ShareSelectionModalProps {
@@ -10,6 +11,7 @@ interface ShareSelectionModalProps {
 }
 
 export function ShareSelectionModal({ selection, isOpen, onClose }: ShareSelectionModalProps) {
+  const { showToast } = useToast();
   const [email, setEmail] = useState(selection.client_email || '');
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -22,7 +24,7 @@ export function ShareSelectionModal({ selection, isOpen, onClose }: ShareSelecti
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
-    alert('Ссылка скопирована!');
+    showToast('Ссылка скопирована!', 'success');
   };
 
   const handleSendEmail = async (e: React.FormEvent) => {

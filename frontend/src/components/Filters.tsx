@@ -172,6 +172,27 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
   const hasActiveFilters = Object.keys(filters).length > 0;
 
+  // Подсчёт количества активных фильтров для отображения в кнопке
+  const countActiveFilters = (): number => {
+    let count = 0;
+    if (filters.rooms?.length) count++;
+    if (filters.is_studio) count++;
+    if (filters.price_min || filters.price_max) count++;
+    if (filters.area_min || filters.area_max) count++;
+    if (filters.districts?.length) count++;
+    if (filters.metro_stations?.length) count++;
+    if (filters.completion_years?.length) count++;
+    if (filters.developers?.length) count++;
+    if (filters.floor_min || filters.floor_max || filters.not_first_floor || filters.not_last_floor) count++;
+    if (filters.kitchen_area_min || filters.kitchen_area_max) count++;
+    if (filters.ceiling_height_min) count++;
+    if (filters.has_finishing) count++;
+    if (filters.search) count++;
+    return count;
+  };
+
+  const activeFilterCount = countActiveFilters();
+
   // Search input with debounce - must be before any conditional returns
   const [searchInput, setSearchInput] = useState(filters.search || '');
 
@@ -454,7 +475,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           onClick={() => setIsExpanded(!isExpanded)}
           className="btn btn-secondary flex-1"
         >
-          {isExpanded ? 'Свернуть' : 'Все фильтры'}
+          {isExpanded ? 'Свернуть' : `Все фильтры${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
         </button>
         {hasActiveFilters && (
           <button

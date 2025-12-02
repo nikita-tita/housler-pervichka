@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useRouter } from 'next/navigation';
 
 interface FavoriteButtonProps {
@@ -12,8 +13,9 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ offerId, className = '', size = 'md' }: FavoriteButtonProps) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { showToast } = useToast();
 
   const isFav = isFavorite(offerId);
 
@@ -33,12 +35,16 @@ export function FavoriteButton({ offerId, className = '', size = 'md' }: Favorit
     e.preventDefault();
     e.stopPropagation();
 
+    // Ждём пока auth состояние загрузится
+    if (authLoading) return;
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
     }
 
     await toggleFavorite(offerId);
+    showToast(isFav ? 'Удалено из избранного' : 'Добавлено в избранное', 'success');
   };
 
   return (

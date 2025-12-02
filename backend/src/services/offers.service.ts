@@ -372,11 +372,23 @@ export class OffersService {
     const params: any[] = [];
     let paramIndex = 1;
 
-    // Комнаты
-    if (filters.rooms && filters.rooms.length > 0) {
+    // Комнатность и студия (объединяем через OR если оба указаны)
+    const hasRooms = filters.rooms && filters.rooms.length > 0;
+    const hasStudio = filters.isStudio === true;
+
+    if (hasRooms && hasStudio) {
+      // Пользователь выбрал и комнаты, и студию — ищем ИЛИ комнаты ИЛИ студию
+      conditions.push(`(o.rooms = ANY($${paramIndex}) OR o.is_studio = true)`);
+      params.push(filters.rooms);
+      paramIndex++;
+    } else if (hasRooms) {
+      // Только комнаты
       conditions.push(`o.rooms = ANY($${paramIndex})`);
       params.push(filters.rooms);
       paramIndex++;
+    } else if (hasStudio) {
+      // Только студии
+      conditions.push(`o.is_studio = true`);
     }
 
     // Цена
@@ -468,12 +480,7 @@ export class OffersService {
       paramIndex++;
     }
 
-    // Студия
-    if (filters.isStudio !== undefined) {
-      conditions.push(`o.is_studio = $${paramIndex}`);
-      params.push(filters.isStudio);
-      paramIndex++;
-    }
+    // Студия — обрабатывается вместе с комнатами выше
 
     // С отделкой
     if (filters.hasFinishing !== undefined && filters.hasFinishing) {

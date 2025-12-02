@@ -29,20 +29,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      try {
-        const response = await api.getMe();
-        if (response.success && response.data) {
-          setState({
-            user: response.data,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-        } else {
-          removeStoredToken();
-          setState({ user: null, token: null, isAuthenticated: false, isLoading: false });
-        }
-      } catch {
+      const response = await api.getMe();
+      if (response.success && response.data) {
+        setState({
+          user: response.data,
+          token,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      } else {
+        // Токен невалидный (401) или другая ошибка — удаляем токен
         removeStoredToken();
         setState({ user: null, token: null, isAuthenticated: false, isLoading: false });
       }
