@@ -166,16 +166,18 @@ export interface SelectionItem {
   // Inline offer data from backend
   rooms: number | null;
   is_studio: boolean;
-  floor: number;
-  floors_total: number;
-  area_total: number;
-  price: number;
-  price_per_sqm: number;
+  floor: number | null;
+  floors_total: number | null;
+  area_total: number | null;
+  price: number | null;
+  price_per_sqm: number | null;
   building_name: string | null;
+  complex_name: string | null;
   district: string | null;
   metro_name: string | null;
   main_image: string | null;
-  offer?: OfferListItem;
+  // Nested offer object for compatibility
+  offer?: OfferListItem | null;
 }
 
 export interface SelectionDetail extends Selection {

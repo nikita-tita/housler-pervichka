@@ -16,24 +16,47 @@ export interface Selection {
   updated_at: string;
 }
 
+export interface SelectionItemOffer {
+  id: number;
+  rooms: number | null;
+  is_studio: boolean;
+  floor: number | null;
+  floors_total: number | null;
+  area_total: number | null;
+  price: number | null;
+  price_per_sqm: number | null;
+  complex_name: string | null;
+  district_name: string | null;
+  metro_station: string | null;
+  image_url: string | null;
+  building_name: string | null;
+  is_active: boolean;
+}
+
 export interface SelectionItem {
   id: number;
   offer_id: number;
-  external_id: string;
-  rooms: number;
+  comment: string | null;
+  added_by: string | null;
+  status: string;
+  added_at: string;
+  // Плоские поля
+  external_id: string | null;
+  rooms: number | null;
   is_studio: boolean;
-  floor: number;
-  floors_total: number;
-  area_total: number;
-  price: number;
-  price_per_sqm: number;
-  address: string;
+  floor: number | null;
+  floors_total: number | null;
+  area_total: number | null;
+  price: number | null;
+  price_per_sqm: number | null;
+  address: string | null;
   district: string | null;
   metro_name: string | null;
   building_name: string | null;
   main_image: string | null;
-  comment: string | null;
-  added_at: string;
+  complex_name: string | null;
+  // Вложенный объект offer
+  offer: SelectionItemOffer | null;
 }
 
 export interface SelectionDetail extends Selection {
@@ -171,6 +194,10 @@ export class SelectionsService {
       SELECT
         si.id,
         si.offer_id,
+        si.comment,
+        si.added_by,
+        si.status,
+        si.created_at as added_at,
         o.external_id,
         o.rooms,
         o.is_studio,
@@ -180,25 +207,65 @@ export class SelectionsService {
         o.price,
         o.price_per_sqm,
         o.address,
-        d.name as district,
         o.metro_name,
         o.building_name,
+        o.is_active as offer_is_active,
+        d.name as district,
+        c.name as complex_name,
         (
           SELECT url FROM images
           WHERE offer_id = o.id AND (tag = 'housemain' OR tag IS NULL)
           ORDER BY display_order LIMIT 1
-        ) as main_image,
-        si.comment,
-        si.added_by,
-        si.created_at as added_at
+        ) as main_image
       FROM selection_items si
-      JOIN offers o ON si.offer_id = o.id
+      LEFT JOIN offers o ON si.offer_id = o.id
       LEFT JOIN districts d ON o.district_id = d.id
-      WHERE si.selection_id = $1 AND o.is_active = true
+      LEFT JOIN complexes c ON o.complex_id = c.id
+      WHERE si.selection_id = $1
       ORDER BY si.display_order, si.created_at
     `, [selectionId]);
 
-    return result.rows;
+    // Возвращаем как плоскую структуру, так и вложенный offer для совместимости с фронтендом
+    return result.rows.map(row => ({
+      id: row.id,
+      offer_id: row.offer_id,
+      comment: row.comment,
+      added_by: row.added_by,
+      status: row.status || 'pending',
+      added_at: row.added_at,
+      // Плоские поля (для публичной страницы /s/[code])
+      external_id: row.external_id,
+      rooms: row.rooms,
+      is_studio: row.is_studio,
+      floor: row.floor,
+      floors_total: row.floors_total,
+      area_total: row.area_total,
+      price: row.price,
+      price_per_sqm: row.price_per_sqm,
+      address: row.address,
+      district: row.district,
+      metro_name: row.metro_name,
+      building_name: row.building_name,
+      main_image: row.main_image,
+      complex_name: row.complex_name,
+      // Вложенный offer объект (для страницы агента /selections/[id])
+      offer: row.offer_id && row.price !== null ? {
+        id: row.offer_id,
+        rooms: row.rooms,
+        is_studio: row.is_studio,
+        floor: row.floor,
+        floors_total: row.floors_total,
+        area_total: row.area_total,
+        price: row.price,
+        price_per_sqm: row.price_per_sqm,
+        complex_name: row.complex_name || row.building_name,
+        district_name: row.district,
+        metro_station: row.metro_name,
+        image_url: row.main_image,
+        building_name: row.building_name,
+        is_active: row.offer_is_active
+      } : null
+    }));
   }
 
   /**

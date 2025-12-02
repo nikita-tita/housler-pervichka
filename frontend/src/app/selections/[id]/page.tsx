@@ -163,57 +163,89 @@ export default function SelectionDetailPage() {
                 </div>
               )}
 
-              <Link href={`/offers/${item.offer_id}`}>
-                <div className="aspect-[4/3] bg-gray-100">
-                  {item.offer?.image_url ? (
-                    <img
-                      src={item.offer.image_url}
-                      alt={item.offer.complex_name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      Нет фото
+              {/* Проверяем доступность оффера */}
+              {item.offer || item.price ? (
+                <>
+                  <Link href={`/offers/${item.offer_id}`}>
+                    <div className="aspect-[4/3] bg-gray-100">
+                      {(item.offer?.image_url || item.main_image) ? (
+                        <img
+                          src={item.offer?.image_url || item.main_image || ''}
+                          alt={item.offer?.complex_name || item.complex_name || item.building_name || 'Квартира'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          Нет фото
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </Link>
+                  </Link>
 
-              <div className="p-4">
-                {item.offer && (
-                  <>
+                  <div className="p-4">
                     <Link href={`/offers/${item.offer_id}`}>
                       <div className="text-lg font-semibold mb-1 hover:text-[var(--color-accent)]">
-                        {formatPrice(item.offer.price)}
+                        {formatPrice(item.offer?.price ?? item.price ?? 0)}
                       </div>
                     </Link>
                     <div className="text-sm text-[var(--color-text-light)] mb-2">
-                      {formatRooms(item.offer.rooms, item.offer.is_studio)} · {formatArea(item.offer.area_total)} · {item.offer.floor}/{item.offer.floors_total} эт.
+                      {formatRooms(item.offer?.rooms ?? item.rooms, item.offer?.is_studio ?? item.is_studio)} · {formatArea(item.offer?.area_total ?? item.area_total ?? 0)} · {item.offer?.floor ?? item.floor}/{item.offer?.floors_total ?? item.floors_total} эт.
                     </div>
-                    <div className="text-sm font-medium">{item.offer.complex_name}</div>
-                  </>
-                )}
-                {item.comment && (
-                  <div className="mt-2 text-sm text-[var(--color-text-light)] italic">
-                    {item.comment}
-                  </div>
-                )}
+                    <div className="text-sm font-medium">{item.offer?.complex_name || item.complex_name || item.building_name}</div>
+                    {(item.offer?.district_name || item.district) && (
+                      <div className="text-sm text-[var(--color-text-light)]">
+                        {item.offer?.district_name || item.district}
+                        {(item.offer?.metro_station || item.metro_name) && ` · м. ${item.offer?.metro_station || item.metro_name}`}
+                      </div>
+                    )}
+                    {item.comment && (
+                      <div className="mt-2 text-sm text-[var(--color-text-light)] italic">
+                        {item.comment}
+                      </div>
+                    )}
 
-                {/* Status & Actions */}
-                <div className="mt-3 flex items-center justify-between">
-                  <SelectionItemStatus
-                    selectionId={selection.id}
-                    offerId={item.offer_id}
-                    currentStatus={(item.status as ItemStatus) || 'pending'}
-                  />
-                  <button
-                    onClick={() => handleRemoveItem(item.offer_id)}
-                    className="text-sm text-red-600 hover:text-red-700"
-                  >
-                    Удалить
-                  </button>
-                </div>
-              </div>
+                    {/* Status & Actions */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <SelectionItemStatus
+                        selectionId={selection.id}
+                        offerId={item.offer_id}
+                        currentStatus={(item.status as ItemStatus) || 'pending'}
+                      />
+                      <button
+                        onClick={() => handleRemoveItem(item.offer_id)}
+                        className="text-sm text-red-600 hover:text-red-700"
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Объект недоступен */
+                <>
+                  <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
+                    <div className="text-center text-gray-400">
+                      <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                      </svg>
+                      <span className="text-sm">Объект недоступен</span>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-sm text-gray-500 mb-2">
+                      Этот объект был удалён или снят с продажи
+                    </div>
+                    <div className="flex items-center justify-end">
+                      <button
+                        onClick={() => handleRemoveItem(item.offer_id)}
+                        className="text-sm text-red-600 hover:text-red-700"
+                      >
+                        Удалить из подборки
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
