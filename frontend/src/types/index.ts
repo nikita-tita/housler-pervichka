@@ -60,6 +60,8 @@ export interface OfferFilters {
   ceiling_height_min?: number;
   districts?: string[];
   metro_stations?: string[];
+  metro_time_max?: number; // Максимальное время до метро пешком (минуты)
+  building_type?: string[]; // Тип дома (монолит, панель, кирпич)
   has_finishing?: boolean;
   complexes?: string[];
   complex_id?: number;
@@ -95,6 +97,7 @@ export interface FilterOptions {
   area_range: { min: number; max: number };
   completion_years: { year: number; count: number }[];
   developers: { name: string; count: number }[];
+  building_types: { name: string; count: number }[];
 }
 
 export interface ApiResponse<T> {

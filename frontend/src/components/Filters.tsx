@@ -5,10 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { FilterOptions, OfferFilters } from '@/types';
 import { api } from '@/services/api';
 import { SearchAutocomplete } from './SearchAutocomplete';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { MultiSelect } from './filters/MultiSelect';
 import { FloorFilter } from './filters/FloorFilter';
 import { KitchenAreaFilter } from './filters/KitchenAreaFilter';
 import { CeilingHeightFilter } from './filters/CeilingHeightFilter';
+import { MetroTimeFilter } from './filters/MetroTimeFilter';
 import { DebouncedNumberInput } from './filters/DebouncedNumberInput';
 
 interface FiltersProps {
@@ -64,6 +66,12 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
     const metros = searchParams.getAll('metro_stations');
     if (metros.length) newFilters.metro_stations = metros;
+
+    const metroTimeMax = searchParams.get('metro_time_max');
+    if (metroTimeMax) newFilters.metro_time_max = Number(metroTimeMax);
+
+    const buildingTypes = searchParams.getAll('building_type');
+    if (buildingTypes.length) newFilters.building_type = buildingTypes;
 
     const hasFinishing = searchParams.get('has_finishing');
     if (hasFinishing) newFilters.has_finishing = hasFinishing === 'true';
@@ -127,6 +135,10 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     if (newFilters.metro_stations?.length) {
       newFilters.metro_stations.forEach(m => params.append('metro_stations', m));
     }
+    if (newFilters.metro_time_max) params.set('metro_time_max', newFilters.metro_time_max.toString());
+    if (newFilters.building_type?.length) {
+      newFilters.building_type.forEach(t => params.append('building_type', t));
+    }
     if (newFilters.has_finishing !== undefined) {
       params.set('has_finishing', newFilters.has_finishing.toString());
     }
@@ -182,6 +194,8 @@ export function Filters({ onFiltersChange }: FiltersProps) {
     if (filters.area_min || filters.area_max) count++;
     if (filters.districts?.length) count++;
     if (filters.metro_stations?.length) count++;
+    if (filters.metro_time_max) count++;
+    if (filters.building_type?.length) count++;
     if (filters.completion_years?.length) count++;
     if (filters.developers?.length) count++;
     if (filters.floor_min || filters.floor_max || filters.not_first_floor || filters.not_last_floor) count++;
@@ -196,6 +210,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
   // Search input with debounce - must be before any conditional returns
   const [searchInput, setSearchInput] = useState(filters.search || '');
+  const { addToHistory } = useSearchHistory();
 
   useEffect(() => {
     setSearchInput(filters.search || '');
@@ -204,6 +219,10 @@ export function Filters({ onFiltersChange }: FiltersProps) {
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (searchInput !== (filters.search || '')) {
+        // Save text search to history when user types
+        if (searchInput && searchInput.length >= 2) {
+          addToHistory('text', searchInput);
+        }
         applyFilters({ ...filters, search: searchInput || undefined });
       }
     }, 500);
@@ -357,6 +376,17 @@ export function Filters({ onFiltersChange }: FiltersProps) {
             </div>
           )}
 
+          {/* Metro Time Filter */}
+          <div className="mb-6">
+            <MetroTimeFilter
+              value={filters.metro_time_max}
+              onChange={(value) => applyFilters({
+                ...filters,
+                metro_time_max: value,
+              })}
+            />
+          </div>
+
           {/* Completion Year MultiSelect */}
           {filterOptions?.completion_years && filterOptions.completion_years.length > 0 && (
             <div className="mb-6">
@@ -395,6 +425,27 @@ export function Filters({ onFiltersChange }: FiltersProps) {
                 })}
                 placeholder="Выберите застройщика"
                 searchPlaceholder="Поиск застройщика..."
+              />
+            </div>
+          )}
+
+          {/* Building Type MultiSelect */}
+          {filterOptions?.building_types && filterOptions.building_types.length > 0 && (
+            <div className="mb-6">
+              <div className="text-sm font-medium mb-3">Тип дома</div>
+              <MultiSelect
+                options={filterOptions.building_types.map(t => ({
+                  value: t.name,
+                  label: t.name,
+                  count: t.count
+                }))}
+                value={filters.building_type || []}
+                onChange={(values) => applyFilters({
+                  ...filters,
+                  building_type: values.length ? values : undefined,
+                })}
+                placeholder="Выберите тип дома"
+                searchPlaceholder="Поиск типа..."
               />
             </div>
           )}

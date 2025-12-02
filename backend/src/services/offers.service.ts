@@ -19,6 +19,7 @@ export interface OfferFilters {
   complexId?: number;
   renovation?: string[];
   buildingState?: string[];
+  buildingType?: string[]; // Тип дома: монолит, панель, кирпич и тд
   search?: string;
   isStudio?: boolean;
   hasFinishing?: boolean;
@@ -294,8 +295,9 @@ export class OffersService {
     area_range: { min: number; max: number };
     completion_years: { year: number; count: number }[];
     developers: { name: string; count: number }[];
+    building_types: { name: string; count: number }[];
   }> {
-    const [districts, metro, complexes, priceRange, areaRange, roomsCount, completionYears, developers] = await Promise.all([
+    const [districts, metro, complexes, priceRange, areaRange, roomsCount, completionYears, developers, buildingTypes] = await Promise.all([
       pool.query(`
         SELECT d.name, COUNT(o.id)::int as count
         FROM districts d
@@ -367,6 +369,16 @@ export class OffersService {
         GROUP BY agent_organization
         ORDER BY count DESC
         LIMIT 50
+      `),
+      // Типы домов (building_types)
+      pool.query(`
+        SELECT building_type as name, COUNT(*)::int as count
+        FROM offers
+        WHERE is_active = true
+          AND building_type IS NOT NULL
+          AND building_type != ''
+        GROUP BY building_type
+        ORDER BY count DESC
       `)
     ]);
 
@@ -378,7 +390,8 @@ export class OffersService {
       price_range: priceRange.rows[0] || { min: 0, max: 0 },
       area_range: areaRange.rows[0] || { min: 0, max: 0 },
       completion_years: completionYears.rows,
-      developers: developers.rows
+      developers: developers.rows,
+      building_types: buildingTypes.rows
     };
   }
 
@@ -488,6 +501,13 @@ export class OffersService {
     if (filters.buildingState && filters.buildingState.length > 0) {
       conditions.push(`o.building_state = ANY($${paramIndex})`);
       params.push(filters.buildingState);
+      paramIndex++;
+    }
+
+    // Тип дома (монолит, панель, кирпич)
+    if (filters.buildingType && filters.buildingType.length > 0) {
+      conditions.push(`o.building_type = ANY($${paramIndex})`);
+      params.push(filters.buildingType);
       paramIndex++;
     }
 
