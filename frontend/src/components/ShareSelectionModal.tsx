@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/contexts/ToastContext';
+import { Modal } from '@/components/ui';
 import type { SelectionDetail } from '@/types';
 
 interface ShareSelectionModalProps {
@@ -85,33 +86,14 @@ export function ShareSelectionModal({ selection, isOpen, onClose }: ShareSelecti
     window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${text}`, '_blank');
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)]">
-          <h2 className="text-xl font-semibold">Поделиться подборкой</h2>
-          <button
-            onClick={onClose}
-            className="text-[var(--color-text-light)] hover:text-[var(--color-text)]"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-5">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Поделиться подборкой"
+      size="lg"
+    >
+      <div>
           {/* Share Link */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">Ссылка на подборку</label>
@@ -215,8 +197,7 @@ export function ShareSelectionModal({ selection, isOpen, onClose }: ShareSelecti
               )}
             </button>
           </form>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }

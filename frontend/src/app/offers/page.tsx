@@ -9,6 +9,7 @@ import { OffersTable } from '@/components/OffersTable';
 import { PlansGrid } from '@/components/PlansGrid';
 import { SplitMapView } from '@/components/SplitMapView';
 import { BulkActionsBar } from '@/components/BulkActionsBar';
+import { Pagination } from '@/components/ui';
 import { api } from '@/services/api';
 import type { OfferListItem, OfferFilters, PaginatedResponse } from '@/types';
 
@@ -168,7 +169,7 @@ function OffersContent() {
           {/* Offers Grid */}
           <div>
             {isLoading ? (
-              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="card animate-pulse">
                     <div className="aspect-[4/3] bg-[var(--color-bg-gray)]"></div>
@@ -198,7 +199,7 @@ function OffersContent() {
               <>
                 {/* View Mode Content */}
                 {viewMode === 'cards' && (
-                  <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {offers.map(offer => (
                       <OfferCard key={offer.id} offer={offer} />
                     ))}
@@ -230,58 +231,12 @@ function OffersContent() {
 
                 {/* Pagination (not shown for map mode) */}
                 {viewMode !== 'map' && pagination && pagination.total_pages > 1 && (
-                  <div className="mt-12 flex justify-center items-center gap-2 flex-wrap">
-                    {pagination.page > 1 && (
-                      <a
-                        href={buildUrl({ page: pagination.page - 1 })}
-                        className="btn btn-secondary"
-                      >
-                        ← Назад
-                      </a>
-                    )}
-
-                    {/* Page numbers */}
-                    {(() => {
-                      const pages: (number | string)[] = [];
-                      const current = pagination.page;
-                      const total = pagination.total_pages;
-
-                      if (total <= 7) {
-                        for (let i = 1; i <= total; i++) pages.push(i);
-                      } else {
-                        pages.push(1);
-                        if (current > 3) pages.push('...');
-                        for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
-                          pages.push(i);
-                        }
-                        if (current < total - 2) pages.push('...');
-                        pages.push(total);
-                      }
-
-                      return pages.map((p, i) =>
-                        typeof p === 'number' ? (
-                          <a
-                            key={i}
-                            href={buildUrl({ page: p })}
-                            className={`btn btn-sm ${p === current ? 'btn-primary' : 'btn-secondary'}`}
-                          >
-                            {p}
-                          </a>
-                        ) : (
-                          <span key={i} className="px-2 text-[var(--color-text-light)]">{p}</span>
-                        )
-                      );
-                    })()}
-
-                    {pagination.page < pagination.total_pages && (
-                      <a
-                        href={buildUrl({ page: pagination.page + 1 })}
-                        className="btn btn-secondary"
-                      >
-                        Далее →
-                      </a>
-                    )}
-                  </div>
+                  <Pagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.total_pages}
+                    buildUrl={(p) => buildUrl({ page: p })}
+                    className="mt-12"
+                  />
                 )}
               </>
             )}

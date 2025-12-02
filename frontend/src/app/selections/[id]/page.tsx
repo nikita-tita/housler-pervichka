@@ -63,7 +63,7 @@ export default function SelectionDetailPage() {
       <div className="container py-12">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-gray-200 rounded-lg h-64"></div>
             ))}
@@ -150,11 +150,11 @@ export default function SelectionDetailPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {selection.items.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-lg overflow-hidden border border-[var(--color-border)] relative"
+              className="card overflow-hidden relative"
             >
               {/* Badge for client-added items */}
               {item.added_by === 'client' && (
@@ -221,7 +221,7 @@ export default function SelectionDetailPage() {
 
       {/* Client Activity Log */}
       <div className="mt-12">
-        <div className="bg-white border border-[var(--color-border)] rounded-lg p-6">
+        <div className="card card-lg">
           <SelectionActivityLog selectionId={selection.id} />
         </div>
       </div>

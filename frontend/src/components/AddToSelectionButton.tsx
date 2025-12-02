@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
+import { Modal } from '@/components/ui';
 import type { Selection } from '@/types';
 
 interface AddToSelectionButtonProps {
@@ -70,81 +71,83 @@ export function AddToSelectionButton({ offerId }: AddToSelectionButtonProps) {
         Добавить в подборку
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h2 className="text-xl font-semibold mb-4">Добавить в подборку</h2>
-
-            {isLoading ? (
-              <div className="py-8 text-center text-[var(--color-text-light)]">
-                Загрузка...
-              </div>
-            ) : selections.length === 0 ? (
-              <div className="py-8 text-center">
-                <div className="text-[var(--color-text-light)] mb-4">
-                  У вас пока нет подборок
-                </div>
-                <Link
-                  href="/selections"
-                  className="text-[var(--color-accent)] hover:underline"
-                >
-                  Создать подборку
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Выберите подборку</label>
-                  <select
-                    value={selectedId || ''}
-                    onChange={(e) => setSelectedId(Number(e.target.value) || null)}
-                    className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
-                  >
-                    <option value="">Выберите...</option>
-                    {selections.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name} ({s.items_count} объектов)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Комментарий (необязательно)</label>
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={2}
-                    placeholder="Заметка для клиента..."
-                    className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] resize-none"
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsOpen(false);
-                      setComment('');
-                      setSelectedId(null);
-                    }}
-                    className="flex-1 px-4 py-2.5 border border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Отмена
-                  </button>
-                  <button
-                    onClick={handleAdd}
-                    disabled={isAdding || !selectedId}
-                    className="btn btn-primary flex-1"
-                  >
-                    {isAdding ? 'Добавление...' : 'Добавить'}
-                  </button>
-                </div>
-              </div>
-            )}
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+          setComment('');
+          setSelectedId(null);
+        }}
+        title="Добавить в подборку"
+      >
+        {isLoading ? (
+          <div className="py-8 text-center text-[var(--color-text-light)]">
+            Загрузка...
           </div>
-        </div>
-      )}
+        ) : selections.length === 0 ? (
+          <div className="py-8 text-center">
+            <div className="text-[var(--color-text-light)] mb-4">
+              У вас пока нет подборок
+            </div>
+            <Link
+              href="/selections"
+              className="text-[var(--color-accent)] hover:underline"
+            >
+              Создать подборку
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Выберите подборку</label>
+              <select
+                value={selectedId || ''}
+                onChange={(e) => setSelectedId(Number(e.target.value) || null)}
+                className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+              >
+                <option value="">Выберите...</option>
+                {selections.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} ({s.items_count} объектов)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Комментарий (необязательно)</label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows={2}
+                placeholder="Заметка для клиента..."
+                className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] resize-none"
+              />
+            </div>
+
+            <Modal.Footer>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  setComment('');
+                  setSelectedId(null);
+                }}
+                className="btn btn-secondary flex-1"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={handleAdd}
+                disabled={isAdding || !selectedId}
+                className="btn btn-primary flex-1"
+              >
+                {isAdding ? 'Добавление...' : 'Добавить'}
+              </button>
+            </Modal.Footer>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }

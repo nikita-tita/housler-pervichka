@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api, formatPrice } from '@/services/api';
+import { Pagination } from '@/components/ui';
 import type { Complex } from '@/types';
 
 export default function ComplexesPage() {
@@ -65,7 +66,7 @@ export default function ComplexesPage() {
       </form>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="animate-pulse bg-gray-200 rounded-lg h-48"></div>
           ))}
@@ -78,12 +79,12 @@ export default function ComplexesPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {complexes.map((complex) => (
               <Link
                 key={complex.id}
                 href={`/complexes/${complex.id}`}
-                className="bg-white border border-[var(--color-border)] rounded-lg p-6 hover:shadow-lg transition-shadow"
+                className="card card-body hover:shadow-lg"
               >
                 <h2 className="text-lg font-semibold mb-2">{complex.name}</h2>
                 {complex.district && (
@@ -127,25 +128,12 @@ export default function ComplexesPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-12">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 border border-[var(--color-border)] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors"
-              >
-                Назад
-              </button>
-              <span className="px-4 py-2 text-[var(--color-text-light)]">
-                {page} из {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-4 py-2 border border-[var(--color-border)] rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors"
-              >
-                Вперёд
-              </button>
-            </div>
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              className="mt-12"
+            />
           )}
         </>
       )}

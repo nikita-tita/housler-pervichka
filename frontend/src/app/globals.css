@@ -184,17 +184,44 @@ a {
   width: 100%;
 }
 
-/* === CARDS === */
+/* === CARDS ===
+   Варианты padding:
+   - .card (по умолчанию) - без padding, для карточек с картинками
+   - .card-body - стандартный padding 20px
+   - .card-sm - маленький padding 12px
+   - .card-lg - большой padding 24px
+
+   Модификаторы:
+   - .card-interactive - с hover эффектами (по умолчанию)
+   - .card-static - без hover эффектов
+*/
 .card {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
-  transition: all var(--transition-base);
+  transition: all var(--transition-fast);
 }
 
 .card:hover {
   border-color: var(--color-accent);
   box-shadow: var(--shadow-md);
+}
+
+.card-static:hover {
+  border-color: var(--color-border);
+  box-shadow: none;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-sm {
+  padding: 12px;
+}
+
+.card-lg {
+  padding: 24px;
 }
 
 /* === INPUTS === */
@@ -264,20 +291,40 @@ a {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 24px;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 640px) {
   .container {
-    padding: 0 24px;
+    padding: 0 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 40px;
+  }
+}
+
+/* === RESPONSIVE SECTION === */
+@media (max-width: 640px) {
+  .section {
+    padding: 48px 0;
   }
 
+  .section-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
   .section {
     padding: 60px 0;
   }
 
   .section-title {
-    font-size: 28px;
+    font-size: 32px;
     margin-bottom: 32px;
   }
 }

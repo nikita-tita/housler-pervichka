@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { api } from '@/services/api';
+import { Modal } from '@/components/ui';
 import type { Selection } from '@/types';
 
 interface BulkActionsBarProps {
@@ -173,100 +174,81 @@ export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelecti
       </div>
 
       {/* Selection Modal */}
-      {showSelectionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowSelectionModal(false)}
-          />
-
-          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)]">
-              <h2 className="text-lg font-semibold">Добавить в подборку</h2>
-              <button
-                onClick={() => setShowSelectionModal(false)}
-                className="text-[var(--color-text-light)] hover:text-[var(--color-text)]"
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+      <Modal
+        isOpen={showSelectionModal}
+        onClose={() => setShowSelectionModal(false)}
+        title="Добавить в подборку"
+      >
+        {/* Existing selections */}
+        {selections.length > 0 && (
+          <div className="mb-4">
+            <div className="text-sm font-medium text-[var(--color-text-light)] mb-2">
+              Выберите подборку
             </div>
-
-            <div className="p-5 max-h-[60vh] overflow-y-auto">
-              {/* Existing selections */}
-              {selections.length > 0 && (
-                <div className="mb-4">
-                  <div className="text-sm font-medium text-[var(--color-text-light)] mb-2">
-                    Выберите подборку
-                  </div>
-                  <div className="space-y-2">
-                    {selections.map((selection) => (
-                      <button
-                        key={selection.id}
-                        onClick={() => handleAddToSelection(selection.id)}
-                        disabled={isLoading}
-                        className="w-full text-left px-4 py-3 border border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                      >
-                        <div className="font-medium">{selection.name}</div>
-                        {selection.client_name && (
-                          <div className="text-sm text-[var(--color-text-light)]">
-                            Для: {selection.client_name}
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Create new */}
-              <div className="border-t border-[var(--color-border)] pt-4">
-                {isCreatingNew ? (
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      value={newSelectionName}
-                      onChange={(e) => setNewSelectionName(e.target.value)}
-                      placeholder="Название подборки"
-                      className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
-                      autoFocus
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleCreateAndAdd}
-                        disabled={isLoading || !newSelectionName.trim()}
-                        className="btn btn-primary flex-1"
-                      >
-                        {isLoading ? 'Создание...' : 'Создать и добавить'}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsCreatingNew(false);
-                          setNewSelectionName('');
-                        }}
-                        className="px-4 py-2 border border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        Отмена
-                      </button>
+            <div className="space-y-2">
+              {selections.map((selection) => (
+                <button
+                  key={selection.id}
+                  onClick={() => handleAddToSelection(selection.id)}
+                  disabled={isLoading}
+                  className="w-full text-left px-4 py-3 border border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  <div className="font-medium">{selection.name}</div>
+                  {selection.client_name && (
+                    <div className="text-sm text-[var(--color-text-light)]">
+                      Для: {selection.client_name}
                     </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setIsCreatingNew(true)}
-                    className="w-full px-4 py-3 border border-dashed border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors text-[var(--color-text-light)] flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Создать новую подборку
-                  </button>
-                )}
-              </div>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
+        )}
+
+        {/* Create new */}
+        <div className="border-t border-[var(--color-border)] pt-4">
+          {isCreatingNew ? (
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={newSelectionName}
+                onChange={(e) => setNewSelectionName(e.target.value)}
+                placeholder="Название подборки"
+                className="w-full px-3 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCreateAndAdd}
+                  disabled={isLoading || !newSelectionName.trim()}
+                  className="btn btn-primary flex-1"
+                >
+                  {isLoading ? 'Создание...' : 'Создать и добавить'}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsCreatingNew(false);
+                    setNewSelectionName('');
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Отмена
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsCreatingNew(true)}
+              className="w-full px-4 py-3 border border-dashed border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors text-[var(--color-text-light)] flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Создать новую подборку
+            </button>
+          )}
         </div>
-      )}
+      </Modal>
     </>
   );
 }

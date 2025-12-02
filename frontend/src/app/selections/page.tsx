@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
+import { Modal, Label, Input } from '@/components/ui';
 import type { Selection } from '@/types';
 
 export default function SelectionsPage() {
@@ -128,7 +129,7 @@ export default function SelectionsPage() {
           {selections.map((selection) => (
             <div
               key={selection.id}
-              className="bg-white border border-[var(--color-border)] rounded-lg p-5 flex items-center justify-between"
+              className="card card-body flex items-center justify-between"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-3">
@@ -192,62 +193,58 @@ export default function SelectionsPage() {
       )}
 
       {/* Create Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h2 className="text-xl font-semibold mb-4">Новая подборка</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Название *</label>
-                <input
-                  type="text"
-                  value={newSelection.name}
-                  onChange={(e) => setNewSelection({ ...newSelection, name: e.target.value })}
-                  placeholder="Например: Квартиры для Ивановых"
-                  required
-                  className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Имя клиента</label>
-                <input
-                  type="text"
-                  value={newSelection.clientName}
-                  onChange={(e) => setNewSelection({ ...newSelection, clientName: e.target.value })}
-                  placeholder="Иван Иванов"
-                  className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email клиента</label>
-                <input
-                  type="email"
-                  value={newSelection.clientEmail}
-                  onChange={(e) => setNewSelection({ ...newSelection, clientEmail: e.target.value })}
-                  placeholder="client@example.com"
-                  className="w-full px-4 py-2.5 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2.5 border border-[var(--color-border)] rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Отмена
-                </button>
-                <button
-                  type="submit"
-                  disabled={creating || !newSelection.name.trim()}
-                  className="btn btn-primary flex-1"
-                >
-                  {creating ? 'Создание...' : 'Создать'}
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Новая подборка"
+      >
+        <form onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <Label required>Название</Label>
+            <Input
+              type="text"
+              value={newSelection.name}
+              onChange={(e) => setNewSelection({ ...newSelection, name: e.target.value })}
+              placeholder="Например: Квартиры для Ивановых"
+              required
+            />
           </div>
-        </div>
-      )}
+          <div>
+            <Label>Имя клиента</Label>
+            <Input
+              type="text"
+              value={newSelection.clientName}
+              onChange={(e) => setNewSelection({ ...newSelection, clientName: e.target.value })}
+              placeholder="Иван Иванов"
+            />
+          </div>
+          <div>
+            <Label>Email клиента</Label>
+            <Input
+              type="email"
+              value={newSelection.clientEmail}
+              onChange={(e) => setNewSelection({ ...newSelection, clientEmail: e.target.value })}
+              placeholder="client@example.com"
+            />
+          </div>
+          <Modal.Footer>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              className="btn btn-secondary flex-1"
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              disabled={creating || !newSelection.name.trim()}
+              className="btn btn-primary flex-1"
+            >
+              {creating ? 'Создание...' : 'Создать'}
+            </button>
+          </Modal.Footer>
+        </form>
+      </Modal>
     </div>
   );
 }
