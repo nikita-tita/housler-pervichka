@@ -9,6 +9,7 @@ import { MultiSelect } from './filters/MultiSelect';
 import { FloorFilter } from './filters/FloorFilter';
 import { KitchenAreaFilter } from './filters/KitchenAreaFilter';
 import { CeilingHeightFilter } from './filters/CeilingHeightFilter';
+import { DebouncedNumberInput } from './filters/DebouncedNumberInput';
 
 interface FiltersProps {
   onFiltersChange?: (filters: OfferFilters) => void;
@@ -274,27 +275,21 @@ export function Filters({ onFiltersChange }: FiltersProps) {
         <>
           {/* Price Range */}
           <div className="mb-6">
-            <div className="text-sm font-medium mb-3">Цена</div>
+            <div className="text-sm font-medium mb-3">Цена, ₽</div>
             <div className="grid grid-cols-2 gap-3">
-              <input
-                type="number"
-                placeholder="от"
-                value={filters.price_min || ''}
-                onChange={e => applyFilters({
-                  ...filters,
-                  price_min: e.target.value ? Number(e.target.value) : undefined,
-                })}
-                className="input"
+              <DebouncedNumberInput
+                value={filters.price_min}
+                onChange={(val) => applyFilters({ ...filters, price_min: val })}
+                placeholder="от 5 000 000"
+                formatThousands={true}
+                delay={800}
               />
-              <input
-                type="number"
-                placeholder="до"
-                value={filters.price_max || ''}
-                onChange={e => applyFilters({
-                  ...filters,
-                  price_max: e.target.value ? Number(e.target.value) : undefined,
-                })}
-                className="input"
+              <DebouncedNumberInput
+                value={filters.price_max}
+                onChange={(val) => applyFilters({ ...filters, price_max: val })}
+                placeholder="до 50 000 000"
+                formatThousands={true}
+                delay={800}
               />
             </div>
           </div>
@@ -303,25 +298,19 @@ export function Filters({ onFiltersChange }: FiltersProps) {
           <div className="mb-6">
             <div className="text-sm font-medium mb-3">Площадь, м²</div>
             <div className="grid grid-cols-2 gap-3">
-              <input
-                type="number"
-                placeholder="от"
-                value={filters.area_min || ''}
-                onChange={e => applyFilters({
-                  ...filters,
-                  area_min: e.target.value ? Number(e.target.value) : undefined,
-                })}
-                className="input"
+              <DebouncedNumberInput
+                value={filters.area_min}
+                onChange={(val) => applyFilters({ ...filters, area_min: val })}
+                placeholder="от 20"
+                formatThousands={false}
+                delay={600}
               />
-              <input
-                type="number"
-                placeholder="до"
-                value={filters.area_max || ''}
-                onChange={e => applyFilters({
-                  ...filters,
-                  area_max: e.target.value ? Number(e.target.value) : undefined,
-                })}
-                className="input"
+              <DebouncedNumberInput
+                value={filters.area_max}
+                onChange={(val) => applyFilters({ ...filters, area_max: val })}
+                placeholder="до 150"
+                formatThousands={false}
+                delay={600}
               />
             </div>
           </div>

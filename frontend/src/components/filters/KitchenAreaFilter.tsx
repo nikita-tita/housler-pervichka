@@ -1,5 +1,7 @@
 'use client';
 
+import { DebouncedNumberInput } from './DebouncedNumberInput';
+
 interface KitchenAreaFilterProps {
   min?: number;
   max?: number;
@@ -11,29 +13,27 @@ export function KitchenAreaFilter({ min, max, onChange }: KitchenAreaFilterProps
     <div>
       <div className="text-sm font-medium mb-3">Площадь кухни, м²</div>
       <div className="grid grid-cols-2 gap-3">
-        <input
-          type="number"
-          placeholder="от"
-          min={0}
-          step={0.1}
-          value={min || ''}
-          onChange={e => onChange({
-            kitchen_area_min: e.target.value ? Number(e.target.value) : undefined,
+        <DebouncedNumberInput
+          value={min}
+          onChange={(val) => onChange({
+            kitchen_area_min: val,
             kitchen_area_max: max,
           })}
-          className="input"
-        />
-        <input
-          type="number"
-          placeholder="до"
+          placeholder="от 8"
+          formatThousands={false}
+          delay={600}
           min={0}
-          step={0.1}
-          value={max || ''}
-          onChange={e => onChange({
+        />
+        <DebouncedNumberInput
+          value={max}
+          onChange={(val) => onChange({
             kitchen_area_min: min,
-            kitchen_area_max: e.target.value ? Number(e.target.value) : undefined,
+            kitchen_area_max: val,
           })}
-          className="input"
+          placeholder="до 30"
+          formatThousands={false}
+          delay={600}
+          min={0}
         />
       </div>
     </div>

@@ -348,11 +348,22 @@ export class OffersService {
         GROUP BY built_year
         ORDER BY built_year ASC
       `),
-      // Застройщики (developers)
+      // Застройщики (developers) - фильтруем URL-подобные и технические значения
       pool.query(`
         SELECT agent_organization as name, COUNT(*)::int as count
         FROM offers
-        WHERE is_active = true AND agent_organization IS NOT NULL AND agent_organization != ''
+        WHERE is_active = true
+          AND agent_organization IS NOT NULL
+          AND agent_organization != ''
+          AND agent_organization NOT LIKE 'http%'
+          AND agent_organization NOT LIKE '%.xml%'
+          AND agent_organization NOT LIKE '%.allrealty%'
+          AND agent_organization NOT LIKE '%www.%'
+          AND agent_organization NOT LIKE '%.ru/%'
+          AND agent_organization NOT LIKE '%.pro/%'
+          AND agent_organization NOT LIKE '%.com/%'
+          AND LENGTH(agent_organization) >= 3
+          AND LENGTH(agent_organization) <= 100
         GROUP BY agent_organization
         ORDER BY count DESC
         LIMIT 50

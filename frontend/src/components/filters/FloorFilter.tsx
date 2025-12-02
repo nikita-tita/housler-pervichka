@@ -1,5 +1,7 @@
 'use client';
 
+import { DebouncedNumberInput } from './DebouncedNumberInput';
+
 interface FloorFilterProps {
   floorMin?: number;
   floorMax?: number;
@@ -26,31 +28,31 @@ export function FloorFilter({
 
       {/* Range inputs */}
       <div className="grid grid-cols-2 gap-3 mb-3">
-        <input
-          type="number"
-          placeholder="от"
-          min={1}
-          value={floorMin || ''}
-          onChange={e => onChange({
-            floor_min: e.target.value ? Number(e.target.value) : undefined,
+        <DebouncedNumberInput
+          value={floorMin}
+          onChange={(val) => onChange({
+            floor_min: val,
             floor_max: floorMax,
             not_first_floor: notFirstFloor,
             not_last_floor: notLastFloor,
           })}
-          className="input"
-        />
-        <input
-          type="number"
-          placeholder="до"
+          placeholder="от"
+          formatThousands={false}
+          delay={600}
           min={1}
-          value={floorMax || ''}
-          onChange={e => onChange({
+        />
+        <DebouncedNumberInput
+          value={floorMax}
+          onChange={(val) => onChange({
             floor_min: floorMin,
-            floor_max: e.target.value ? Number(e.target.value) : undefined,
+            floor_max: val,
             not_first_floor: notFirstFloor,
             not_last_floor: notLastFloor,
           })}
-          className="input"
+          placeholder="до"
+          formatThousands={false}
+          delay={600}
+          min={1}
         />
       </div>
 

@@ -136,16 +136,28 @@ export async function getPriceHistory(req: Request, res: Response): Promise<void
  */
 export async function getMapMarkers(req: Request, res: Response): Promise<void> {
   try {
+    // Синхронизируем фильтры карты с фильтрами списка (те же параметры что и в searchOffers)
     const filters: OfferFilters = {
       rooms: parseArrayParam(req.query.rooms),
       priceMin: parseNumberParam(req.query.price_min),
       priceMax: parseNumberParam(req.query.price_max),
       areaMin: parseNumberParam(req.query.area_min),
       areaMax: parseNumberParam(req.query.area_max),
+      floorMin: parseNumberParam(req.query.floor_min),
+      floorMax: parseNumberParam(req.query.floor_max),
+      notFirstFloor: req.query.not_first_floor === 'true',
+      notLastFloor: req.query.not_last_floor === 'true',
       districts: parseStringArrayParam(req.query.districts),
       metro: parseStringArrayParam(req.query.metro) || parseStringArrayParam(req.query.metro_stations),
       isStudio: req.query.is_studio === 'true' ? true : undefined,
-      hasFinishing: req.query.has_finishing === 'true' ? true : undefined
+      hasFinishing: req.query.has_finishing === 'true' ? true : undefined,
+      completionYears: parseArrayParam(req.query.completion_years),
+      developers: parseStringArrayParam(req.query.developers),
+      kitchenAreaMin: parseNumberParam(req.query.kitchen_area_min),
+      kitchenAreaMax: parseNumberParam(req.query.kitchen_area_max),
+      ceilingHeightMin: parseNumberParam(req.query.ceiling_height_min),
+      search: req.query.search as string | undefined,
+      bounds: parseBoundsParam(req.query)
     };
 
     const markers = await offersService.getMapMarkers(filters);
