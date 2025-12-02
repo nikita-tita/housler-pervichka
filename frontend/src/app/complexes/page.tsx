@@ -57,7 +57,7 @@ export default function ComplexesPage() {
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+            className="btn btn-primary"
           >
             Найти
           </button>

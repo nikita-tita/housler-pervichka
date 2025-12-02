@@ -75,48 +75,113 @@ a {
   text-decoration: none;
 }
 
-/* === BUTTONS === */
+/* === BUTTONS ===
+   ВАЖНО: Всегда используй эти классы для кнопок!
+   Не используй inline стили типа bg-[var(--color-text)] text-white
+
+   Основные классы:
+   - .btn-primary - чёрная кнопка с белым текстом
+   - .btn-secondary - белая кнопка с рамкой
+   - .btn-accent - акцентная кнопка (чёрная)
+   - .btn-danger - красная кнопка для опасных действий
+
+   Модификаторы размера: .btn-sm, .btn-lg
+   Модификаторы состояния: disabled:opacity-50 disabled:cursor-not-allowed
+*/
 .btn {
-  display: inline-block;
-  padding: 16px 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
   font-size: 15px;
   font-weight: 500;
   text-decoration: none;
   border-radius: var(--border-radius-md);
-  transition: all var(--transition-base);
+  transition: all var(--transition-fast);
   cursor: pointer;
   font-family: inherit;
   text-align: center;
   border: none;
+  white-space: nowrap;
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary - чёрный фон, белый текст */
 .btn-primary {
-  background: var(--color-text);
+  background: var(--gray-900);
   color: var(--white);
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: var(--black);
 }
 
+/* Secondary - прозрачный фон, рамка */
 .btn-secondary {
   background: transparent;
   color: var(--color-text);
   border: 1px solid var(--color-border);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   border-color: var(--color-text);
+  background: var(--gray-100);
+}
+
+/* Accent - аналог primary для акцентных действий */
+.btn-accent {
+  background: var(--color-accent);
+  color: var(--white);
+}
+
+.btn-accent:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Danger - для опасных действий */
+.btn-danger {
+  background: var(--error);
+  color: var(--white);
+}
+
+.btn-danger:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Ghost - минимальная кнопка */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--gray-100);
+}
+
+/* Размеры */
+.btn-xs {
+  padding: 6px 12px;
+  font-size: 12px;
 }
 
 .btn-sm {
-  padding: 10px 20px;
+  padding: 8px 16px;
   font-size: 14px;
 }
 
 .btn-lg {
-  padding: 20px 40px;
+  padding: 16px 32px;
   font-size: 16px;
+}
+
+/* Full width */
+.btn-block {
+  width: 100%;
 }
 
 /* === CARDS === */

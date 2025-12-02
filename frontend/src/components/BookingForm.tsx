@@ -109,10 +109,7 @@ export function BookingForm({ offerId, complexName }: BookingFormProps) {
             <p className="text-sm text-[var(--color-text)] mb-3">
               Войдите, чтобы оставить заявку на просмотр
             </p>
-            <Link
-              href="/login"
-              className="inline-block px-5 py-2 bg-[var(--color-accent)] text-white text-sm rounded-lg hover:opacity-90 transition-opacity font-medium"
-            >
+            <Link href="/login" className="btn btn-primary btn-sm">
               Войти
             </Link>
           </div>
@@ -195,7 +192,7 @@ export function BookingForm({ offerId, complexName }: BookingFormProps) {
           <button
             type="submit"
             disabled={isSubmitting || !formData.clientName || !formData.clientPhone}
-            className="w-full py-3 bg-[var(--color-text)] text-white font-medium rounded-lg hover:bg-[var(--color-text-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary btn-block"
           >
             {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
           </button>

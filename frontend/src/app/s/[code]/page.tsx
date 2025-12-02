@@ -72,7 +72,7 @@ export default function SharedSelectionPage() {
         </p>
         <Link
           href="/"
-          className="inline-block px-6 py-3 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+          className="btn btn-primary"
         >
           На главную
         </Link>
@@ -119,7 +119,7 @@ export default function SharedSelectionPage() {
           </div>
           <Link
             href="/offers"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+            className="btn btn-primary btn-sm"
           >
             Найти квартиры
           </Link>

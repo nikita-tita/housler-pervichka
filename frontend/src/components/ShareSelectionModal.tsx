@@ -124,7 +124,7 @@ export function ShareSelectionModal({ selection, isOpen, onClose }: ShareSelecti
               />
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+                className="btn btn-primary btn-sm"
               >
                 Копировать
               </button>
@@ -195,7 +195,7 @@ export function ShareSelectionModal({ selection, isOpen, onClose }: ShareSelecti
             <button
               type="submit"
               disabled={isSending}
-              className="w-full py-3 bg-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+              className="btn btn-primary btn-block"
             >
               {isSending ? (
                 <>

@@ -78,7 +78,7 @@ export function RestrictedContent({
           {showLoginButton && (
             <Link
               href="/login"
-              className="inline-block px-6 py-2.5 bg-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+              className="btn btn-primary"
             >
               Войти
             </Link>

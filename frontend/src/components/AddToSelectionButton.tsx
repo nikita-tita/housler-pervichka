@@ -135,7 +135,7 @@ export function AddToSelectionButton({ offerId }: AddToSelectionButtonProps) {
                   <button
                     onClick={handleAdd}
                     disabled={isAdding || !selectedId}
-                    className="flex-1 px-4 py-2.5 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors disabled:opacity-50"
+                    className="btn btn-primary flex-1"
                   >
                     {isAdding ? 'Добавление...' : 'Добавить'}
                   </button>

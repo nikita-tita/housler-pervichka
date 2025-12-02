@@ -105,7 +105,7 @@ export default function SelectionsPage() {
         <h1 className="text-2xl font-semibold">Мои подборки</h1>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-5 py-2.5 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+          className="btn btn-primary btn-sm"
         >
           Создать подборку
         </button>
@@ -118,7 +118,7 @@ export default function SelectionsPage() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-block px-6 py-3 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+            className="btn btn-primary"
           >
             Создать первую подборку
           </button>
@@ -175,7 +175,7 @@ export default function SelectionsPage() {
                 </button>
                 <Link
                   href={`/selections/${selection.id}`}
-                  className="px-4 py-2 text-sm bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+                  className="btn btn-primary btn-xs"
                 >
                   Открыть
                 </Link>
@@ -239,7 +239,7 @@ export default function SelectionsPage() {
                 <button
                   type="submit"
                   disabled={creating || !newSelection.name.trim()}
-                  className="flex-1 px-4 py-2.5 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors disabled:opacity-50"
+                  className="btn btn-primary flex-1"
                 >
                   {creating ? 'Создание...' : 'Создать'}
                 </button>

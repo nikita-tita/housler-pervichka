@@ -64,7 +64,7 @@ export default function FavoritesPage() {
           </div>
           <Link
             href="/offers"
-            className="inline-block px-6 py-3 bg-[var(--color-text)] text-white rounded-lg hover:bg-[var(--color-text-light)] transition-colors"
+            className="btn btn-primary"
           >
             Перейти к поиску
           </Link>

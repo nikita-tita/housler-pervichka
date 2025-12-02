@@ -84,7 +84,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading || !email}
-              className="w-full py-3 bg-[var(--color-text)] text-white font-medium rounded-lg hover:bg-[var(--color-text-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary btn-block"
             >
               {isLoading ? 'Отправка...' : 'Получить код'}
             </button>
@@ -128,7 +128,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading || code.length !== 6}
-              className="w-full py-3 bg-[var(--color-text)] text-white font-medium rounded-lg hover:bg-[var(--color-text-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary btn-block"
             >
               {isLoading ? 'Проверка...' : 'Войти'}
             </button>
