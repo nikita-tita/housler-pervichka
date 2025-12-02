@@ -201,6 +201,80 @@ class ApiService {
     return this.fetch('/api/auth/me');
   }
 
+  // ============ SMS AUTH ============
+  async requestSmsCode(phone: string): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch('/api/auth/request-sms', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+  }
+
+  async verifySmsCode(phone: string, code: string): Promise<ApiResponse<{ user?: User; token?: string; isNewUser: boolean; message: string }>> {
+    return this.fetch('/api/auth/verify-sms', {
+      method: 'POST',
+      body: JSON.stringify({ phone, code }),
+    });
+  }
+
+  // ============ REGISTRATION ============
+  async registerRealtor(data: {
+    phone: string;
+    name: string;
+    email: string;
+    city?: string;
+    isSelfEmployed?: boolean;
+    personalInn?: string;
+    consents: {
+      personalData: boolean;
+      terms: boolean;
+      realtorOffer: boolean;
+      marketing?: boolean;
+    };
+  }): Promise<ApiResponse<{ user: User; token: string; message: string }>> {
+    return this.fetch('/api/auth/register-realtor', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async checkInn(inn: string): Promise<ApiResponse<{ exists: boolean; agencyName?: string }>> {
+    return this.fetch('/api/auth/check-inn', {
+      method: 'POST',
+      body: JSON.stringify({ inn }),
+    });
+  }
+
+  async registerAgency(data: {
+    inn: string;
+    name: string;
+    legalAddress: string;
+    phone?: string;
+    companyEmail?: string;
+    contactName: string;
+    contactPosition?: string;
+    contactPhone: string;
+    contactEmail: string;
+    password: string;
+    consents: {
+      personalData: boolean;
+      terms: boolean;
+      agencyOffer: boolean;
+      marketing?: boolean;
+    };
+  }): Promise<ApiResponse<{ user: User; token: string; message: string }>> {
+    return this.fetch('/api/auth/register-agency', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async loginAgency(email: string, password: string): Promise<ApiResponse<{ user: User; token: string }>> {
+    return this.fetch('/api/auth/login-agency', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
   // ============ FAVORITES ============
   async getFavorites(): Promise<ApiResponse<FavoriteOffer[]>> {
     return this.fetch('/api/favorites');

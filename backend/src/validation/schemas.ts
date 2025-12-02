@@ -30,6 +30,77 @@ export const updateProfileSchema = z.object({
   phone: z.string().regex(/^\+?[\d\s()-]{10,20}$/, 'Некорректный телефон').optional()
 });
 
+// ============ Registration schemas ============
+
+// Телефон в формате 7XXXXXXXXXX (11 цифр)
+const phoneRegex = /^7\d{10}$/;
+
+export const requestSmsCodeSchema = z.object({
+  phone: z.string().regex(phoneRegex, 'Телефон должен быть в формате 7XXXXXXXXXX (11 цифр)')
+});
+
+export const verifySmsCodeSchema = z.object({
+  phone: z.string().regex(phoneRegex, 'Некорректный телефон'),
+  code: z.string().length(6, 'Код должен содержать 6 цифр').regex(/^\d+$/, 'Код должен содержать только цифры')
+});
+
+export const registerRealtorSchema = z.object({
+  phone: z.string().regex(phoneRegex, 'Некорректный телефон'),
+  name: z.string().min(2, 'Имя должно содержать минимум 2 символа').max(255),
+  email: z.string().email('Некорректный email').max(255),
+  city: z.string().min(2).max(100).optional(),
+  isSelfEmployed: z.boolean().optional().default(false),
+  personalInn: z.string().regex(/^\d{12}$/, 'ИНН должен содержать 12 цифр').optional(),
+  consents: z.object({
+    personalData: z.boolean().refine(val => val === true, 'Необходимо согласие на обработку ПД'),
+    terms: z.boolean().refine(val => val === true, 'Необходимо принять условия соглашения'),
+    realtorOffer: z.boolean().refine(val => val === true, 'Необходимо принять условия оферты'),
+    marketing: z.boolean().optional().default(false)
+  })
+});
+
+export const checkInnSchema = z.object({
+  inn: z.string().regex(/^\d{10}$|^\d{12}$/, 'ИНН должен содержать 10 (юрлицо) или 12 (ИП) цифр')
+});
+
+export const registerAgencySchema = z.object({
+  // Данные компании
+  inn: z.string().regex(/^\d{10}$|^\d{12}$/, 'ИНН должен содержать 10 или 12 цифр'),
+  name: z.string().min(2, 'Название компании обязательно').max(255),
+  legalAddress: z.string().min(10, 'Укажите юридический адрес').max(500),
+  phone: z.string().regex(phoneRegex, 'Некорректный телефон компании').optional(),
+  companyEmail: z.string().email('Некорректный email компании').max(255).optional(),
+
+  // Контактное лицо
+  contactName: z.string().min(2, 'Укажите ФИО контактного лица').max(255),
+  contactPosition: z.string().max(100).optional(),
+  contactPhone: z.string().regex(phoneRegex, 'Некорректный телефон'),
+  contactEmail: z.string().email('Некорректный email').max(255),
+
+  // Пароль
+  password: z.string().min(8, 'Пароль должен содержать минимум 8 символов').max(100),
+
+  // Согласия
+  consents: z.object({
+    personalData: z.boolean().refine(val => val === true, 'Необходимо согласие на обработку ПД'),
+    terms: z.boolean().refine(val => val === true, 'Необходимо принять условия соглашения'),
+    agencyOffer: z.boolean().refine(val => val === true, 'Необходимо принять условия оферты'),
+    marketing: z.boolean().optional().default(false)
+  })
+});
+
+export const loginAgencySchema = z.object({
+  email: z.string().email('Некорректный email').max(255),
+  password: z.string().min(1, 'Введите пароль')
+});
+
+export type RequestSmsCodeInput = z.infer<typeof requestSmsCodeSchema>;
+export type VerifySmsCodeInput = z.infer<typeof verifySmsCodeSchema>;
+export type RegisterRealtorInput = z.infer<typeof registerRealtorSchema>;
+export type CheckInnInput = z.infer<typeof checkInnSchema>;
+export type RegisterAgencyInput = z.infer<typeof registerAgencySchema>;
+export type LoginAgencyInput = z.infer<typeof loginAgencySchema>;
+
 // ============ Selections schemas ============
 
 export const createSelectionSchema = z.object({

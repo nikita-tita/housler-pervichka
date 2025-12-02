@@ -206,8 +206,8 @@ export function MultiSelect({
                       </span>
                     </div>
                     {option.count !== undefined && (
-                      <span className="text-xs text-[var(--color-text-light)]">
-                        {option.count}
+                      <span className="text-xs text-[var(--color-text-light)] tabular-nums">
+                        ({option.count.toLocaleString('ru-RU')})
                       </span>
                     )}
                   </div>

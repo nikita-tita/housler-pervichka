@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
 import { CompareFloatingBar } from "@/components/CompareFloatingBar";
+import { CookieBanner } from "@/components/CookieBanner";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -76,13 +78,25 @@ export default function RootLayout({
                 </div>
               </div>
             </div>
-            <div className="pt-6 border-t border-[var(--color-border)] text-center">
+            <div className="pt-6 border-t border-[var(--color-border)] flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-[13px] text-[var(--color-text-light)]">
                 © {new Date().getFullYear()} Housler — Все права защищены
               </p>
+              <div className="flex gap-4 text-[13px] text-[var(--color-text-light)]">
+                <Link href="/doc/clients/politiki/privacy" className="hover:text-[var(--color-accent)]">
+                  Политика конфиденциальности
+                </Link>
+                <Link href="/doc/clients/soglasiya/terms" className="hover:text-[var(--color-accent)]">
+                  Пользовательское соглашение
+                </Link>
+                <Link href="/doc" className="hover:text-[var(--color-accent)]">
+                  Документы
+                </Link>
+              </div>
             </div>
           </div>
         </footer>
+        <CookieBanner />
         </Providers>
       </body>
     </html>

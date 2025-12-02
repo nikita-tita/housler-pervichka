@@ -15,6 +15,7 @@ export interface OfferListItem {
   has_finishing: boolean;
   image_url: string | null;
   building_name?: string | null;
+  completion_date?: string | null; // "Сдан", "2025", "2 кв. 2026"
 }
 
 export interface OfferImage {

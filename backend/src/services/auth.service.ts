@@ -1,6 +1,7 @@
 import { pool } from '../config/database';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import type { RegisterRealtorInput, RegisterAgencyInput } from '../validation/schemas';
 
 export type UserRole = 'client' | 'agent' | 'agency_admin' | 'operator' | 'admin';
 
@@ -271,5 +272,417 @@ export class AuthService {
     `);
 
     return result.rowCount || 0;
+  }
+
+  // ============ SMS-авторизация ============
+
+  /**
+   * Запрос SMS-кода (заглушка без реальной отправки)
+   */
+  async requestSmsCode(phone: string): Promise<{ success: boolean; message: string }> {
+    // Проверяем, нет ли слишком свежего кода
+    const existingCode = await pool.query(`
+      SELECT id FROM sms_codes
+      WHERE phone = $1
+        AND expires_at > NOW()
+        AND used_at IS NULL
+        AND created_at > NOW() - INTERVAL '1 minute'
+    `, [phone]);
+
+    if (existingCode.rows.length > 0) {
+      return {
+        success: false,
+        message: 'Код уже отправлен. Подождите минуту перед повторной отправкой.'
+      };
+    }
+
+    const code = this.generateCode();
+    const expiresAt = new Date(Date.now() + CODE_EXPIRES_MINUTES * 60 * 1000);
+
+    await pool.query(`
+      INSERT INTO sms_codes (phone, code, purpose, expires_at)
+      VALUES ($1, $2, 'auth', $3)
+    `, [phone, code, expiresAt]);
+
+    // TODO: Интегрировать с SMS-провайдером
+    console.log(`📱 SMS code for ${phone}: ${code}`);
+
+    return {
+      success: true,
+      message: 'Код отправлен на телефон'
+    };
+  }
+
+  /**
+   * Проверка SMS-кода
+   */
+  async verifySmsCode(phone: string, code: string): Promise<{
+    success: boolean;
+    isNewUser: boolean;
+    user?: User;
+    token?: string;
+    message: string;
+  }> {
+    // Тестовые аккаунты
+    const isTestPhone = phone.startsWith('79999');
+    const isTestCode = ['111111', '222222', '333333'].includes(code);
+
+    if (!(isTestPhone && isTestCode)) {
+      const codeResult = await pool.query(`
+        SELECT id, attempts
+        FROM sms_codes
+        WHERE phone = $1
+          AND code = $2
+          AND expires_at > NOW()
+          AND used_at IS NULL
+        ORDER BY created_at DESC
+        LIMIT 1
+      `, [phone, code]);
+
+      if (codeResult.rows.length === 0) {
+        await pool.query(`
+          UPDATE sms_codes
+          SET attempts = attempts + 1
+          WHERE phone = $1
+            AND expires_at > NOW()
+            AND used_at IS NULL
+        `, [phone]);
+
+        return {
+          success: false,
+          isNewUser: false,
+          message: 'Неверный или истёкший код'
+        };
+      }
+
+      const smsCode = codeResult.rows[0];
+
+      if (smsCode.attempts >= MAX_CODE_ATTEMPTS) {
+        return {
+          success: false,
+          isNewUser: false,
+          message: 'Превышено количество попыток. Запросите новый код.'
+        };
+      }
+
+      // Отмечаем код как использованный
+      await pool.query(`
+        UPDATE sms_codes SET used_at = NOW() WHERE id = $1
+      `, [smsCode.id]);
+    }
+
+    // Ищем пользователя по телефону
+    const user = await this.findUserByPhone(phone);
+
+    if (user) {
+      // Обновляем last_login и phone_verified
+      await pool.query(`
+        UPDATE users SET last_login_at = NOW(), phone_verified = TRUE WHERE id = $1
+      `, [user.id]);
+
+      const token = this.generateToken(user);
+
+      return {
+        success: true,
+        isNewUser: false,
+        user,
+        token,
+        message: 'Авторизация успешна'
+      };
+    }
+
+    // Новый пользователь — нужна регистрация
+    return {
+      success: true,
+      isNewUser: true,
+      message: 'Телефон подтверждён. Заполните профиль для завершения регистрации.'
+    };
+  }
+
+  /**
+   * Поиск пользователя по телефону
+   */
+  async findUserByPhone(phone: string): Promise<User | null> {
+    const result = await pool.query(`
+      SELECT id, email, phone, name, role, agency_id, is_active, last_login_at, created_at
+      FROM users
+      WHERE phone = $1
+    `, [phone]);
+
+    return result.rows[0] || null;
+  }
+
+  // ============ Регистрация риелтора ============
+
+  /**
+   * Регистрация частного риелтора
+   */
+  async registerRealtor(data: RegisterRealtorInput, ipAddress?: string, userAgent?: string): Promise<{
+    success: boolean;
+    user?: User;
+    token?: string;
+    message: string;
+  }> {
+    // Проверяем, что email не занят
+    const existingEmail = await this.findUserByEmail(data.email);
+    if (existingEmail) {
+      return {
+        success: false,
+        message: 'Пользователь с таким email уже существует'
+      };
+    }
+
+    // Проверяем, что телефон не занят
+    const existingPhone = await this.findUserByPhone(data.phone);
+    if (existingPhone) {
+      return {
+        success: false,
+        message: 'Пользователь с таким телефоном уже существует'
+      };
+    }
+
+    // Получаем дефолтное агентство (Housler)
+    const defaultAgency = await pool.query(`
+      SELECT id FROM agencies WHERE is_default = TRUE LIMIT 1
+    `);
+    const agencyId = defaultAgency.rows[0]?.id || null;
+
+    // Создаём пользователя
+    const result = await pool.query(`
+      INSERT INTO users (email, phone, name, role, agency_id, city, is_self_employed, personal_inn, phone_verified)
+      VALUES ($1, $2, $3, 'agent', $4, $5, $6, $7, TRUE)
+      RETURNING id, email, phone, name, role, agency_id, is_active, last_login_at, created_at
+    `, [
+      data.email.toLowerCase().trim(),
+      data.phone,
+      data.name,
+      agencyId,
+      data.city || null,
+      data.isSelfEmployed || false,
+      data.personalInn || null
+    ]);
+
+    const user = result.rows[0];
+
+    // Сохраняем согласия
+    await this.saveConsents(user.id, data.consents, ipAddress, userAgent);
+
+    // Генерируем токен
+    const token = this.generateToken(user);
+
+    return {
+      success: true,
+      user,
+      token,
+      message: 'Регистрация успешна'
+    };
+  }
+
+  // ============ Регистрация агентства ============
+
+  /**
+   * Проверка ИНН на дубликат
+   */
+  async checkInn(inn: string): Promise<{
+    exists: boolean;
+    agencyName?: string;
+  }> {
+    const result = await pool.query(`
+      SELECT name FROM agencies WHERE inn = $1
+    `, [inn]);
+
+    if (result.rows.length > 0) {
+      return {
+        exists: true,
+        agencyName: result.rows[0].name
+      };
+    }
+
+    return { exists: false };
+  }
+
+  /**
+   * Регистрация агентства и администратора
+   */
+  async registerAgency(data: RegisterAgencyInput, ipAddress?: string, userAgent?: string): Promise<{
+    success: boolean;
+    user?: User;
+    token?: string;
+    message: string;
+  }> {
+    // Проверяем ИНН
+    const innCheck = await this.checkInn(data.inn);
+    if (innCheck.exists) {
+      return {
+        success: false,
+        message: `Компания с таким ИНН уже зарегистрирована: ${innCheck.agencyName}`
+      };
+    }
+
+    // Проверяем email
+    const existingEmail = await this.findUserByEmail(data.contactEmail);
+    if (existingEmail) {
+      return {
+        success: false,
+        message: 'Пользователь с таким email уже существует'
+      };
+    }
+
+    // Создаём агентство
+    const slug = data.name.toLowerCase()
+      .replace(/[^a-zа-яё0-9]/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 50);
+
+    const agencyResult = await pool.query(`
+      INSERT INTO agencies (name, slug, inn, legal_address, phone, email, contact_position, registration_status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')
+      RETURNING id
+    `, [
+      data.name,
+      slug + '-' + Date.now().toString(36),
+      data.inn,
+      data.legalAddress,
+      data.phone || null,
+      data.companyEmail || null,
+      data.contactPosition || null
+    ]);
+
+    const agencyId = agencyResult.rows[0].id;
+
+    // Хэшируем пароль
+    const passwordHash = await bcrypt.hash(data.password, 10);
+
+    // Создаём администратора агентства
+    const userResult = await pool.query(`
+      INSERT INTO users (email, phone, name, role, agency_id, password_hash, phone_verified, registration_status)
+      VALUES ($1, $2, $3, 'agency_admin', $4, $5, FALSE, 'active')
+      RETURNING id, email, phone, name, role, agency_id, is_active, last_login_at, created_at
+    `, [
+      data.contactEmail.toLowerCase().trim(),
+      data.contactPhone,
+      data.contactName,
+      agencyId,
+      passwordHash
+    ]);
+
+    const user = userResult.rows[0];
+
+    // Сохраняем согласия
+    await this.saveConsents(user.id, data.consents, ipAddress, userAgent);
+
+    // Генерируем токен
+    const token = this.generateToken(user);
+
+    return {
+      success: true,
+      user,
+      token,
+      message: 'Агентство зарегистрировано. Ожидайте подтверждения модератором.'
+    };
+  }
+
+  /**
+   * Вход по email и паролю (для агентств)
+   */
+  async loginWithPassword(email: string, password: string): Promise<{
+    success: boolean;
+    user?: User;
+    token?: string;
+    message: string;
+  }> {
+    const result = await pool.query(`
+      SELECT id, email, phone, name, role, agency_id, is_active, last_login_at, created_at, password_hash
+      FROM users
+      WHERE email = $1
+    `, [email.toLowerCase().trim()]);
+
+    if (result.rows.length === 0) {
+      return {
+        success: false,
+        message: 'Неверный email или пароль'
+      };
+    }
+
+    const row = result.rows[0];
+
+    if (!row.password_hash) {
+      return {
+        success: false,
+        message: 'Для этого аккаунта вход по паролю не настроен'
+      };
+    }
+
+    const isValid = await bcrypt.compare(password, row.password_hash);
+    if (!isValid) {
+      return {
+        success: false,
+        message: 'Неверный email или пароль'
+      };
+    }
+
+    if (!row.is_active) {
+      return {
+        success: false,
+        message: 'Аккаунт деактивирован'
+      };
+    }
+
+    // Обновляем last_login_at
+    await pool.query(`
+      UPDATE users SET last_login_at = NOW() WHERE id = $1
+    `, [row.id]);
+
+    const user: User = {
+      id: row.id,
+      email: row.email,
+      phone: row.phone,
+      name: row.name,
+      role: row.role,
+      agency_id: row.agency_id,
+      is_active: row.is_active,
+      last_login_at: row.last_login_at,
+      created_at: row.created_at
+    };
+
+    const token = this.generateToken(user);
+
+    return {
+      success: true,
+      user,
+      token,
+      message: 'Авторизация успешна'
+    };
+  }
+
+  // ============ Согласия ============
+
+  /**
+   * Сохранение согласий пользователя
+   */
+  private async saveConsents(
+    userId: number,
+    consents: Record<string, boolean>,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<void> {
+    const consentTypes = {
+      personalData: 'personal_data',
+      terms: 'terms',
+      marketing: 'marketing',
+      realtorOffer: 'realtor_offer',
+      agencyOffer: 'agency_offer'
+    };
+
+    for (const [key, value] of Object.entries(consents)) {
+      if (value && consentTypes[key as keyof typeof consentTypes]) {
+        await pool.query(`
+          INSERT INTO user_consents (user_id, consent_type, document_version, ip_address, user_agent)
+          VALUES ($1, $2, '1.0', $3, $4)
+          ON CONFLICT (user_id, consent_type, document_version) DO NOTHING
+        `, [userId, consentTypes[key as keyof typeof consentTypes], ipAddress || null, userAgent || null]);
+      }
+    }
   }
 }

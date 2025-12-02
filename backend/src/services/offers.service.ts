@@ -131,6 +131,13 @@ export class OffersService {
         o.building_state,
         o.renovation,
         CASE WHEN o.renovation IS NOT NULL AND o.renovation != '' THEN true ELSE false END as has_finishing,
+        CASE
+          WHEN o.building_state = 'hand-over' THEN 'Сдан'
+          WHEN o.ready_quarter IS NOT NULL AND o.built_year IS NOT NULL
+            THEN o.ready_quarter || ' кв. ' || o.built_year
+          WHEN o.built_year IS NOT NULL THEN o.built_year::text
+          ELSE NULL
+        END as completion_date,
         (
           SELECT url FROM images
           WHERE offer_id = o.id AND (tag = 'housemain' OR tag IS NULL)

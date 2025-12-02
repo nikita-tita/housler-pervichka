@@ -138,3 +138,181 @@ export async function updateProfile(req: Request, res: Response) {
     });
   }
 }
+
+// ============ SMS-авторизация ============
+
+/**
+ * POST /api/auth/request-sms - Запросить SMS-код
+ */
+export async function requestSmsCode(req: Request, res: Response) {
+  try {
+    const { phone } = req.body;
+    const result = await authService.requestSmsCode(phone);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: result.message
+    });
+  } catch (error) {
+    console.error('Error in requestSmsCode:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Ошибка при отправке SMS-кода'
+    });
+  }
+}
+
+/**
+ * POST /api/auth/verify-sms - Проверить SMS-код
+ */
+export async function verifySmsCode(req: Request, res: Response) {
+  try {
+    const { phone, code } = req.body;
+    const result = await authService.verifySmsCode(phone, code);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.message
+      });
+    }
+
+    res.json({
+      success: true,
+      isNewUser: result.isNewUser,
+      user: result.user,
+      token: result.token,
+      message: result.message
+    });
+  } catch (error) {
+    console.error('Error in verifySmsCode:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Ошибка при проверке SMS-кода'
+    });
+  }
+}
+
+// ============ Регистрация ============
+
+/**
+ * POST /api/auth/register-realtor - Регистрация частного риелтора
+ */
+export async function registerRealtor(req: Request, res: Response) {
+  try {
+    const ipAddress = req.ip || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    const result = await authService.registerRealtor(req.body, ipAddress, userAgent);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.message
+      });
+    }
+
+    res.json({
+      success: true,
+      user: result.user,
+      token: result.token,
+      message: result.message
+    });
+  } catch (error) {
+    console.error('Error in registerRealtor:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Ошибка при регистрации'
+    });
+  }
+}
+
+/**
+ * POST /api/auth/check-inn - Проверить ИНН на дубликат
+ */
+export async function checkInn(req: Request, res: Response) {
+  try {
+    const { inn } = req.body;
+    const result = await authService.checkInn(inn);
+
+    res.json({
+      success: true,
+      exists: result.exists,
+      agencyName: result.agencyName
+    });
+  } catch (error) {
+    console.error('Error in checkInn:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Ошибка при проверке ИНН'
+    });
+  }
+}
+
+/**
+ * POST /api/auth/register-agency - Регистрация агентства
+ */
+export async function registerAgency(req: Request, res: Response) {
+  try {
+    const ipAddress = req.ip || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    const result = await authService.registerAgency(req.body, ipAddress, userAgent);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.message
+      });
+    }
+
+    res.json({
+      success: true,
+      user: result.user,
+      token: result.token,
+      message: result.message
+    });
+  } catch (error) {
+    console.error('Error in registerAgency:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Ошибка при регистрации агентства'
+    });
+  }
+}
+
+/**
+ * POST /api/auth/login-agency - Вход для агентств (email + password)
+ */
+export async function loginAgency(req: Request, res: Response) {
+  try {
+    const { email, password } = req.body;
+    const result = await authService.loginWithPassword(email, password);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.message
+      });
+    }
+
+    res.json({
+      success: true,
+      user: result.user,
+      token: result.token
+    });
+  } catch (error) {
+    console.error('Error in loginAgency:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Ошибка при авторизации'
+    });
+  }
+}

@@ -91,6 +91,19 @@ export function OfferCard({ offer, highlighted, compact }: OfferCardProps) {
           <AddToClientSelectionButton offerId={offer.id} size="sm" />
           <FavoriteButton offerId={offer.id} size="sm" />
         </div>
+
+        {/* Completion status badge */}
+        {offer.completion_date && (
+          <div className="absolute bottom-3 left-3">
+            <span className={`text-xs font-medium px-2.5 py-1 rounded ${
+              offer.completion_date === 'Сдан'
+                ? 'bg-green-500 text-white'
+                : 'bg-white/90 text-black border border-[var(--color-border)]'
+            }`}>
+              {offer.completion_date === 'Сдан' ? 'Сдан' : `Сдача: ${offer.completion_date}`}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Content */}

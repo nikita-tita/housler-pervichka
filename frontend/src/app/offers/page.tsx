@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { OfferCard } from '@/components/OfferCard';
 import { Filters } from '@/components/Filters';
+import { QuickFilters } from '@/components/QuickFilters';
 import { ViewModeSwitcher, type ViewMode } from '@/components/ViewModeSwitcher';
 import { OffersTable } from '@/components/OffersTable';
 import { PlansGrid } from '@/components/PlansGrid';
@@ -159,6 +160,9 @@ function OffersContent() {
             </div>
           </div>
         </div>
+
+        {/* Quick Filters */}
+        <QuickFilters />
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-8">
           {/* Filters Sidebar */}
