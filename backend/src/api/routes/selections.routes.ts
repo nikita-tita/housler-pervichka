@@ -15,6 +15,13 @@ import {
   getMySelections
 } from '../controllers/selections.controller';
 import { requireAuthWithUser, requireAgent } from '../../middleware/auth.middleware';
+import { validateBody, validateParams } from '../../validation/middleware';
+import {
+  idParamSchema,
+  createSelectionSchema,
+  updateSelectionSchema,
+  addSelectionItemSchema
+} from '../../validation/schemas';
 
 const router = Router();
 
@@ -46,24 +53,24 @@ router.use(requireAgent);
 router.get('/', getSelections);
 
 // POST /api/selections - Создать
-router.post('/', createSelection);
+router.post('/', validateBody(createSelectionSchema), createSelection);
 
 // GET /api/selections/:id - Получить
-router.get('/:id', getSelection);
+router.get('/:id', validateParams(idParamSchema), getSelection);
 
 // GET /api/selections/:id/activity - Лог действий
-router.get('/:id/activity', getSelectionActivity);
+router.get('/:id/activity', validateParams(idParamSchema), getSelectionActivity);
 
 // PATCH /api/selections/:id - Обновить
-router.patch('/:id', updateSelection);
+router.patch('/:id', validateParams(idParamSchema), validateBody(updateSelectionSchema), updateSelection);
 
 // DELETE /api/selections/:id - Удалить
-router.delete('/:id', deleteSelection);
+router.delete('/:id', validateParams(idParamSchema), deleteSelection);
 
 // POST /api/selections/:id/items - Добавить объект
-router.post('/:id/items', addSelectionItem);
+router.post('/:id/items', validateParams(idParamSchema), validateBody(addSelectionItemSchema), addSelectionItem);
 
 // DELETE /api/selections/:id/items/:offerId - Удалить объект
-router.delete('/:id/items/:offerId', removeSelectionItem);
+router.delete('/:id/items/:offerId', validateParams(idParamSchema), removeSelectionItem);
 
 export default router;

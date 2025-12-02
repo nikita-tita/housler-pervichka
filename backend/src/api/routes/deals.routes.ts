@@ -8,6 +8,8 @@ import {
   updateDeal,
   updateDealStatus
 } from '../controllers/deals.controller';
+import { validateBody, validateParams } from '../../validation/middleware';
+import { idParamSchema, createDealSchema, updateDealStatusSchema } from '../../validation/schemas';
 
 const router = Router();
 
@@ -22,15 +24,15 @@ router.get('/', getDeals);
 router.get('/stats', getDealsStats);
 
 // POST /api/deals — Создать сделку из брони
-router.post('/', createDeal);
+router.post('/', validateBody(createDealSchema), createDeal);
 
 // GET /api/deals/:id — Детали сделки
-router.get('/:id', getDeal);
+router.get('/:id', validateParams(idParamSchema), getDeal);
 
 // PATCH /api/deals/:id — Обновить данные сделки
-router.patch('/:id', updateDeal);
+router.patch('/:id', validateParams(idParamSchema), updateDeal);
 
 // PATCH /api/deals/:id/status — Обновить статус сделки
-router.patch('/:id/status', updateDealStatus);
+router.patch('/:id/status', validateParams(idParamSchema), validateBody(updateDealStatusSchema), updateDealStatus);
 
 export default router;

@@ -12,6 +12,13 @@ import {
   recordContact
 } from '../controllers/clients.controller';
 import { requireAuthWithUser, requireAgent } from '../../middleware/auth.middleware';
+import { validateBody, validateParams } from '../../validation/middleware';
+import {
+  idParamSchema,
+  createClientSchema,
+  updateClientSchema,
+  updateClientStageSchema
+} from '../../validation/schemas';
 
 const router = Router();
 
@@ -26,27 +33,27 @@ router.get('/stats', getClientsStats);
 router.get('/', getClients);
 
 // POST /api/clients — Создать клиента
-router.post('/', createClient);
+router.post('/', validateBody(createClientSchema), createClient);
 
 // GET /api/clients/:id — Детали клиента
-router.get('/:id', getClient);
+router.get('/:id', validateParams(idParamSchema), getClient);
 
 // PATCH /api/clients/:id — Обновить клиента
-router.patch('/:id', updateClient);
+router.patch('/:id', validateParams(idParamSchema), validateBody(updateClientSchema), updateClient);
 
 // DELETE /api/clients/:id — Удалить клиента
-router.delete('/:id', deleteClient);
+router.delete('/:id', validateParams(idParamSchema), deleteClient);
 
 // PATCH /api/clients/:id/stage — Изменить этап воронки
-router.patch('/:id/stage', updateClientStage);
+router.patch('/:id/stage', validateParams(idParamSchema), validateBody(updateClientStageSchema), updateClientStage);
 
 // GET /api/clients/:id/activity — Лог активности
-router.get('/:id/activity', getClientActivity);
+router.get('/:id/activity', validateParams(idParamSchema), getClientActivity);
 
 // POST /api/clients/:id/link-selection — Привязать подборку
-router.post('/:id/link-selection', linkSelection);
+router.post('/:id/link-selection', validateParams(idParamSchema), linkSelection);
 
 // POST /api/clients/:id/contact — Записать контакт
-router.post('/:id/contact', recordContact);
+router.post('/:id/contact', validateParams(idParamSchema), recordContact);
 
 export default router;

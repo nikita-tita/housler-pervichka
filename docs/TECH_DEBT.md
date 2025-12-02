@@ -253,7 +253,7 @@ app.use(Sentry.Handlers.errorHandler());
 6. [x] Unit тесты для selections.service — готово (33 теста)
 
 ### Спринт 3 (улучшения):
-7. [ ] Zod валидация
+7. [x] Zod валидация — готово (schemas.ts + middleware.ts)
 8. [ ] E2E тесты
 9. [x] Колонка status в selection_items — готово (миграция 007)
 

@@ -9,6 +9,8 @@ import {
   convertToBooking,
   deleteFixation
 } from '../controllers/fixations.controller';
+import { validateBody, validateParams } from '../../validation/middleware';
+import { idParamSchema, createFixationSchema, updateFixationStatusSchema } from '../../validation/schemas';
 
 const router = Router();
 
@@ -23,19 +25,19 @@ router.get('/', getFixations);
 router.get('/stats', getFixationsStats);
 
 // POST /api/fixations — Создать фиксацию
-router.post('/', createFixation);
+router.post('/', validateBody(createFixationSchema), createFixation);
 
 // GET /api/fixations/:id — Детали фиксации
-router.get('/:id', getFixation);
+router.get('/:id', validateParams(idParamSchema), getFixation);
 
 // PATCH /api/fixations/:id/status — Обновить статус (для оператора/агента)
-router.patch('/:id/status', updateFixationStatus);
+router.patch('/:id/status', validateParams(idParamSchema), validateBody(updateFixationStatusSchema), updateFixationStatus);
 
 // POST /api/fixations/:id/convert — Конвертировать в бронь
-router.post('/:id/convert', convertToBooking);
+router.post('/:id/convert', validateParams(idParamSchema), convertToBooking);
 
 // DELETE /api/fixations/:id — Удалить фиксацию
-router.delete('/:id', deleteFixation);
+router.delete('/:id', validateParams(idParamSchema), deleteFixation);
 
 export default router;
 

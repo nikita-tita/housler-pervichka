@@ -7,11 +7,13 @@ import {
   updateBookingStatus
 } from '../controllers/bookings.controller';
 import { loadUser, requireAuthWithUser, requireOperator } from '../../middleware/auth.middleware';
+import { validateBody, validateParams } from '../../validation/middleware';
+import { idParamSchema, createBookingSchema, updateBookingStatusSchema } from '../../validation/schemas';
 
 const router = Router();
 
 // POST /api/bookings - Создать заявку (может быть без авторизации, но если есть — привязываем к агенту)
-router.post('/', loadUser, createBooking);
+router.post('/', loadUser, validateBody(createBookingSchema), createBooking);
 
 // GET /api/bookings - Заявки агента (требует авторизации)
 router.get('/', requireAuthWithUser, getAgentBookings);
@@ -32,4 +34,4 @@ operatorBookingsRouter.get('/', getAllBookings);
 operatorBookingsRouter.get('/stats', getBookingsStats);
 
 // PATCH /api/operator/bookings/:id - Обновить статус
-operatorBookingsRouter.patch('/:id', updateBookingStatus);
+operatorBookingsRouter.patch('/:id', validateParams(idParamSchema), validateBody(updateBookingStatusSchema), updateBookingStatus);
