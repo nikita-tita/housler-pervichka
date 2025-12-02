@@ -30,9 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const response = await api.getMe();
-      if (response.success && response.data) {
+      // API возвращает user напрямую или в data
+      const user = (response as { user?: User }).user || response.data;
+      if (response.success && user) {
         setState({
-          user: response.data,
+          user,
           token,
           isAuthenticated: true,
           isLoading: false,

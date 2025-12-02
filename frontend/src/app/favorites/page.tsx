@@ -71,17 +71,23 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map((offer) => (
+          {favorites.map((offer) => {
+            // API возвращает offer_id и main_image, но тип ожидает id и image_url
+            const offerId = (offer as unknown as { offer_id?: number }).offer_id || offer.id;
+            const imageUrl = (offer as unknown as { main_image?: string }).main_image || offer.image_url;
+            const complexName = (offer as unknown as { building_name?: string }).building_name || offer.complex_name;
+
+            return (
             <Link
-              key={offer.id}
-              href={`/offers/${offer.id}`}
+              key={offerId}
+              href={`/offers/${offerId}`}
               className="group bg-white rounded-lg overflow-hidden border border-[var(--color-border)] hover:shadow-lg transition-shadow"
             >
               <div className="relative aspect-[4/3] bg-gray-100">
-                {offer.image_url ? (
+                {imageUrl ? (
                   <img
-                    src={offer.image_url}
-                    alt={offer.complex_name}
+                    src={imageUrl}
+                    alt={complexName}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -92,7 +98,7 @@ export default function FavoritesPage() {
                   </div>
                 )}
                 <div className="absolute top-3 right-3">
-                  <FavoriteButton offerId={offer.id} size="sm" />
+                  <FavoriteButton offerId={offerId} size="sm" />
                 </div>
               </div>
 
@@ -103,7 +109,7 @@ export default function FavoritesPage() {
                 <div className="text-sm text-[var(--color-text-light)] mb-2">
                   {formatRooms(offer.rooms, offer.is_studio)} · {formatArea(offer.area_total)} · {offer.floor}/{offer.floors_total} эт.
                 </div>
-                <div className="text-sm font-medium">{offer.complex_name}</div>
+                <div className="text-sm font-medium">{complexName}</div>
                 {offer.district_name && (
                   <div className="text-sm text-[var(--color-text-light)]">
                     {offer.district_name}
@@ -111,7 +117,8 @@ export default function FavoritesPage() {
                 )}
               </div>
             </Link>
-          ))}
+          );
+          })}
         </div>
       )}
     </div>

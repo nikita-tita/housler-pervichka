@@ -15,10 +15,22 @@ export function OfferPdfButton({ offer, className = '' }: OfferPdfButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Получаем URL главного изображения
-  const mainImageUrl = offer.images?.find(img => img.tag === 'housemain')?.url
-    || offer.images?.[0]?.url
-    || null;
+  // Группируем изображения по типу
+  const planImage = offer.images?.find(img => img.tag === 'plan')?.url || null;
+  const floorplanImage = offer.images?.find(img => img.tag === 'floorplan')?.url || null;
+  const mainImage = offer.images?.find(img => img.tag === 'housemain')?.url || offer.images?.[0]?.url || null;
+  const complexScheme = offer.images?.find(img => img.tag === 'complexscheme')?.url || null;
+
+  // URL для статической карты Yandex
+  const mapImageUrl = offer.latitude && offer.longitude
+    ? `https://static-maps.yandex.ru/1.x/?lang=ru_RU&ll=${offer.longitude},${offer.latitude}&z=15&l=map&size=650,300&pt=${offer.longitude},${offer.latitude},pm2rdm`
+    : null;
+
+  // Фильтруем URL-подобные названия застройщиков
+  const isValidDeveloper = offer.developer_name &&
+    !offer.developer_name.includes('.') &&
+    !offer.developer_name.includes('http') &&
+    offer.developer_name.length > 2;
 
   const generatePdf = async () => {
     if (!contentRef.current) return;
@@ -34,7 +46,7 @@ export function OfferPdfButton({ offer, className = '' }: OfferPdfButtonProps) {
         logging: false,
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
 
       // Создаём PDF
       const pdf = new jsPDF({
@@ -45,14 +57,29 @@ export function OfferPdfButton({ offer, className = '' }: OfferPdfButtonProps) {
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth - 20; // 10mm margins
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const margin = 10;
+      const contentWidth = pdfWidth - margin * 2;
 
-      // Если контент не влезает на страницу, масштабируем
-      const finalHeight = Math.min(imgHeight, pdfHeight - 20);
-      const finalWidth = (canvas.width * finalHeight) / canvas.height;
+      // Рассчитываем высоту изображения пропорционально
+      const imgHeight = (canvas.height * contentWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'JPEG', 10, 10, Math.min(imgWidth, finalWidth), finalHeight);
+      // Разбиваем на страницы если контент не влезает
+      let heightLeft = imgHeight;
+      let position = margin;
+      let page = 0;
+
+      // Первая страница
+      pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, imgHeight);
+      heightLeft -= (pdfHeight - margin * 2);
+
+      // Добавляем страницы если нужно
+      while (heightLeft > 0) {
+        page++;
+        position = margin - (pdfHeight - margin * 2) * page;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, imgHeight);
+        heightLeft -= (pdfHeight - margin * 2);
+      }
 
       // Сохраняем
       const fileName = `${offer.complex_name?.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_') || 'offer'}_${offer.id}.pdf`;
@@ -65,148 +92,312 @@ export function OfferPdfButton({ offer, className = '' }: OfferPdfButtonProps) {
     }
   };
 
+  // Стили для контента
+  const styles = {
+    container: {
+      position: 'absolute' as const,
+      left: '-9999px',
+      top: 0,
+      width: '800px',
+      padding: '40px',
+      backgroundColor: '#fff',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '24px',
+      color: '#6B7280',
+      fontSize: '14px',
+    },
+    title: {
+      fontSize: '32px',
+      fontWeight: 600,
+      margin: '0 0 8px 0',
+      color: '#181A20',
+    },
+    subtitle: {
+      fontSize: '18px',
+      color: '#4A4A4A',
+      margin: '0 0 16px 0',
+    },
+    price: {
+      fontSize: '28px',
+      fontWeight: 600,
+      color: '#181A20',
+    },
+    pricePerSqm: {
+      fontSize: '16px',
+      color: '#6B7280',
+    },
+    sectionTitle: {
+      fontSize: '20px',
+      fontWeight: 600,
+      margin: '32px 0 16px 0',
+      color: '#181A20',
+      borderBottom: '2px solid #E5E7EB',
+      paddingBottom: '8px',
+    },
+    image: {
+      width: '100%',
+      height: '280px',
+      objectFit: 'cover' as const,
+      borderRadius: '12px',
+    },
+    smallImage: {
+      width: '100%',
+      height: '220px',
+      objectFit: 'contain' as const,
+      borderRadius: '8px',
+      backgroundColor: '#F9FAFB',
+    },
+    grid2: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '16px',
+      marginBottom: '16px',
+    },
+    gridItem: {
+      padding: '12px',
+      backgroundColor: '#F9FAFB',
+      borderRadius: '8px',
+    },
+    label: {
+      color: '#6B7280',
+      fontSize: '13px',
+      marginBottom: '4px',
+    },
+    value: {
+      color: '#181A20',
+      fontSize: '15px',
+      fontWeight: 500,
+    },
+    description: {
+      fontSize: '14px',
+      lineHeight: '1.7',
+      color: '#374151',
+      whiteSpace: 'pre-wrap' as const,
+    },
+    footer: {
+      borderTop: '1px solid #E5E7EB',
+      paddingTop: '16px',
+      marginTop: '32px',
+      color: '#6B7280',
+      fontSize: '12px',
+      textAlign: 'center' as const,
+    },
+    imageRow: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '16px',
+      marginBottom: '16px',
+    },
+    mapImage: {
+      width: '100%',
+      height: '200px',
+      objectFit: 'cover' as const,
+      borderRadius: '8px',
+    },
+  };
+
   return (
     <>
       {/* Скрытый контент для рендеринга в PDF */}
-      <div
-        ref={contentRef}
-        style={{
-          position: 'absolute',
-          left: '-9999px',
-          top: 0,
-          width: '800px',
-          padding: '40px',
-          backgroundColor: '#fff',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-        }}
-      >
+      <div ref={contentRef} style={styles.container}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', color: '#6B7280', fontSize: '14px' }}>
+        <div style={styles.header}>
           <span>agent.housler.ru</span>
           <span>{new Date().toLocaleDateString('ru-RU')}</span>
         </div>
 
         {/* Title */}
-        <h1 style={{ fontSize: '32px', fontWeight: 600, margin: '0 0 8px 0', color: '#181A20' }}>
-          {formatRooms(offer.rooms, offer.is_studio)}
+        <h1 style={styles.title}>
+          {formatRooms(offer.rooms, offer.is_studio)}, {formatArea(offer.area_total)}
         </h1>
-        <p style={{ fontSize: '18px', color: '#4A4A4A', margin: '0 0 16px 0' }}>
-          {formatArea(offer.area_total)} • {formatFloor(offer.floor, offer.floors_total)}
+        <p style={styles.subtitle}>
+          {offer.complex_name} • {formatFloor(offer.floor, offer.floors_total)}
         </p>
 
         {/* Price */}
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '28px', fontWeight: 600, color: '#181A20' }}>
-            {formatPrice(offer.price)}
-          </div>
-          <div style={{ fontSize: '16px', color: '#6B7280' }}>
-            {formatPrice(offer.price_per_sqm)}/м²
-          </div>
+          <div style={styles.price}>{formatPrice(offer.price)}</div>
+          <div style={styles.pricePerSqm}>{formatPrice(offer.price_per_sqm)}/м²</div>
         </div>
 
-        {/* Image */}
-        {mainImageUrl && (
+        {/* Main Image */}
+        {mainImage && (
           <div style={{ marginBottom: '24px' }}>
             <img
-              src={mainImageUrl}
+              src={mainImage}
               alt="Фото объекта"
-              style={{ width: '100%', height: '300px', objectFit: 'cover', borderRadius: '12px' }}
+              style={styles.image}
               crossOrigin="anonymous"
             />
           </div>
         )}
 
-        {/* Characteristics */}
-        <h2 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 16px 0', color: '#181A20' }}>
-          Характеристики
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
-          <div>
-            <div style={{ color: '#6B7280', fontSize: '14px' }}>Общая площадь</div>
-            <div style={{ color: '#181A20', fontSize: '16px' }}>{formatArea(offer.area_total)}</div>
+        {/* Планировка и План этажа */}
+        {(planImage || floorplanImage) && (
+          <>
+            <h2 style={styles.sectionTitle}>Планировка</h2>
+            <div style={styles.imageRow}>
+              {planImage && (
+                <div>
+                  <div style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>Планировка квартиры</div>
+                  <img
+                    src={planImage}
+                    alt="Планировка"
+                    style={styles.smallImage}
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              )}
+              {floorplanImage && (
+                <div>
+                  <div style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>План этажа</div>
+                  <img
+                    src={floorplanImage}
+                    alt="План этажа"
+                    style={styles.smallImage}
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Характеристики */}
+        <h2 style={styles.sectionTitle}>Характеристики</h2>
+        <div style={styles.grid2}>
+          <div style={styles.gridItem}>
+            <div style={styles.label}>Общая площадь</div>
+            <div style={styles.value}>{formatArea(offer.area_total)}</div>
           </div>
           {offer.area_living && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Жилая площадь</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>{formatArea(offer.area_living)}</div>
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Жилая площадь</div>
+              <div style={styles.value}>{formatArea(offer.area_living)}</div>
             </div>
           )}
           {offer.area_kitchen && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Кухня</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>{formatArea(offer.area_kitchen)}</div>
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Кухня</div>
+              <div style={styles.value}>{formatArea(offer.area_kitchen)}</div>
             </div>
           )}
-          <div>
-            <div style={{ color: '#6B7280', fontSize: '14px' }}>Этаж</div>
-            <div style={{ color: '#181A20', fontSize: '16px' }}>{formatFloor(offer.floor, offer.floors_total)}</div>
+          <div style={styles.gridItem}>
+            <div style={styles.label}>Этаж</div>
+            <div style={styles.value}>{formatFloor(offer.floor, offer.floors_total)}</div>
           </div>
           {offer.ceiling_height && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Высота потолков</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.ceiling_height} м</div>
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Высота потолков</div>
+              <div style={styles.value}>{offer.ceiling_height} м</div>
             </div>
           )}
           {offer.balcony && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Балкон/лоджия</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.balcony}</div>
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Балкон/лоджия</div>
+              <div style={styles.value}>{offer.balcony}</div>
             </div>
           )}
           {offer.bathroom && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Санузел</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.bathroom}</div>
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Санузел</div>
+              <div style={styles.value}>{offer.bathroom}</div>
             </div>
           )}
-          <div>
-            <div style={{ color: '#6B7280', fontSize: '14px' }}>Отделка</div>
-            <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.has_finishing ? 'С отделкой' : 'Без отделки'}</div>
+          <div style={styles.gridItem}>
+            <div style={styles.label}>Отделка</div>
+            <div style={styles.value}>{offer.has_finishing ? 'С отделкой' : 'Без отделки'}</div>
           </div>
         </div>
 
-        {/* Complex info */}
-        <h2 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 16px 0', color: '#181A20' }}>
-          Жилой комплекс
-        </h2>
-        <div style={{ display: 'grid', gap: '12px', marginBottom: '24px' }}>
-          <div>
-            <div style={{ color: '#6B7280', fontSize: '14px' }}>Название</div>
-            <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.complex_name}</div>
+        {/* Описание */}
+        {offer.description && (
+          <>
+            <h2 style={styles.sectionTitle}>Описание</h2>
+            <div style={styles.description}>{offer.description}</div>
+          </>
+        )}
+
+        {/* ЖК */}
+        <h2 style={styles.sectionTitle}>Жилой комплекс</h2>
+
+        {/* Фото ЖК и схема */}
+        {(complexScheme || (mainImage && !planImage && !floorplanImage)) && (
+          <div style={{ marginBottom: '16px' }}>
+            {complexScheme && (
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>Генплан комплекса</div>
+                <img
+                  src={complexScheme}
+                  alt="Схема ЖК"
+                  style={{ ...styles.smallImage, height: '180px' }}
+                  crossOrigin="anonymous"
+                />
+              </div>
+            )}
           </div>
-          {offer.developer_name && !offer.developer_name.includes('.') && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Застройщик</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.developer_name}</div>
+        )}
+
+        <div style={styles.grid2}>
+          <div style={styles.gridItem}>
+            <div style={styles.label}>Название</div>
+            <div style={styles.value}>{offer.complex_name}</div>
+          </div>
+          {isValidDeveloper && (
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Застройщик</div>
+              <div style={styles.value}>{offer.developer_name}</div>
             </div>
           )}
-          <div>
-            <div style={{ color: '#6B7280', fontSize: '14px' }}>Адрес</div>
-            <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.complex_address}</div>
+          <div style={styles.gridItem}>
+            <div style={styles.label}>Адрес</div>
+            <div style={styles.value}>{offer.complex_address}</div>
           </div>
-          <div>
-            <div style={{ color: '#6B7280', fontSize: '14px' }}>Район</div>
-            <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.district_name}</div>
+          <div style={styles.gridItem}>
+            <div style={styles.label}>Район</div>
+            <div style={styles.value}>{offer.district_name}</div>
           </div>
           {offer.metro_station && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Метро</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Метро</div>
+              <div style={styles.value}>
                 {offer.metro_station}{offer.metro_distance ? ` (${offer.metro_distance} мин)` : ''}
               </div>
             </div>
           )}
           {offer.completion_date && (
-            <div>
-              <div style={{ color: '#6B7280', fontSize: '14px' }}>Срок сдачи</div>
-              <div style={{ color: '#181A20', fontSize: '16px' }}>{offer.completion_date}</div>
+            <div style={styles.gridItem}>
+              <div style={styles.label}>Срок сдачи</div>
+              <div style={styles.value}>{offer.completion_date}</div>
             </div>
           )}
         </div>
 
+        {/* Карта */}
+        {mapImageUrl && (
+          <>
+            <h2 style={styles.sectionTitle}>Расположение</h2>
+            <div style={{ marginBottom: '16px' }}>
+              <img
+                src={mapImageUrl}
+                alt="Карта"
+                style={styles.mapImage}
+                crossOrigin="anonymous"
+              />
+              <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '8px' }}>
+                {offer.complex_address}
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Footer */}
-        <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: '16px', color: '#6B7280', fontSize: '12px', textAlign: 'center' }}>
-          ID: {offer.id} • Сгенерировано на agent.housler.ru
+        <div style={styles.footer}>
+          ID объявления: {offer.id} • Сгенерировано на agent.housler.ru
         </div>
       </div>
 
