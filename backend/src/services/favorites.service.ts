@@ -1,9 +1,7 @@
 import { pool } from '../config/database';
 
 export interface FavoriteOffer {
-  id: number;
-  offer_id: number;
-  external_id: string;
+  id: number;  // offer_id для совместимости с OfferListItem
   rooms: number;
   is_studio: boolean;
   floor: number;
@@ -11,11 +9,12 @@ export interface FavoriteOffer {
   area_total: number;
   price: number;
   price_per_sqm: number;
-  address: string;
-  district: string | null;
-  metro_name: string | null;
-  building_name: string | null;
-  main_image: string | null;
+  complex_name: string | null;  // алиас building_name
+  district_name: string | null;  // алиас district
+  metro_station: string | null;  // алиас metro_name
+  image_url: string | null;  // алиас main_image
+  has_finishing: boolean;
+  metro_distance: number | null;
   added_at: string;
 }
 
@@ -26,9 +25,7 @@ export class FavoritesService {
   async getUserFavorites(userId: number): Promise<FavoriteOffer[]> {
     const result = await pool.query(`
       SELECT
-        f.id,
-        f.offer_id,
-        o.external_id,
+        f.offer_id as id,
         o.rooms,
         o.is_studio,
         o.floor,
@@ -36,15 +33,16 @@ export class FavoritesService {
         o.area_total,
         o.price,
         o.price_per_sqm,
-        o.address,
-        d.name as district,
-        o.metro_name,
-        o.building_name,
+        o.building_name as complex_name,
+        d.name as district_name,
+        o.metro_name as metro_station,
+        o.metro_distance,
+        o.has_finishing,
         (
           SELECT url FROM images
           WHERE offer_id = o.id AND (tag = 'housemain' OR tag IS NULL)
           ORDER BY display_order LIMIT 1
-        ) as main_image,
+        ) as image_url,
         f.created_at as added_at
       FROM favorites f
       JOIN offers o ON f.offer_id = o.id
