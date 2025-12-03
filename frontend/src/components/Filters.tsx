@@ -6,6 +6,8 @@ import type { OfferFilters } from '@/types';
 import { SearchAutocomplete } from './SearchAutocomplete';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthRequiredOverlay } from './AuthRequiredOverlay';
 import { MultiSelect } from './filters/MultiSelect';
 import { FloorFilter } from './filters/FloorFilter';
 import { KitchenAreaFilter } from './filters/KitchenAreaFilter';
@@ -21,6 +23,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { filterOptions, isLoading } = useFilterOptions();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Current filter state from URL
@@ -278,7 +281,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
       {/* Expanded Filters */}
       {isExpanded && (
-        <>
+        <AuthRequiredOverlay message="Войдите для использования расширенных фильтров">
           {/* Price Range */}
           <div className="mb-6">
             <div className="text-sm font-medium mb-3">Цена, ₽</div>
@@ -493,7 +496,7 @@ export function Filters({ onFiltersChange }: FiltersProps) {
               <span className="text-sm">Только с отделкой</span>
             </label>
           </div>
-        </>
+        </AuthRequiredOverlay>
       )}
 
       {/* Actions */}

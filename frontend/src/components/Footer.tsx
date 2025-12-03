@@ -12,7 +12,7 @@ export function Footer() {
           <div className="flex-shrink-0">
             <div className="text-xl font-semibold tracking-tight mb-2">HOUSLER</div>
             <div className="text-sm text-[var(--color-text-light)] max-w-[280px]">
-              Агрегатор новостроек Санкт-Петербурга и Москвы
+              Покупка и продажа недвижимости в Москве и Санкт-Петербурге
             </div>
           </div>
 
