@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { OfferCard } from '@/components/OfferCard';
+import { OfferCardGuest } from '@/components/guest/OfferCardGuest';
 import { Filters } from '@/components/Filters';
 import { Pagination } from '@/components/ui';
 import { api } from '@/services/api';
@@ -198,10 +198,10 @@ export default function GuestOffersPage() {
               <>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {offers.map(offer => (
-                    <OfferCard
+                    <OfferCardGuest
                       key={offer.id}
                       offer={offer}
-                      linkPrefix={`/s/${code}`}
+                      selectionCode={code}
                     />
                   ))}
                 </div>

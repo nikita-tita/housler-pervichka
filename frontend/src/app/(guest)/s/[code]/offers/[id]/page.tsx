@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api, formatPrice, formatArea, formatRooms, formatFloor } from '@/services/api';
 import { useGuest } from '@/contexts/GuestContext';
-import { BookingFormGuest } from '@/components/guest/BookingFormGuest';
+import { useGuestFavorites } from '@/contexts/GuestFavoritesContext';
+import { BookingFormGuest, FavoriteButtonGuest } from '@/components/guest';
 import { MortgageCalculator } from '@/components/MortgageCalculator';
 import { YandexMap } from '@/components/YandexMap';
 import { ImageGallery } from '@/components/ImageGallery';
@@ -115,14 +116,17 @@ export default function GuestOfferDetailPage() {
 
           {/* Info */}
           <div>
-            {/* Price */}
-            <div className="mb-6">
-              <div className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">
-                {formatPrice(offer.price)}
+            {/* Price & Favorite */}
+            <div className="mb-6 flex items-start justify-between">
+              <div>
+                <div className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">
+                  {formatPrice(offer.price)}
+                </div>
+                <div className="text-[var(--color-text-light)]">
+                  {formatPrice(offer.price_per_sqm)}/м²
+                </div>
               </div>
-              <div className="text-[var(--color-text-light)]">
-                {formatPrice(offer.price_per_sqm)}/м²
-              </div>
+              <FavoriteButtonGuest offerId={offer.id} size="lg" />
             </div>
 
             {/* Title */}
