@@ -54,11 +54,8 @@ export async function getUsers(req: Request, res: Response) {
 
 export async function getUserById(req: Request, res: Response) {
   try {
-    const userId = parseInt(req.params.id, 10);
-
-    if (isNaN(userId)) {
-      return res.status(400).json({ success: false, error: 'Invalid user ID' });
-    }
+    // ID уже провалидирован и преобразован в число через validateParams
+    const userId = req.params.id as unknown as number;
 
     const user = await adminService.getUserById(userId);
 
@@ -75,17 +72,9 @@ export async function getUserById(req: Request, res: Response) {
 
 export async function updateUserRole(req: Request, res: Response) {
   try {
-    const userId = parseInt(req.params.id, 10);
+    // ID и role уже провалидированы через validateParams и validateBody
+    const userId = req.params.id as unknown as number;
     const { role } = req.body;
-
-    if (isNaN(userId)) {
-      return res.status(400).json({ success: false, error: 'Invalid user ID' });
-    }
-
-    const validRoles: UserRole[] = ['client', 'agent', 'agency_admin', 'operator', 'admin'];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({ success: false, error: 'Invalid role' });
-    }
 
     // Нельзя менять роль самому себе
     if (req.user?.id === userId) {
@@ -113,16 +102,9 @@ export async function updateUserRole(req: Request, res: Response) {
 
 export async function toggleUserActive(req: Request, res: Response) {
   try {
-    const userId = parseInt(req.params.id, 10);
+    // Провалидировано через validateParams и validateBody
+    const userId = req.params.id as unknown as number;
     const { is_active } = req.body;
-
-    if (isNaN(userId)) {
-      return res.status(400).json({ success: false, error: 'Invalid user ID' });
-    }
-
-    if (typeof is_active !== 'boolean') {
-      return res.status(400).json({ success: false, error: 'is_active must be boolean' });
-    }
 
     // Нельзя деактивировать самого себя
     if (req.user?.id === userId) {
@@ -150,16 +132,11 @@ export async function toggleUserActive(req: Request, res: Response) {
 
 export async function setUserAgency(req: Request, res: Response) {
   try {
-    const userId = parseInt(req.params.id, 10);
+    // Провалидировано через validateParams и validateBody
+    const userId = req.params.id as unknown as number;
     const { agency_id } = req.body;
 
-    if (isNaN(userId)) {
-      return res.status(400).json({ success: false, error: 'Invalid user ID' });
-    }
-
-    const agencyId = agency_id ? parseInt(agency_id, 10) : null;
-
-    const user = await adminService.setUserAgency(userId, agencyId);
+    const user = await adminService.setUserAgency(userId, agency_id);
 
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
@@ -168,7 +145,7 @@ export async function setUserAgency(req: Request, res: Response) {
     logger.info('Admin set user agency', {
       adminId: req.user?.id,
       userId,
-      agencyId
+      agencyId: agency_id
     });
 
     res.json({ success: true, data: user });
@@ -180,23 +157,15 @@ export async function setUserAgency(req: Request, res: Response) {
 
 export async function createUser(req: Request, res: Response) {
   try {
+    // Провалидировано через validateBody (createUserSchema)
     const { email, name, phone, role, agency_id } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ success: false, error: 'Email is required' });
-    }
-
-    const validRoles: UserRole[] = ['client', 'agent', 'agency_admin', 'operator', 'admin'];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({ success: false, error: 'Invalid role' });
-    }
 
     const user = await adminService.createUser({
       email,
       name,
       phone,
       role,
-      agency_id: agency_id ? parseInt(agency_id, 10) : undefined
+      agency_id
     });
 
     logger.info('Admin created user', {
@@ -219,11 +188,8 @@ export async function createUser(req: Request, res: Response) {
 
 export async function deleteUser(req: Request, res: Response) {
   try {
-    const userId = parseInt(req.params.id, 10);
-
-    if (isNaN(userId)) {
-      return res.status(400).json({ success: false, error: 'Invalid user ID' });
-    }
+    // Провалидировано через validateParams
+    const userId = req.params.id as unknown as number;
 
     // Нельзя удалить самого себя
     if (req.user?.id === userId) {
@@ -287,11 +253,8 @@ export async function getAgencies(req: Request, res: Response) {
 
 export async function getAgencyById(req: Request, res: Response) {
   try {
-    const agencyId = parseInt(req.params.id, 10);
-
-    if (isNaN(agencyId)) {
-      return res.status(400).json({ success: false, error: 'Invalid agency ID' });
-    }
+    // Провалидировано через validateParams
+    const agencyId = req.params.id as unknown as number;
 
     const agency = await adminService.getAgencyById(agencyId);
 
@@ -308,17 +271,9 @@ export async function getAgencyById(req: Request, res: Response) {
 
 export async function updateAgencyStatus(req: Request, res: Response) {
   try {
-    const agencyId = parseInt(req.params.id, 10);
+    // Провалидировано через validateParams и validateBody
+    const agencyId = req.params.id as unknown as number;
     const { status } = req.body;
-
-    if (isNaN(agencyId)) {
-      return res.status(400).json({ success: false, error: 'Invalid agency ID' });
-    }
-
-    const validStatuses = ['pending', 'active', 'rejected', 'suspended'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, error: 'Invalid status' });
-    }
 
     const agency = await adminService.updateAgencyStatus(agencyId, status);
 

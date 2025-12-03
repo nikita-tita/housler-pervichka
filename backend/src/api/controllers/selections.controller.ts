@@ -378,3 +378,31 @@ export async function getSelectionActivity(req: Request, res: Response) {
     res.status(500).json({ success: false, error: 'Ошибка при получении активности' });
   }
 }
+
+/**
+ * GET /api/selections/shared/:code/context - Получить контекст подборки для гостя
+ * Возвращает информацию об агенте и агентстве для брендинга в гостевом режиме
+ */
+export async function getSharedSelectionContext(req: Request, res: Response) {
+  try {
+    const { code } = req.params;
+
+    if (!code) {
+      return res.status(400).json({ success: false, error: 'Код обязателен' });
+    }
+
+    const context = await selectionsService.getSelectionGuestContext(code);
+
+    if (!context) {
+      return res.status(404).json({ success: false, error: 'Подборка не найдена' });
+    }
+
+    res.json({
+      success: true,
+      data: context
+    });
+  } catch (error) {
+    console.error('Error in getSharedSelectionContext:', error);
+    res.status(500).json({ success: false, error: 'Ошибка при получении контекста' });
+  }
+}

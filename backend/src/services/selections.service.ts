@@ -1,6 +1,7 @@
 import { pool } from '../config/database';
 import crypto from 'crypto';
 import { logger } from '../utils/logger';
+import type { SelectionGuestContext } from '../types/models';
 
 export interface Selection {
   id: number;
@@ -612,5 +613,62 @@ export class SelectionsService {
     `, [clientEmail]);
 
     return result.rows;
+  }
+
+  /**
+   * Получить контекст подборки для гостя (информация об агенте и агентстве)
+   * Используется для отображения брендинга в гостевом режиме
+   */
+  async getSelectionGuestContext(shareCode: string): Promise<SelectionGuestContext | null> {
+    const result = await pool.query(`
+      SELECT
+        s.id as selection_id,
+        s.name as selection_name,
+        s.share_code,
+        (SELECT COUNT(*) FROM selection_items WHERE selection_id = s.id)::int as items_count,
+        u.id as agent_id,
+        u.name as agent_name,
+        u.phone as agent_phone,
+        u.email as agent_email,
+        a.id as agency_id,
+        a.name as agency_name,
+        a.slug as agency_slug,
+        a.logo_url as agency_logo,
+        a.phone as agency_phone,
+        a.email as agency_email
+      FROM selections s
+      JOIN users u ON s.agent_id = u.id
+      LEFT JOIN agencies a ON u.agency_id = a.id
+      WHERE s.share_code = $1
+    `, [shareCode]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const row = result.rows[0];
+
+    return {
+      selection: {
+        id: row.selection_id,
+        name: row.selection_name,
+        share_code: row.share_code,
+        items_count: row.items_count
+      },
+      agent: {
+        id: row.agent_id,
+        name: row.agent_name,
+        phone: row.agent_phone,
+        email: row.agent_email
+      },
+      agency: row.agency_id ? {
+        id: row.agency_id,
+        name: row.agency_name,
+        slug: row.agency_slug,
+        logo_url: row.agency_logo,
+        phone: row.agency_phone,
+        email: row.agency_email
+      } : null
+    };
   }
 }

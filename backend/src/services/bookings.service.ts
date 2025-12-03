@@ -1,5 +1,6 @@
 import { pool } from '../config/database';
 import { AgenciesService } from './agencies.service';
+import type { BookingSourceType } from '../types/models';
 
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
@@ -265,5 +266,90 @@ export class BookingsService {
       completed: result.rows[0].completed,
       todayCount: result.rows[0].today_count
     };
+  }
+
+  /**
+   * Создать гостевое бронирование (через ссылку подборки агента)
+   * Заявка идёт в агентство агента, который поделился подборкой
+   */
+  async createGuestBooking(data: {
+    offerId: number;
+    clientName: string;
+    clientPhone: string;
+    clientEmail?: string;
+    comment?: string;
+    guestClientId: string;
+    sourceSelectionCode?: string;
+  }): Promise<Booking | null> {
+    // Проверяем существование объявления
+    const offerExists = await pool.query(
+      'SELECT id FROM offers WHERE id = $1 AND is_active = true',
+      [data.offerId]
+    );
+
+    if (offerExists.rows.length === 0) {
+      return null;
+    }
+
+    // Определяем источник и агентство
+    let sourceType: BookingSourceType = 'organic';
+    let sourceSelectionId: number | null = null;
+    let agentId: number | null = null;
+    let agencyId: number | null = null;
+
+    // Если есть код подборки, получаем информацию о ней
+    if (data.sourceSelectionCode) {
+      const selectionInfo = await pool.query(`
+        SELECT s.id, s.agent_id, u.agency_id
+        FROM selections s
+        JOIN users u ON s.agent_id = u.id
+        WHERE s.share_code = $1
+      `, [data.sourceSelectionCode]);
+
+      if (selectionInfo.rows.length > 0) {
+        sourceType = 'guest_from_selection';
+        sourceSelectionId = selectionInfo.rows[0].id;
+        agentId = selectionInfo.rows[0].agent_id;
+        agencyId = selectionInfo.rows[0].agency_id;
+      }
+    }
+
+    // Если агентство не определено через подборку - берём дефолтное
+    if (!agencyId) {
+      agencyId = await agenciesService.getAgencyForBooking(null);
+    }
+
+    const result = await pool.query(`
+      INSERT INTO bookings (
+        offer_id, agent_id, agency_id, client_name, client_phone, client_email,
+        agent_comment, source_type, source_selection_id, source_selection_code, guest_client_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *
+    `, [
+      data.offerId,
+      agentId,
+      agencyId,
+      data.clientName,
+      data.clientPhone,
+      data.clientEmail || null,
+      data.comment || null,
+      sourceType,
+      sourceSelectionId,
+      data.sourceSelectionCode || null,
+      data.guestClientId
+    ]);
+
+    // Обновляем статистику подборки если бронирование через неё
+    if (sourceSelectionId) {
+      await pool.query(`
+        UPDATE selections
+        SET bookings_count = COALESCE(bookings_count, 0) + 1,
+            last_booking_at = NOW()
+        WHERE id = $1
+      `, [sourceSelectionId]);
+    }
+
+    return result.rows[0];
   }
 }

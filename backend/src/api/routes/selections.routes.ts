@@ -4,6 +4,7 @@ import {
   createSelection,
   getSelection,
   getSharedSelection,
+  getSharedSelectionContext,
   updateSelection,
   deleteSelection,
   addSelectionItem,
@@ -29,6 +30,9 @@ const router = Router();
 
 // GET /api/selections/shared/:code - Просмотр подборки по коду
 router.get('/shared/:code', getSharedSelection);
+
+// GET /api/selections/shared/:code/context - Контекст подборки (агент, агентство) для гостей
+router.get('/shared/:code/context', getSharedSelectionContext);
 
 // POST /api/selections/shared/:code/items - Клиент добавляет объект
 router.post('/shared/:code/items', addSharedSelectionItem);

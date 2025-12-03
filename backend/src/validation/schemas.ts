@@ -225,6 +225,35 @@ export const offersFilterSchema = z.object({
   sort: z.enum(['price_asc', 'price_desc', 'area_asc', 'area_desc', 'created_at_desc']).optional()
 });
 
+// ============ Admin schemas ============
+
+const userRoleEnum = z.enum(['client', 'agent', 'agency_admin', 'operator', 'admin']);
+const agencyStatusEnum = z.enum(['pending', 'active', 'rejected', 'suspended']);
+
+export const createUserSchema = z.object({
+  email: z.string().email('Некорректный email').max(255),
+  name: z.string().min(1).max(255).optional(),
+  phone: z.string().regex(/^\+?[\d\s()-]{10,20}$/, 'Некорректный телефон').optional(),
+  role: userRoleEnum,
+  agency_id: z.number().int().positive().optional()
+});
+
+export const updateUserRoleSchema = z.object({
+  role: userRoleEnum
+});
+
+export const toggleUserActiveSchema = z.object({
+  is_active: z.boolean()
+});
+
+export const setUserAgencySchema = z.object({
+  agency_id: z.number().int().positive().nullable()
+});
+
+export const updateAgencyStatusSchema = z.object({
+  status: agencyStatusEnum
+});
+
 // Type exports
 export type CreateSelectionInput = z.infer<typeof createSelectionSchema>;
 export type UpdateSelectionInput = z.infer<typeof updateSelectionSchema>;
@@ -234,3 +263,5 @@ export type CreateBookingInput = z.infer<typeof createBookingSchema>;
 export type CreateFixationInput = z.infer<typeof createFixationSchema>;
 export type CreateDealInput = z.infer<typeof createDealSchema>;
 export type CreateFailureInput = z.infer<typeof createFailureSchema>;
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;

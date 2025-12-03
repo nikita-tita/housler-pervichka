@@ -184,3 +184,63 @@ export async function updateBookingStatus(req: Request, res: Response) {
     });
   }
 }
+
+/**
+ * POST /api/bookings/guest - Гостевое бронирование (без авторизации, через подборку)
+ */
+export async function createGuestBooking(req: Request, res: Response) {
+  try {
+    const { offerId, clientName, clientPhone, clientEmail, comment, guestClientId, sourceSelectionCode } = req.body;
+
+    if (!offerId || !clientName || !clientPhone) {
+      return res.status(400).json({
+        success: false,
+        error: 'offerId, clientName и clientPhone обязательны'
+      });
+    }
+
+    if (!guestClientId) {
+      return res.status(400).json({
+        success: false,
+        error: 'guestClientId обязателен для гостевого бронирования'
+      });
+    }
+
+    // Простая валидация телефона
+    const phoneRegex = /^[\d\s\+\-\(\)]{10,20}$/;
+    if (!phoneRegex.test(clientPhone)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Некорректный номер телефона'
+      });
+    }
+
+    const booking = await bookingsService.createGuestBooking({
+      offerId,
+      clientName,
+      clientPhone,
+      clientEmail,
+      comment,
+      guestClientId,
+      sourceSelectionCode
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Объявление не найдено'
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      data: booking
+    });
+  } catch (error) {
+    console.error('Error in createGuestBooking:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Ошибка при создании заявки'
+    });
+  }
+}

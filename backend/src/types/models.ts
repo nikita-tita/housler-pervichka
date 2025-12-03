@@ -170,3 +170,52 @@ export interface PaginatedResponse<T> {
     pages: number;
   };
 }
+
+// ============================================
+// Guest Booking Types
+// ============================================
+
+export type BookingSourceType = 'organic' | 'guest_from_selection' | 'agent_direct';
+
+export interface GuestBookingData {
+  offerId: number;
+  clientName: string;
+  clientPhone: string;
+  clientEmail?: string;
+  comment?: string;
+  // Guest context
+  guestClientId: string;          // UUID из localStorage гостя
+  sourceSelectionCode?: string;   // Код подборки, через которую пришёл гость
+}
+
+export interface BookingWithSource extends Booking {
+  source_type: BookingSourceType;
+  source_selection_id: number | null;
+  source_selection_code: string | null;
+  guest_client_id: string | null;
+  user_id: number | null;
+}
+
+// Контекст подборки для гостя (информация об агенте)
+export interface SelectionGuestContext {
+  selection: {
+    id: number;
+    name: string;
+    share_code: string;
+    items_count: number;
+  };
+  agent: {
+    id: number;
+    name: string | null;
+    phone: string | null;
+    email: string;
+  };
+  agency: {
+    id: number;
+    name: string;
+    slug: string;
+    logo_url: string | null;
+    phone: string | null;
+    email: string | null;
+  } | null;
+}

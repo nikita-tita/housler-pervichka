@@ -13,6 +13,15 @@ import {
   getPlatformStats
 } from '../controllers/admin.controller';
 import { requireAuthWithUser, requireAdmin } from '../../middleware/auth.middleware';
+import { validateBody, validateParams } from '../../validation/middleware';
+import {
+  idParamSchema,
+  createUserSchema,
+  updateUserRoleSchema,
+  toggleUserActiveSchema,
+  setUserAgencySchema,
+  updateAgencyStatusSchema
+} from '../../validation/schemas';
 
 const router = Router();
 
@@ -26,22 +35,22 @@ router.use(requireAdmin);
 router.get('/users', getUsers);
 
 // POST /api/admin/users - Создать пользователя
-router.post('/users', createUser);
+router.post('/users', validateBody(createUserSchema), createUser);
 
 // GET /api/admin/users/:id - Пользователь по ID
-router.get('/users/:id', getUserById);
+router.get('/users/:id', validateParams(idParamSchema), getUserById);
 
 // PATCH /api/admin/users/:id/role - Изменить роль
-router.patch('/users/:id/role', updateUserRole);
+router.patch('/users/:id/role', validateParams(idParamSchema), validateBody(updateUserRoleSchema), updateUserRole);
 
 // PATCH /api/admin/users/:id/active - Активировать/деактивировать
-router.patch('/users/:id/active', toggleUserActive);
+router.patch('/users/:id/active', validateParams(idParamSchema), validateBody(toggleUserActiveSchema), toggleUserActive);
 
 // PATCH /api/admin/users/:id/agency - Привязать к агентству
-router.patch('/users/:id/agency', setUserAgency);
+router.patch('/users/:id/agency', validateParams(idParamSchema), validateBody(setUserAgencySchema), setUserAgency);
 
 // DELETE /api/admin/users/:id - Удалить (деактивировать)
-router.delete('/users/:id', deleteUser);
+router.delete('/users/:id', validateParams(idParamSchema), deleteUser);
 
 // === Agencies ===
 
@@ -49,10 +58,10 @@ router.delete('/users/:id', deleteUser);
 router.get('/agencies', getAgencies);
 
 // GET /api/admin/agencies/:id - Агентство по ID
-router.get('/agencies/:id', getAgencyById);
+router.get('/agencies/:id', validateParams(idParamSchema), getAgencyById);
 
 // PATCH /api/admin/agencies/:id/status - Изменить статус
-router.patch('/agencies/:id/status', updateAgencyStatus);
+router.patch('/agencies/:id/status', validateParams(idParamSchema), validateBody(updateAgencyStatusSchema), updateAgencyStatus);
 
 // === Stats ===
 

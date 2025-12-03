@@ -636,3 +636,57 @@ export interface PlatformStats {
     public: number;
   };
 }
+
+// ============ GUEST MODE ============
+
+export type BookingSourceType = 'organic' | 'guest_from_selection' | 'agent_direct';
+
+// Информация об агенте для гостевого режима
+export interface GuestAgentInfo {
+  id: number;
+  name: string | null;
+  phone: string | null;
+  email: string;
+}
+
+// Информация об агентстве для гостевого режима
+export interface GuestAgencyInfo {
+  id: number;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
+// Контекст подборки для гостя
+export interface SelectionGuestContext {
+  selection: {
+    id: number;
+    name: string;
+    share_code: string;
+    items_count: number;
+  };
+  agent: GuestAgentInfo;
+  agency: GuestAgencyInfo | null;
+}
+
+// Состояние гостевого режима
+export interface GuestState {
+  isGuest: boolean;
+  guestClientId: string | null;
+  selectionCode: string | null;
+  context: SelectionGuestContext | null;
+  expiresAt: number | null; // timestamp
+}
+
+// Данные для гостевого бронирования
+export interface GuestBookingData {
+  offerId: number;
+  clientName: string;
+  clientPhone: string;
+  clientEmail?: string;
+  comment?: string;
+  guestClientId: string;
+  sourceSelectionCode?: string;
+}

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   createBooking,
+  createGuestBooking,
   getAgentBookings,
   getAllBookings,
   getBookingsStats,
@@ -14,6 +15,9 @@ const router = Router();
 
 // POST /api/bookings - Создать заявку (может быть без авторизации, но если есть — привязываем к агенту)
 router.post('/', loadUser, validateBody(createBookingSchema), createBooking);
+
+// POST /api/bookings/guest - Гостевое бронирование (без авторизации, через подборку агента)
+router.post('/guest', createGuestBooking);
 
 // GET /api/bookings - Заявки агента (требует авторизации)
 router.get('/', requireAuthWithUser, getAgentBookings);
