@@ -4,6 +4,7 @@ import { formatPrice, formatArea, formatRooms, formatFloor } from '@/services/ap
 import { FavoriteButton } from './FavoriteButton';
 import { AddToClientSelectionButton } from './AddToClientSelectionButton';
 import { CompareButton } from './CompareButton';
+import { MortgageBadge } from './MortgageBadge';
 
 export interface OfferCardProps {
   offer: OfferListItem;
@@ -111,8 +112,11 @@ export function OfferCard({ offer, highlighted, compact }: OfferCardProps) {
         {/* Price */}
         <div className="mb-3">
           <div className="price">{formatPrice(offer.price)}</div>
-          <div className="price-per-sqm">
-            {formatPrice(offer.price_per_sqm)}/м²
+          <div className="flex items-center justify-between">
+            <div className="price-per-sqm">
+              {formatPrice(offer.price_per_sqm)}/м²
+            </div>
+            <MortgageBadge price={offer.price} />
           </div>
         </div>
 

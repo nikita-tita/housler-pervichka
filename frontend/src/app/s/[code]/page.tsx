@@ -20,7 +20,11 @@ export default function SharedSelectionPage() {
   // Активируем подборку при загрузке страницы
   useEffect(() => {
     if (code && code !== activeSelectionCode) {
-      setActiveSelectionCode(code);
+      // Используем setTimeout чтобы избежать setState во время рендера
+      const timer = setTimeout(() => {
+        setActiveSelectionCode(code);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [code, activeSelectionCode, setActiveSelectionCode]);
 
@@ -28,23 +32,33 @@ export default function SharedSelectionPage() {
   useEffect(() => {
     if (!code) return;
 
+    let isMounted = true;
+
     const loadSelection = async () => {
-      setIsLoading(true);
       try {
         const response = await api.getSharedSelection(code);
+        if (!isMounted) return;
         if (response.success && response.data) {
           setSelection(response.data);
         } else {
           setError(response.error || 'Подборка не найдена');
         }
       } catch {
-        setError('Ошибка загрузки подборки');
+        if (isMounted) {
+          setError('Ошибка загрузки подборки');
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadSelection();
+
+    return () => {
+      isMounted = false;
+    };
   }, [code]);
 
   if (isLoading) {

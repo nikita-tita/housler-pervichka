@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { OfferCard } from '@/components/OfferCard';
 import { Filters } from '@/components/Filters';
 import { QuickFilters } from '@/components/QuickFilters';
+import { DevelopersShowcase } from '@/components/DevelopersShowcase';
 import { ViewModeSwitcher, type ViewMode } from '@/components/ViewModeSwitcher';
 import { OffersTable } from '@/components/OffersTable';
 import { PlansGrid } from '@/components/PlansGrid';
@@ -163,6 +164,9 @@ function OffersContent() {
 
         {/* Quick Filters */}
         <QuickFilters />
+
+        {/* Developers Showcase */}
+        <DevelopersShowcase maxItems={8} />
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-8">
           {/* Filters Sidebar */}

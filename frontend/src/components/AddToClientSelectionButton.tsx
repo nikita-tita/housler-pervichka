@@ -16,11 +16,6 @@ export function AddToClientSelectionButton({ offerId, className = '', size = 'md
   const [comment, setComment] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Не показываем кнопку если нет активной подборки
-  if (!activeSelectionCode) {
-    return null;
-  }
-
   const inSelection = isInSelection(offerId);
 
   // Focus input when shown
@@ -29,6 +24,11 @@ export function AddToClientSelectionButton({ offerId, className = '', size = 'md
       inputRef.current.focus();
     }
   }, [showCommentInput]);
+
+  // Не показываем кнопку если нет активной подборки
+  if (!activeSelectionCode) {
+    return null;
+  }
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();

@@ -4,11 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import Script from 'next/script';
 import type { ComplexDetail } from '@/types';
 
-declare global {
-  interface Window {
-    ymaps: any;
-  }
-}
+import type { YmapsMap } from '@/types/ymaps';
 
 interface LocationSectionProps {
   complex: ComplexDetail;
@@ -74,7 +70,7 @@ const INFRA_CONFIG: Record<InfraItem['type'], { icon: React.ReactNode; label: st
 
 export function LocationSection({ complex }: LocationSectionProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<YmapsMap | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
   // Mock infrastructure data - in real app this would come from API
@@ -96,15 +92,18 @@ export function LocationSection({ complex }: LocationSectionProps) {
     if (!complex.latitude || !complex.longitude) return;
 
     window.ymaps.ready(() => {
+      const lat = complex.latitude!;
+      const lng = complex.longitude!;
+
       const map = new window.ymaps.Map(mapContainerRef.current, {
-        center: [complex.latitude, complex.longitude],
+        center: [lat, lng],
         zoom: 15,
         controls: ['zoomControl', 'fullscreenControl'],
       });
 
       // Add main marker
       const placemark = new window.ymaps.Placemark(
-        [complex.latitude, complex.longitude],
+        [lat, lng],
         {
           balloonContentHeader: complex.name,
           balloonContentBody: complex.address,

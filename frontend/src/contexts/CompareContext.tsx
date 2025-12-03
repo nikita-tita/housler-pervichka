@@ -18,22 +18,22 @@ interface CompareContextValue {
 const CompareContext = createContext<CompareContextValue | null>(null);
 
 export function CompareProvider({ children }: { children: ReactNode }) {
-  const [compareIds, setCompareIds] = useState<Set<number>>(new Set());
-
-  // Загрузка из localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
-    if (stored) {
-      try {
+  // Lazy initialization to avoid setState in useEffect
+  const [compareIds, setCompareIds] = useState<Set<number>>(() => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
+      if (stored) {
         const ids = JSON.parse(stored);
         if (Array.isArray(ids)) {
-          setCompareIds(new Set(ids.slice(0, MAX_COMPARE_ITEMS)));
+          return new Set(ids.slice(0, MAX_COMPARE_ITEMS));
         }
-      } catch {
-        // ignore
       }
+    } catch {
+      // ignore
     }
-  }, []);
+    return new Set();
+  });
 
   // Сохранение в localStorage
   useEffect(() => {

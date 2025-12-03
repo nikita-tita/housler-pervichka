@@ -343,7 +343,7 @@ export interface CreateClientDto {
   next_contact_date?: string;
 }
 
-export interface UpdateClientDto extends Partial<CreateClientDto> {}
+export type UpdateClientDto = Partial<CreateClientDto>;
 
 // ============ FIXATIONS (Фиксации цен) ============
 

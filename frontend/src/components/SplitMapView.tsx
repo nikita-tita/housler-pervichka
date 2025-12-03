@@ -7,11 +7,7 @@ import type { OfferListItem, OfferFilters, MapBounds } from '@/types';
 import { formatPrice, formatRooms, api } from '@/services/api';
 import { OfferCard } from './OfferCard';
 
-declare global {
-  interface Window {
-    ymaps: any;
-  }
-}
+import type { YmapsMap, YmapsPlacemark, YmapsClusterer, YmapsClusterEvent } from '@/types/ymaps';
 
 interface MapMarker {
   id: number;
@@ -31,9 +27,9 @@ const ITEMS_PER_PAGE = 50;
 
 export function SplitMapView({ filters, onToggleMap }: SplitMapViewProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
-  const clustererRef = useRef<any>(null);
-  const placemarkRefs = useRef<Map<number, any>>(new Map());
+  const mapRef = useRef<YmapsMap | null>(null);
+  const clustererRef = useRef<YmapsClusterer | null>(null);
+  const placemarkRefs = useRef<Map<number, YmapsPlacemark>>(new Map());
   const initialBoundsRef = useRef<MapBounds | null>(null);
 
   const [isMapReady, setIsMapReady] = useState(false);
@@ -62,7 +58,7 @@ export function SplitMapView({ filters, onToggleMap }: SplitMapViewProps) {
       const res = await api.getOffers(
         { ...filters, bounds },
         { limit: 200, sort_by: 'price', sort_order: 'asc' }
-      ) as any;
+      ) as { success: boolean; data?: OfferListItem[]; pagination?: { total: number } };
       if (res.success && res.data) {
         setOffers(res.data);
         setTotalInBounds(res.pagination?.total || res.data.length);
@@ -81,24 +77,25 @@ export function SplitMapView({ filters, onToggleMap }: SplitMapViewProps) {
       // Load each offer by ID (in a real app, you'd have a batch endpoint)
       const loadedOffers: OfferListItem[] = [];
       for (const id of ids.slice(0, 50)) {
-        const res = await api.getOfferById(id) as any;
+        const res = await api.getOfferById(id);
         if (res.success && res.data) {
           // Map OfferDetail to OfferListItem format
+          const detail = res.data;
           loadedOffers.push({
-            id: res.data.id,
-            rooms: res.data.rooms,
-            is_studio: res.data.is_studio,
-            floor: res.data.floor,
-            floors_total: res.data.floors_total,
-            area_total: res.data.area_total,
-            price: res.data.price,
-            price_per_sqm: res.data.price_per_sqm,
-            complex_name: res.data.complex_name,
-            district_name: res.data.district_name,
-            metro_station: res.data.metro_station,
-            metro_distance: res.data.metro_distance,
-            has_finishing: res.data.has_finishing,
-            image_url: res.data.images?.[0] || null,
+            id: detail.id,
+            rooms: detail.rooms,
+            is_studio: detail.is_studio,
+            floor: detail.floor,
+            floors_total: detail.floors_total,
+            area_total: detail.area_total,
+            price: detail.price,
+            price_per_sqm: detail.price_per_sqm,
+            complex_name: detail.complex_name,
+            district_name: detail.district_name,
+            metro_station: detail.metro_station,
+            metro_distance: detail.metro_distance,
+            has_finishing: detail.has_finishing,
+            image_url: detail.images?.[0]?.url || null,
           });
         }
       }
@@ -143,13 +140,13 @@ export function SplitMapView({ filters, onToggleMap }: SplitMapViewProps) {
       });
 
       // Handle cluster click
-      clusterer.events.add('click', (e: any) => {
+      clusterer.events.add('click', (e: YmapsClusterEvent) => {
         const target = e.get('target');
         // Check if it's a cluster
         const geoObjects = target.getGeoObjects?.();
         if (geoObjects && geoObjects.length > 1) {
           // It's a cluster - get all marker IDs
-          const ids = geoObjects.map((obj: any) => obj.properties.get('markerId'));
+          const ids = geoObjects.map((obj) => obj.properties.get('markerId'));
           loadOffersByIds(ids);
         }
       });
@@ -215,15 +212,16 @@ export function SplitMapView({ filters, onToggleMap }: SplitMapViewProps) {
       mapRef.current.setBounds(clustererRef.current.getBounds(), {
         checkZoomRange: true,
         zoomMargin: 40,
-      }).then(() => {
-        // Save initial bounds and load offers
+      });
+      // Save initial bounds and load offers after setBounds
+      setTimeout(() => {
         const bounds = getBoundsFromMap();
         if (bounds) {
           initialBoundsRef.current = bounds;
           setCurrentBounds(bounds);
           loadOffersByBounds(bounds);
         }
-      });
+      }, 100);
     }
   }, [isMapReady, markers, getBoundsFromMap, loadOffersByBounds, loadOffersByIds]);
 

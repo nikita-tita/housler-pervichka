@@ -18,7 +18,11 @@ export const SmsCodeInput = forwardRef<HTMLInputElement, SmsCodeInputProps>(
     useEffect(() => {
       const valueDigits = value.split('').slice(0, length);
       const paddedDigits = [...valueDigits, ...Array(length - valueDigits.length).fill('')];
-      setDigits(paddedDigits);
+      // Используем setTimeout чтобы избежать setState во время рендера
+      const timer = setTimeout(() => {
+        setDigits(paddedDigits);
+      }, 0);
+      return () => clearTimeout(timer);
     }, [value, length]);
 
     const focusInput = (index: number) => {

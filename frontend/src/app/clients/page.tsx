@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import { api } from '@/services/api';
 import { ClientCard } from '@/components/clients/ClientCard';
 import type { ClientListItem, ClientStage, ClientPriority, FunnelStats } from '@/types';
@@ -166,9 +167,9 @@ export default function ClientsListPage() {
             }
           </p>
           {!search && !stage && !priority && (
-            <a href="/clients/new" className="btn btn-primary btn-sm">
+            <Link href="/clients/new" className="btn btn-primary btn-sm">
               Добавить первого клиента
-            </a>
+            </Link>
           )}
         </div>
       ) : (

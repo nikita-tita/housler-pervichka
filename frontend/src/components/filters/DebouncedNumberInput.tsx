@@ -66,12 +66,16 @@ export function DebouncedNumberInput({
     // Если значение изменилось извне
     if (value !== prevValueRef.current) {
       isExternalChange.current = true;
-      if (value === undefined) {
-        setDisplayValue('');
-      } else {
-        setDisplayValue(formatNumber(value));
-      }
-      prevValueRef.current = value;
+      // Используем setTimeout чтобы избежать setState во время рендера
+      const timer = setTimeout(() => {
+        if (value === undefined) {
+          setDisplayValue('');
+        } else {
+          setDisplayValue(formatNumber(value));
+        }
+        prevValueRef.current = value;
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [value, formatNumber]);
 

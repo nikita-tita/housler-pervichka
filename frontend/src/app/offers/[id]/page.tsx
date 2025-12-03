@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, notFound } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api, formatPrice, formatArea, formatRooms, formatFloor } from '@/services/api';
 import { FavoriteButton } from '@/components/FavoriteButton';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import type { OfferImage } from '@/types';
 
 interface ImageGalleryProps {
@@ -23,23 +23,40 @@ const CATEGORY_ORDER: ImageCategory[] = ['plan', 'floorplan', 'housemain', 'comp
 export function ImageGallery({ images, complexName }: ImageGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [activeCategory, setActiveCategory] = useState<ImageCategory>('plan');
 
   // Группируем изображения по категориям
-  const groupedImages = images.reduce<Record<ImageCategory, OfferImage[]>>((acc, img) => {
+  const groupedImages = useMemo(() => images.reduce<Record<ImageCategory, OfferImage[]>>((acc, img) => {
     const category: ImageCategory = img.tag || 'other';
     if (!acc[category]) acc[category] = [];
     acc[category].push(img);
     return acc;
-  }, {} as Record<ImageCategory, OfferImage[]>);
+  }, {} as Record<ImageCategory, OfferImage[]>), [images]);
 
   // Доступные категории (которые имеют изображения)
-  const availableCategories = CATEGORY_ORDER.filter(cat => groupedImages[cat]?.length > 0);
+  const availableCategories = useMemo(() => CATEGORY_ORDER.filter(cat => groupedImages[cat]?.length > 0), [groupedImages]);
 
-  // Установим первую доступную категорию при загрузке
+  // Вычисляем начальную категорию на основе доступных
+  const [activeCategory, setActiveCategory] = useState<ImageCategory>(() => {
+    const available = CATEGORY_ORDER.filter(cat => {
+      const grouped = images.reduce<Record<ImageCategory, OfferImage[]>>((acc, img) => {
+        const category: ImageCategory = img.tag || 'other';
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(img);
+        return acc;
+      }, {} as Record<ImageCategory, OfferImage[]>);
+      return grouped[cat]?.length > 0;
+    });
+    return available.length > 0 ? available[0] : 'plan';
+  });
+
+  // Обновляем категорию только если текущая стала недоступной
   useEffect(() => {
     if (availableCategories.length > 0 && !availableCategories.includes(activeCategory)) {
-      setActiveCategory(availableCategories[0]);
+      // Используем setTimeout чтобы избежать setState во время рендера
+      const timer = setTimeout(() => {
+        setActiveCategory(availableCategories[0]);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [availableCategories, activeCategory]);
 
@@ -151,7 +168,7 @@ export function ImageGallery({ images, complexName }: ImageGalleryProps) {
       {/* Thumbnails */}
       {currentCategoryImages.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {currentCategoryImages.map((img, idx) => (
+          {currentCategoryImages.map((img) => (
             <button
               key={img.url}
               onClick={() => openLightbox(img)}

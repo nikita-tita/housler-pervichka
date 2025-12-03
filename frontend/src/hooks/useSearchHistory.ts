@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 export interface SearchHistoryItem {
   type: 'complex' | 'district' | 'metro' | 'text';
@@ -12,20 +12,19 @@ const STORAGE_KEY = 'housler_search_history';
 const MAX_HISTORY_ITEMS = 10;
 
 export function useSearchHistory() {
-  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
-
-  // Load history from localStorage on mount
-  useEffect(() => {
+  // Lazy initialization to avoid setState in useEffect
+  const [history, setHistory] = useState<SearchHistoryItem[]>(() => {
+    if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored) as SearchHistoryItem[];
-        setHistory(parsed);
+        return JSON.parse(stored) as SearchHistoryItem[];
       }
     } catch {
       // Ignore parse errors
     }
-  }, []);
+    return [];
+  });
 
   // Save to localStorage
   const saveHistory = useCallback((items: SearchHistoryItem[]) => {

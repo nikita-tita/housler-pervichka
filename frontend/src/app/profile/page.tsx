@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { api, formatPrice, formatArea, formatRooms } from '@/services/api';
+import { api } from '@/services/api';
 import type { Selection, Agency } from '@/types';
 
 interface ClientSelection extends Selection {
@@ -18,18 +18,7 @@ export default function ProfilePage() {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-
-    loadData();
-  }, [isAuthenticated, authLoading, router]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       // Загружаем подборки
       const selectionsRes = await api.getMySelections();
@@ -51,7 +40,25 @@ export default function ProfilePage() {
     }
 
     setIsLoading(false);
-  };
+  }, []);
+
+  // Редирект если не авторизован
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  // Загрузка данных отдельным эффектом
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      // Используем setTimeout чтобы избежать setState во время рендера
+      const timer = setTimeout(() => {
+        loadData();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading, isAuthenticated, loadData]);
 
   const handleLogout = () => {
     logout();

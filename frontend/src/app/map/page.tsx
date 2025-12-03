@@ -14,17 +14,12 @@ interface MapMarker {
   is_studio: boolean;
 }
 
-// Declare ymaps global
-declare global {
-  interface Window {
-    ymaps: any;
-  }
-}
+import type { YmapsMap, YmapsClusterer } from '@/types/ymaps';
 
 export default function MapPage() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
-  const clustererRef = useRef<any>(null);
+  const mapRef = useRef<YmapsMap | null>(null);
+  const clustererRef = useRef<YmapsClusterer | null>(null);
 
   const [markers, setMarkers] = useState<MapMarker[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,7 +98,7 @@ export default function MapPage() {
     clustererRef.current.add(placemarks);
 
     // Fit bounds to show all markers
-    if (placemarks.length > 0) {
+    if (placemarks.length > 0 && mapRef.current && clustererRef.current) {
       mapRef.current.setBounds(clustererRef.current.getBounds(), {
         checkZoomRange: true,
         zoomMargin: 40

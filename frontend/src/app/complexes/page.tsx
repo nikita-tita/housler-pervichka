@@ -104,7 +104,10 @@ export default function ComplexesPage() {
                   <div>
                     <div className="text-[var(--color-text-light)]">Цены</div>
                     <div className="font-medium">
-                      от {formatPrice(Number(complex.min_price))}
+                      {Number(complex.min_price) === Number(complex.max_price)
+                        ? formatPrice(Number(complex.min_price))
+                        : `${formatPrice(Number(complex.min_price))} – ${formatPrice(Number(complex.max_price))}`
+                      }
                     </div>
                   </div>
                   <div>

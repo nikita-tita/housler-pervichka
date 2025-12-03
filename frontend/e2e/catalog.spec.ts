@@ -42,7 +42,7 @@ test.describe('Каталог', () => {
     // Все результаты должны быть 2-комнатными
     const items = data.data.items || data.data;
     if (items.length > 0) {
-      items.forEach((item: any) => {
+      items.forEach((item: { rooms: number }) => {
         expect(item.rooms).toBe(2);
       });
     }

@@ -13,8 +13,6 @@ export interface FavoriteOffer {
   district_name: string | null;  // алиас district
   metro_station: string | null;  // алиас metro_name
   image_url: string | null;  // алиас main_image
-  has_finishing: boolean;
-  metro_distance: number | null;
   added_at: string;
 }
 
@@ -36,8 +34,6 @@ export class FavoritesService {
         o.building_name as complex_name,
         d.name as district_name,
         o.metro_name as metro_station,
-        o.metro_distance,
-        o.has_finishing,
         (
           SELECT url FROM images
           WHERE offer_id = o.id AND (tag = 'housemain' OR tag IS NULL)
