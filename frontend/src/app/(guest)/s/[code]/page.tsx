@@ -4,64 +4,50 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { api, formatPrice, formatArea, formatRooms } from '@/services/api';
-import { useClientSelection } from '@/contexts/ClientSelectionContext';
-import { AddToClientSelectionButton } from '@/components/AddToClientSelectionButton';
+import { useGuest } from '@/contexts/GuestContext';
 import type { SelectionDetail } from '@/types';
 
-export default function SharedSelectionPage() {
+export default function GuestSelectionPage() {
   const params = useParams();
   const code = params.code as string;
 
-  const { setActiveSelectionCode, activeSelectionCode } = useClientSelection();
+  const { activateGuestMode, isLoading: guestLoading, context } = useGuest();
   const [selection, setSelection] = useState<SelectionDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Активируем подборку при загрузке страницы
+  // Активируем гостевой режим при загрузке
   useEffect(() => {
-    if (code && code !== activeSelectionCode) {
-      // Используем setTimeout чтобы избежать setState во время рендера
-      const timer = setTimeout(() => {
-        setActiveSelectionCode(code);
-      }, 0);
-      return () => clearTimeout(timer);
+    if (code) {
+      activateGuestMode(code);
     }
-  }, [code, activeSelectionCode, setActiveSelectionCode]);
+  }, [code, activateGuestMode]);
 
   // Загружаем данные подборки
   useEffect(() => {
     if (!code) return;
 
-    let isMounted = true;
-
     const loadSelection = async () => {
       try {
         const response = await api.getSharedSelection(code);
-        if (!isMounted) return;
         if (response.success && response.data) {
           setSelection(response.data);
+          // Записываем просмотр (используем code как clientId для простоты)
+          api.recordSelectionView(code, 'guest');
         } else {
           setError(response.error || 'Подборка не найдена');
         }
       } catch {
-        if (isMounted) {
-          setError('Ошибка загрузки подборки');
-        }
+        setError('Ошибка загрузки подборки');
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     loadSelection();
-
-    return () => {
-      isMounted = false;
-    };
   }, [code]);
 
-  if (isLoading) {
+  if (isLoading || guestLoading) {
     return (
       <div className="container py-12">
         <div className="animate-pulse">
@@ -84,15 +70,11 @@ export default function SharedSelectionPage() {
         <p className="text-[var(--color-text-light)] mb-8">
           Возможно, ссылка устарела или подборка была удалена
         </p>
-        <Link
-          href="/"
-          className="btn btn-primary"
-        >
-          На главную
-        </Link>
       </div>
     );
   }
+
+  const agentName = context?.agent?.name;
 
   return (
     <div className="container py-12">
@@ -104,6 +86,11 @@ export default function SharedSelectionPage() {
             Специально для вас, {selection.client_name}
           </p>
         )}
+        {agentName && (
+          <p className="text-sm text-[var(--color-text-light)] mt-2">
+            Подготовлено агентом: {agentName}
+          </p>
+        )}
         <p className="text-sm text-[var(--color-text-light)] mt-2">
           {selection.items.length} {selection.items.length === 1 ? 'объект' : selection.items.length < 5 ? 'объекта' : 'объектов'}
         </p>
@@ -112,10 +99,10 @@ export default function SharedSelectionPage() {
       {/* CTA: Search more */}
       <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-lg text-center">
         <p className="text-sm text-blue-800 mb-3">
-          Хотите найти ещё варианты? Ищите по всей базе и добавляйте в эту подборку!
+          Хотите найти ещё варианты? Ищите по всей базе новостроек!
         </p>
         <Link
-          href="/offers"
+          href={`/s/${code}/offers`}
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,7 +119,7 @@ export default function SharedSelectionPage() {
             В подборке пока нет объектов
           </div>
           <Link
-            href="/offers"
+            href={`/s/${code}/offers`}
             className="btn btn-primary btn-sm"
           >
             Найти квартиры
@@ -145,7 +132,6 @@ export default function SharedSelectionPage() {
               key={item.id}
               className="bg-white rounded-lg overflow-hidden border border-[var(--color-border)] hover:shadow-lg transition-shadow relative"
             >
-              {/* Проверяем доступность объекта */}
               {item.price !== null && item.price !== undefined ? (
                 <>
                   {/* Added by badge */}
@@ -155,12 +141,7 @@ export default function SharedSelectionPage() {
                     </div>
                   )}
 
-                  {/* Selection button */}
-                  <div className="absolute top-3 right-3 z-10">
-                    <AddToClientSelectionButton offerId={item.offer_id} size="sm" />
-                  </div>
-
-                  <Link href={`/offers/${item.offer_id}`}>
+                  <Link href={`/s/${code}/offers/${item.offer_id}`}>
                     <div className="aspect-[4/3] bg-gray-100">
                       {item.main_image ? (
                         <img
@@ -201,7 +182,6 @@ export default function SharedSelectionPage() {
                   </Link>
                 </>
               ) : (
-                /* Объект недоступен */
                 <div className="p-4">
                   <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center mb-4 rounded">
                     <div className="text-center text-gray-400">
@@ -227,7 +207,7 @@ export default function SharedSelectionPage() {
           Понравился объект? Свяжитесь с агентом для получения дополнительной информации
         </p>
         <Link
-          href="/offers"
+          href={`/s/${code}/offers`}
           className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:underline"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

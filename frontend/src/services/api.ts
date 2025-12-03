@@ -710,6 +710,25 @@ class ApiService {
   async adminGetStats(): Promise<ApiResponse<PlatformStats>> {
     return this.fetch('/api/admin/stats');
   }
+
+  // ============ GUEST MODE ============
+
+  /**
+   * Получить контекст подборки для гостевого режима (агент, агентство)
+   */
+  async getSelectionGuestContext(shareCode: string): Promise<ApiResponse<SelectionGuestContext>> {
+    return this.fetch(`/api/selections/shared/${shareCode}/context`);
+  }
+
+  /**
+   * Создать гостевое бронирование (без авторизации)
+   */
+  async createGuestBooking(data: GuestBookingData): Promise<ApiResponse<Booking>> {
+    return this.fetch('/api/bookings/guest', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 export const api = new ApiService();

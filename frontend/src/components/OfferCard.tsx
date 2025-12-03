@@ -10,13 +10,16 @@ export interface OfferCardProps {
   offer: OfferListItem;
   highlighted?: boolean;
   compact?: boolean;
+  linkPrefix?: string; // Префикс для ссылок (например, '/s/code' для гостевого режима)
 }
 
-export function OfferCard({ offer, highlighted, compact }: OfferCardProps) {
+export function OfferCard({ offer, highlighted, compact, linkPrefix }: OfferCardProps) {
+  const offerUrl = linkPrefix ? `${linkPrefix}/offers/${offer.id}` : `/offers/${offer.id}`;
+
   if (compact) {
     return (
       <Link
-        href={`/offers/${offer.id}`}
+        href={offerUrl}
         className={`card block overflow-hidden group ${highlighted ? 'ring-2 ring-[var(--color-accent)]' : ''}`}
       >
         <div className="flex gap-3">
@@ -55,7 +58,7 @@ export function OfferCard({ offer, highlighted, compact }: OfferCardProps) {
   }
 
   return (
-    <Link href={`/offers/${offer.id}`} className={`card block overflow-hidden group ${highlighted ? 'ring-2 ring-[var(--color-accent)]' : ''}`}>
+    <Link href={offerUrl} className={`card block overflow-hidden group ${highlighted ? 'ring-2 ring-[var(--color-accent)]' : ''}`}>
       {/* Image */}
       <div className="aspect-[4/3] bg-[var(--color-bg-gray)] relative overflow-hidden">
         {offer.image_url ? (
