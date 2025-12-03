@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { calculateDefaultMortgagePayment, DEFAULT_MORTGAGE_PARAMS } from '@/utils/mortgage';
 
 interface MortgageBadgeProps {
   price: number;
@@ -14,21 +15,12 @@ interface MortgageBadgeProps {
 export function MortgageBadge({ price, className = '' }: MortgageBadgeProps) {
   const [showTooltip, setShowTooltip] = useState(false);
 
-  // Стандартные условия: 20% первоначальный, 20 лет, 28% ставка
-  const downPaymentPercent = 20;
-  const term = 20;
-  const rate = 28;
+  const { downPaymentPercent, termYears: term, annualRate: rate } = DEFAULT_MORTGAGE_PARAMS;
 
-  const monthlyPayment = useMemo(() => {
-    const downPayment = price * downPaymentPercent / 100;
-    const loanAmount = price - downPayment;
-    if (loanAmount <= 0) return 0;
-
-    const monthlyRate = rate / 100 / 12;
-    const months = term * 12;
-    const payment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-    return Math.round(payment);
-  }, [price]);
+  const monthlyPayment = useMemo(
+    () => calculateDefaultMortgagePayment(price),
+    [price]
+  );
 
   const formatNumber = (num: number) => {
     if (num >= 1000) {

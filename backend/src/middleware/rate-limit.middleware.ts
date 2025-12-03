@@ -1,4 +1,36 @@
 import rateLimit from 'express-rate-limit';
+import type { Request } from 'express';
+
+/**
+ * Нормализация IP для IPv6 (маскирование подсети /64)
+ * Предотвращает обход лимитов через ротацию IPv6 адресов
+ */
+function normalizeIp(ip: string | undefined): string {
+  if (!ip) return 'unknown';
+
+  // Убираем IPv6-mapped IPv4 prefix
+  const cleanIp = ip.replace(/^::ffff:/, '');
+
+  // Если это IPv6, маскируем до /64 подсети
+  if (cleanIp.includes(':')) {
+    const parts = cleanIp.split(':');
+    // Берём первые 4 группы (64 бита) для идентификации подсети
+    return parts.slice(0, 4).join(':') + '::';
+  }
+
+  return cleanIp;
+}
+
+/**
+ * Получить IP из запроса с нормализацией
+ */
+function getClientIp(req: Request): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = forwarded
+    ? (Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0].trim())
+    : req.ip;
+  return normalizeIp(ip);
+}
 
 /**
  * Rate limiter для auth endpoints
@@ -13,10 +45,8 @@ export const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Ключ по IP
-  keyGenerator: (req) => {
-    return req.ip || req.headers['x-forwarded-for']?.toString() || 'unknown';
-  },
+  // Ключ по IP с нормализацией IPv6
+  keyGenerator: (req) => getClientIp(req),
   // Пропускаем тестовые аккаунты в dev режиме
   skip: (req) => {
     if (process.env.NODE_ENV === 'development') {
@@ -42,11 +72,10 @@ export const verifyCodeLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Ключ по IP + email для более точного ограничения (с нормализацией IPv6)
   keyGenerator: (req) => {
-    // Ключ по IP + email для более точного ограничения
     const email = req.body?.email || '';
-    const ip = req.ip || req.headers['x-forwarded-for']?.toString() || 'unknown';
-    return `${ip}:${email}`;
+    return `${getClientIp(req)}:${email}`;
   },
   skip: (req) => {
     // Пропускаем тестовые аккаунты

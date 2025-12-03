@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useMemo } from 'react';
+import { calculateAnnuityPayment, DEFAULT_MORTGAGE_PARAMS } from '@/utils/mortgage';
 
 interface MortgageCalculatorProps {
   price: number;
@@ -9,23 +10,17 @@ interface MortgageCalculatorProps {
 
 export function MortgageCalculator({ price, className = '' }: MortgageCalculatorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [downPaymentPercent, setDownPaymentPercent] = useState(20);
-  const [term, setTerm] = useState(20);
-  const [rate, setRate] = useState(28); // Текущая ставка ~28%
+  const [downPaymentPercent, setDownPaymentPercent] = useState<number>(DEFAULT_MORTGAGE_PARAMS.downPaymentPercent);
+  const [term, setTerm] = useState<number>(DEFAULT_MORTGAGE_PARAMS.termYears);
+  const [rate, setRate] = useState<number>(DEFAULT_MORTGAGE_PARAMS.annualRate);
 
   const downPayment = Math.round(price * downPaymentPercent / 100);
   const loanAmount = price - downPayment;
 
-  // Аннуитетный платёж
-  const calculateMonthlyPayment = useCallback(() => {
-    if (loanAmount <= 0) return 0;
-    const monthlyRate = rate / 100 / 12;
-    const months = term * 12;
-    const payment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-    return Math.round(payment);
-  }, [loanAmount, rate, term]);
-
-  const monthlyPayment = calculateMonthlyPayment();
+  const monthlyPayment = useMemo(
+    () => calculateAnnuityPayment(loanAmount, rate, term),
+    [loanAmount, rate, term]
+  );
   const totalPayment = monthlyPayment * term * 12;
   const overpayment = totalPayment - loanAmount;
 

@@ -40,6 +40,9 @@ import type {
   CancellationReason,
   CancellationStage,
   CreateFailureDto,
+  AdminUser,
+  AdminAgency,
+  PlatformStats,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -604,6 +607,106 @@ class ApiService {
 
   async getFailuresStats(): Promise<ApiResponse<FailureStats>> {
     return this.fetch('/api/failures/stats');
+  }
+
+  // ============ ADMIN ============
+  async adminGetUsers(params?: {
+    search?: string;
+    role?: string;
+    is_active?: boolean;
+    agency_id?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<ApiResponse<{
+    data: AdminUser[];
+    pagination: { total: number; limit: number; offset: number };
+  }>> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.role) searchParams.set('role', params.role);
+    if (params?.is_active !== undefined) searchParams.set('is_active', params.is_active.toString());
+    if (params?.agency_id) searchParams.set('agency_id', params.agency_id.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.offset) searchParams.set('offset', params.offset.toString());
+    const query = searchParams.toString();
+    return this.fetch(`/api/admin/users${query ? `?${query}` : ''}`);
+  }
+
+  async adminGetUser(id: number): Promise<ApiResponse<AdminUser>> {
+    return this.fetch(`/api/admin/users/${id}`);
+  }
+
+  async adminCreateUser(data: {
+    email: string;
+    name?: string;
+    phone?: string;
+    role: string;
+    agency_id?: number;
+  }): Promise<ApiResponse<User>> {
+    return this.fetch('/api/admin/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminUpdateUserRole(id: number, role: string): Promise<ApiResponse<User>> {
+    return this.fetch(`/api/admin/users/${id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  async adminToggleUserActive(id: number, is_active: boolean): Promise<ApiResponse<User>> {
+    return this.fetch(`/api/admin/users/${id}/active`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_active }),
+    });
+  }
+
+  async adminSetUserAgency(id: number, agency_id: number | null): Promise<ApiResponse<User>> {
+    return this.fetch(`/api/admin/users/${id}/agency`, {
+      method: 'PATCH',
+      body: JSON.stringify({ agency_id }),
+    });
+  }
+
+  async adminDeleteUser(id: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch(`/api/admin/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async adminGetAgencies(params?: {
+    search?: string;
+    registration_status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<ApiResponse<{
+    data: AdminAgency[];
+    pagination: { total: number; limit: number; offset: number };
+  }>> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.registration_status) searchParams.set('registration_status', params.registration_status);
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.offset) searchParams.set('offset', params.offset.toString());
+    const query = searchParams.toString();
+    return this.fetch(`/api/admin/agencies${query ? `?${query}` : ''}`);
+  }
+
+  async adminGetAgency(id: number): Promise<ApiResponse<AdminAgency>> {
+    return this.fetch(`/api/admin/agencies/${id}`);
+  }
+
+  async adminUpdateAgencyStatus(id: number, status: string): Promise<ApiResponse<AdminAgency>> {
+    return this.fetch(`/api/admin/agencies/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async adminGetStats(): Promise<ApiResponse<PlatformStats>> {
+    return this.fetch('/api/admin/stats');
   }
 }
 

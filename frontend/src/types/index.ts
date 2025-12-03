@@ -575,3 +575,64 @@ export interface FailureStats {
   totalPenalty: number;
   topReasons: { reason: string; count: number }[];
 }
+
+// ============ ADMIN ============
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  phone: string | null;
+  name: string | null;
+  role: UserRole;
+  agency_id: number | null;
+  agency_name: string | null;
+  is_active: boolean;
+  last_login_at: string | null;
+  created_at: string;
+}
+
+export interface AdminAgency {
+  id: number;
+  name: string;
+  slug: string;
+  inn: string | null;
+  phone: string | null;
+  email: string | null;
+  is_default: boolean;
+  registration_status: string;
+  agents_count: number;
+  created_at: string;
+}
+
+export interface PlatformStats {
+  users: {
+    total: number;
+    clients: number;
+    agents: number;
+    agency_admins: number;
+    operators: number;
+    admins: number;
+    active_today: number;
+    active_week: number;
+  };
+  agencies: {
+    total: number;
+    pending: number;
+    active: number;
+    rejected: number;
+  };
+  offers: {
+    total: number;
+    active: number;
+  };
+  bookings: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+  };
+  selections: {
+    total: number;
+    public: number;
+  };
+}

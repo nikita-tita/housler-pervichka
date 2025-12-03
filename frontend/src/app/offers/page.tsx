@@ -8,7 +8,6 @@ import { QuickFilters } from '@/components/QuickFilters';
 import { DevelopersShowcase } from '@/components/DevelopersShowcase';
 import { ViewModeSwitcher, type ViewMode } from '@/components/ViewModeSwitcher';
 import { OffersTable } from '@/components/OffersTable';
-import { PlansGrid } from '@/components/PlansGrid';
 import { SplitMapView } from '@/components/SplitMapView';
 import { BulkActionsBar } from '@/components/BulkActionsBar';
 import { Pagination } from '@/components/ui';
@@ -224,10 +223,6 @@ function OffersContent() {
                     onSelectChange={handleSelectChange}
                     onSelectAll={handleSelectAll}
                   />
-                )}
-
-                {viewMode === 'plans' && (
-                  <PlansGrid offers={offers} />
                 )}
 
                 {viewMode === 'map' && (

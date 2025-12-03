@@ -1,9 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { api } from '@/services/api';
-import type { FilterOptions } from '@/types';
+import { useFilterOptions } from '@/hooks/useFilterOptions';
 
 interface QuickFilter {
   label: string;
@@ -17,19 +15,7 @@ interface FilterSection {
 }
 
 export function QuickFilters() {
-  const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    api.getFilters()
-      .then(res => {
-        if (res.success && res.data) {
-          setFilterOptions(res.data);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, []);
+  const { filterOptions, isLoading } = useFilterOptions();
 
   // Генерируем секции фильтров
   const getSections = (): FilterSection[] => {

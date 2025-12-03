@@ -18,6 +18,7 @@ import agenciesRoutes from './api/routes/agencies.routes';
 import fixationsRoutes from './api/routes/fixations.routes';
 import dealsRoutes from './api/routes/deals.routes';
 import failuresRoutes from './api/routes/failures.routes';
+import adminRoutes from './api/routes/admin.routes';
 import { testConnection } from './config/database';
 
 dotenv.config();
@@ -73,6 +74,7 @@ app.use('/api/agencies', agenciesRoutes);
 app.use('/api/fixations', fixationsRoutes);
 app.use('/api/deals', dealsRoutes);
 app.use('/api/failures', failuresRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 handler
 app.use((_req, res) => {

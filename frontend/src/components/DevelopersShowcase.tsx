@@ -1,14 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { api } from '@/services/api';
-import type { FilterOptions } from '@/types';
-
-interface Developer {
-  name: string;
-  count: number;
-}
+import { useMemo } from 'react';
+import { useFilterOptions } from '@/hooks/useFilterOptions';
 
 interface DevelopersShowcaseProps {
   maxItems?: number;
@@ -19,24 +13,14 @@ export function DevelopersShowcase({
   maxItems = 8,
   title = 'Популярные застройщики'
 }: DevelopersShowcaseProps) {
-  const [developers, setDevelopers] = useState<Developer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { filterOptions, isLoading } = useFilterOptions();
 
-  useEffect(() => {
-    api.getFilters()
-      .then(res => {
-        if (res.success && res.data) {
-          const data = res.data as FilterOptions;
-          // Сортируем по количеству и берём топ
-          const sorted = [...(data.developers || [])]
-            .sort((a, b) => b.count - a.count)
-            .slice(0, maxItems);
-          setDevelopers(sorted);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, [maxItems]);
+  const developers = useMemo(() => {
+    if (!filterOptions?.developers) return [];
+    return [...filterOptions.developers]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, maxItems);
+  }, [filterOptions?.developers, maxItems]);
 
   if (isLoading) {
     return (
