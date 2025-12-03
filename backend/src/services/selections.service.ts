@@ -426,6 +426,9 @@ export class SelectionsService {
    * Добавить объект в подборку КЛИЕНТОМ (по share_code)
    */
   async addItemByClient(shareCode: string, offerId: number, clientIdentifier: string, comment?: string): Promise<{ success: boolean; error?: string }> {
+    // Лимит объектов добавленных клиентом в одну подборку
+    const MAX_CLIENT_ITEMS = 50;
+
     // Находим подборку по share_code
     const selectionResult = await pool.query(
       'SELECT id FROM selections WHERE share_code = $1',
@@ -446,6 +449,16 @@ export class SelectionsService {
 
     if (offerExists.rows.length === 0) {
       return { success: false, error: 'Объявление не найдено' };
+    }
+
+    // Проверяем лимит объектов добавленных клиентами
+    const clientItemsCount = await pool.query(
+      `SELECT COUNT(*) as count FROM selection_items WHERE selection_id = $1 AND added_by = 'client'`,
+      [selectionId]
+    );
+
+    if (Number(clientItemsCount.rows[0].count) >= MAX_CLIENT_ITEMS) {
+      return { success: false, error: `Достигнут лимит ${MAX_CLIENT_ITEMS} объектов в подборке` };
     }
 
     try {

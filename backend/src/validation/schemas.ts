@@ -147,12 +147,23 @@ export const updateClientStageSchema = z.object({
 
 // ============ Bookings schemas ============
 
+// Более гибкий regex для клиентских номеров (принимает разные форматы)
+const clientPhoneRegex = /^(\+7|7|8)?[\s-]?\(?[0-9]{3}\)?[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}$/;
+
 export const createBookingSchema = z.object({
   offerId: z.number().int().positive('ID объекта обязателен'),
   clientName: z.string().min(1, 'Имя клиента обязательно').max(255),
-  clientPhone: z.string().regex(/^\+?[\d\s()-]{10,20}$/, 'Некорректный телефон'),
+  clientPhone: z.string().regex(clientPhoneRegex, 'Некорректный телефон'),
   clientEmail: z.string().email().max(255).optional(),
   comment: z.string().max(2000).optional()
+});
+
+// Схема для гостевого бронирования (без авторизации)
+export const createGuestBookingSchema = createBookingSchema.extend({
+  guestClientId: z.string().uuid('Некорректный ID гостя').optional(),
+  sourceSelectionCode: z.string()
+    .regex(/^[a-f0-9]{32}$|^[a-z0-9-]+-[a-f0-9]{8}$/, 'Некорректный код подборки')
+    .optional()
 });
 
 export const updateBookingStatusSchema = z.object({

@@ -23,25 +23,29 @@ import {
   updateSelectionSchema,
   addSelectionItemSchema
 } from '../../validation/schemas';
+import { guestActionsLimiter, sharedSelectionLimiter } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
 
 // ============ ПУБЛИЧНЫЕ РОУТЫ (для клиентов по share_code) ============
+// Все публичные роуты защищены rate limiting
 
 // GET /api/selections/shared/:code - Просмотр подборки по коду
-router.get('/shared/:code', getSharedSelection);
+// Rate limit: 30 req/min (защита от брутфорса share_code)
+router.get('/shared/:code', sharedSelectionLimiter, getSharedSelection);
 
 // GET /api/selections/shared/:code/context - Контекст подборки (агент, агентство) для гостей
-router.get('/shared/:code/context', getSharedSelectionContext);
+router.get('/shared/:code/context', sharedSelectionLimiter, getSharedSelectionContext);
 
 // POST /api/selections/shared/:code/items - Клиент добавляет объект
-router.post('/shared/:code/items', addSharedSelectionItem);
+// Rate limit: 20 действий/мин
+router.post('/shared/:code/items', guestActionsLimiter, addSharedSelectionItem);
 
 // DELETE /api/selections/shared/:code/items/:offerId - Клиент удаляет объект
-router.delete('/shared/:code/items/:offerId', removeSharedSelectionItem);
+router.delete('/shared/:code/items/:offerId', guestActionsLimiter, removeSharedSelectionItem);
 
 // POST /api/selections/shared/:code/view - Записать просмотр
-router.post('/shared/:code/view', recordSharedSelectionView);
+router.post('/shared/:code/view', guestActionsLimiter, recordSharedSelectionView);
 
 // ============ РОУТЫ ДЛЯ АВТОРИЗОВАННЫХ КЛИЕНТОВ ============
 

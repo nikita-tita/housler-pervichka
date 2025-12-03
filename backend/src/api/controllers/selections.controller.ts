@@ -1,7 +1,18 @@
 import { Request, Response } from 'express';
 import { SelectionsService } from '../../services/selections.service';
+import { getClientIp } from '../../middleware/rate-limit.middleware';
 
 const selectionsService = new SelectionsService();
+
+// Regex для валидации share_code: 32 символа hex или slug формата "name-hex"
+const SHARE_CODE_REGEX = /^[a-f0-9]{32}$|^[a-z0-9-]+-[a-f0-9]{8}$/;
+
+/**
+ * Валидация share_code
+ */
+function isValidShareCode(code: string): boolean {
+  return typeof code === 'string' && code.length > 0 && code.length <= 100 && SHARE_CODE_REGEX.test(code);
+}
 
 /**
  * GET /api/selections - Список подборок агента
@@ -94,8 +105,8 @@ export async function getSharedSelection(req: Request, res: Response) {
   try {
     const { code } = req.params;
 
-    if (!code) {
-      return res.status(400).json({ success: false, error: 'Код обязателен' });
+    if (!code || !isValidShareCode(code)) {
+      return res.status(400).json({ success: false, error: 'Некорректный код подборки' });
     }
 
     const selection = await selectionsService.getSelectionByShareCode(code);
@@ -251,17 +262,22 @@ export async function addSharedSelectionItem(req: Request, res: Response) {
     const { code } = req.params;
     const { offerId, comment, clientId } = req.body;
 
-    if (!code || !offerId) {
-      return res.status(400).json({ success: false, error: 'Код и offerId обязательны' });
+    if (!code || !isValidShareCode(code)) {
+      return res.status(400).json({ success: false, error: 'Некорректный код подборки' });
+    }
+
+    if (!offerId || typeof offerId !== 'number' || offerId <= 0) {
+      return res.status(400).json({ success: false, error: 'Некорректный offerId' });
     }
 
     // clientId - идентификатор клиента (генерируется на фронте, хранится в localStorage)
-    const clientIdentifier = clientId || req.ip || 'anonymous';
+    // Используем getClientIp для надёжной идентификации клиента
+    const clientIdentifier = clientId || getClientIp(req) || 'anonymous';
 
     const result = await selectionsService.addItemByClient(code, offerId, clientIdentifier, comment);
 
     if (!result.success) {
-      return res.status(404).json({ success: false, error: result.error });
+      return res.status(400).json({ success: false, error: result.error });
     }
 
     res.json({
@@ -282,13 +298,18 @@ export async function removeSharedSelectionItem(req: Request, res: Response) {
     const { code, offerId } = req.params;
     const { clientId } = req.body;
 
-    if (!code || !offerId) {
-      return res.status(400).json({ success: false, error: 'Некорректные параметры' });
+    if (!code || !isValidShareCode(code)) {
+      return res.status(400).json({ success: false, error: 'Некорректный код подборки' });
     }
 
-    const clientIdentifier = clientId || req.ip || 'anonymous';
+    const parsedOfferId = parseInt(offerId);
+    if (isNaN(parsedOfferId) || parsedOfferId <= 0) {
+      return res.status(400).json({ success: false, error: 'Некорректный offerId' });
+    }
 
-    const result = await selectionsService.removeItemByClient(code, parseInt(offerId), clientIdentifier);
+    const clientIdentifier = clientId || getClientIp(req) || 'anonymous';
+
+    const result = await selectionsService.removeItemByClient(code, parsedOfferId, clientIdentifier);
 
     if (!result.success) {
       return res.status(400).json({ success: false, error: result.error });
@@ -312,11 +333,11 @@ export async function recordSharedSelectionView(req: Request, res: Response) {
     const { code } = req.params;
     const { clientId } = req.body;
 
-    if (!code) {
-      return res.status(400).json({ success: false, error: 'Код обязателен' });
+    if (!code || !isValidShareCode(code)) {
+      return res.status(400).json({ success: false, error: 'Некорректный код подборки' });
     }
 
-    const clientIdentifier = clientId || req.ip || 'anonymous';
+    const clientIdentifier = clientId || getClientIp(req) || 'anonymous';
 
     await selectionsService.recordView(code, clientIdentifier);
 
@@ -387,8 +408,8 @@ export async function getSharedSelectionContext(req: Request, res: Response) {
   try {
     const { code } = req.params;
 
-    if (!code) {
-      return res.status(400).json({ success: false, error: 'Код обязателен' });
+    if (!code || !isValidShareCode(code)) {
+      return res.status(400).json({ success: false, error: 'Некорректный код подборки' });
     }
 
     const context = await selectionsService.getSelectionGuestContext(code);

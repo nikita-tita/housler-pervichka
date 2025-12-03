@@ -43,6 +43,19 @@ export function GuestProvider({ children }: { children: ReactNode }) {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  // Валидация структуры состояния гостя
+  const isValidGuestState = (data: unknown): data is GuestState => {
+    if (!data || typeof data !== 'object') return false;
+    const obj = data as Record<string, unknown>;
+
+    return (
+      typeof obj.isGuest === 'boolean' &&
+      (obj.guestClientId === null || (typeof obj.guestClientId === 'string' && obj.guestClientId.length <= 100)) &&
+      (obj.selectionCode === null || (typeof obj.selectionCode === 'string' && obj.selectionCode.length <= 100)) &&
+      (obj.expiresAt === null || (typeof obj.expiresAt === 'number' && obj.expiresAt > 0))
+    );
+  };
+
   // Загрузка состояния из localStorage при инициализации
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -53,7 +66,15 @@ export function GuestProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem(GUEST_STATE_KEY);
       if (stored) {
-        const parsed: GuestState = JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+
+        // Валидация структуры
+        if (!isValidGuestState(parsed)) {
+          console.warn('Invalid guest state data, clearing');
+          localStorage.removeItem(GUEST_STATE_KEY);
+          setIsLoading(false);
+          return;
+        }
 
         // Проверяем срок действия
         if (parsed.expiresAt && parsed.expiresAt > Date.now()) {

@@ -17,15 +17,27 @@ const GuestFavoritesContext = createContext<GuestFavoritesContextType | null>(nu
 export function GuestFavoritesProvider({ children }: { children: ReactNode }) {
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
 
-  // Загрузка из localStorage
+  // Валидация массива ID
+  const isValidFavoritesArray = (data: unknown): data is number[] => {
+    return Array.isArray(data) &&
+      data.length <= 500 && // Максимум 500 избранных
+      data.every(item => typeof item === 'number' && Number.isInteger(item) && item > 0);
+  };
+
+  // Загрузка из localStorage с валидацией
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     try {
       const stored = localStorage.getItem(GUEST_FAVORITES_KEY);
       if (stored) {
-        const ids = JSON.parse(stored) as number[];
-        setFavoriteIds(new Set(ids));
+        const parsed = JSON.parse(stored);
+        if (isValidFavoritesArray(parsed)) {
+          setFavoriteIds(new Set(parsed));
+        } else {
+          console.warn('Invalid guest favorites data, clearing');
+          localStorage.removeItem(GUEST_FAVORITES_KEY);
+        }
       }
     } catch (e) {
       console.error('Failed to parse guest favorites:', e);

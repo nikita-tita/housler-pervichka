@@ -101,3 +101,57 @@ export const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
+
+/**
+ * Rate limiter для гостевых заявок на бронирование
+ * Защита от спама заявками
+ */
+export const guestBookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 минут
+  max: 3, // максимум 3 заявки с одного IP
+  message: {
+    success: false,
+    error: 'Слишком много заявок. Попробуйте через 15 минут.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    const ip = getClientIp(req);
+    const guestId = req.body?.guestClientId || '';
+    return `guest_booking:${ip}:${guestId}`;
+  }
+});
+
+/**
+ * Rate limiter для гостевых действий с подборками
+ * Защита от спама добавлением/удалением объектов
+ */
+export const guestActionsLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 минута
+  max: 20, // 20 действий в минуту
+  message: {
+    success: false,
+    error: 'Слишком много действий. Подождите минуту.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `guest_actions:${getClientIp(req)}`
+});
+
+/**
+ * Rate limiter для просмотра подборок (защита от брутфорса share_code)
+ */
+export const sharedSelectionLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 минута
+  max: 30, // 30 запросов в минуту
+  message: {
+    success: false,
+    error: 'Слишком много запросов. Подождите минуту.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `shared_view:${getClientIp(req)}`
+});
+
+// Экспортируем getClientIp для использования в контроллерах
+export { getClientIp };

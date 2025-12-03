@@ -9,7 +9,8 @@ import {
 } from '../controllers/bookings.controller';
 import { loadUser, requireAuthWithUser, requireOperator } from '../../middleware/auth.middleware';
 import { validateBody, validateParams } from '../../validation/middleware';
-import { idParamSchema, createBookingSchema, updateBookingStatusSchema } from '../../validation/schemas';
+import { idParamSchema, createBookingSchema, createGuestBookingSchema, updateBookingStatusSchema } from '../../validation/schemas';
+import { guestBookingLimiter } from '../../middleware/rate-limit.middleware';
 
 const router = Router();
 
@@ -17,7 +18,9 @@ const router = Router();
 router.post('/', loadUser, validateBody(createBookingSchema), createBooking);
 
 // POST /api/bookings/guest - Гостевое бронирование (без авторизации, через подборку агента)
-router.post('/guest', createGuestBooking);
+// Rate limit: 3 заявки за 15 минут с одного IP
+// Валидация: createGuestBookingSchema (расширенная схема с guestClientId и sourceSelectionCode)
+router.post('/guest', guestBookingLimiter, validateBody(createGuestBookingSchema), createGuestBooking);
 
 // GET /api/bookings - Заявки агента (требует авторизации)
 router.get('/', requireAuthWithUser, getAgentBookings);
