@@ -118,6 +118,8 @@ export interface User {
   role: UserRole;
   agency_id: number | null;
   is_active: boolean;
+  last_login_at?: string | null;
+  created_at?: string;
 }
 
 // Agency types

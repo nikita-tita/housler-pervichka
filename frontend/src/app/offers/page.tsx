@@ -62,15 +62,10 @@ function OffersContent() {
     const [sort_by, sort_order] = sortBy.split('_') as [string, 'asc' | 'desc'];
 
     try {
-      const response = await api.getOffers(currentFilters, { page, limit: 20, sort_by, sort_order }) as unknown as {
-        success: boolean;
-        data: OfferListItem[];
-        pagination: PaginatedResponse<OfferListItem>['pagination'];
-        error?: string;
-      };
+      const response = await api.getOffers(currentFilters, { page, limit: 20, sort_by, sort_order });
       if (response.success && response.data) {
-        setOffers(response.data);
-        setPagination(response.pagination);
+        setOffers(response.data.data);
+        setPagination(response.data.pagination);
       } else {
         setError(response.error || 'Ошибка загрузки');
       }

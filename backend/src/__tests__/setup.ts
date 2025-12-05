@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 // Загружаем переменные окружения для тестов
 dotenv.config({ path: '.env.test' });
 
+// Устанавливаем обязательные переменные для тестов
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-for-unit-tests';
+
 // Мокаем pool для тестов без реальной БД
 jest.mock('../config/database', () => ({
   pool: {

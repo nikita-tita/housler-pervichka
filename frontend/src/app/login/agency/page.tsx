@@ -3,14 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, setStoredToken } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 type Mode = 'login' | 'register';
 
 export default function AgencyLoginPage() {
   const router = useRouter();
-  const { setUser, isAuthenticated } = useAuth();
+  const { isAuthenticated, loginAgency } = useAuth();
 
   const [mode, setMode] = useState<Mode>('login');
   const [error, setError] = useState('');
@@ -32,14 +31,8 @@ export default function AgencyLoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await api.loginAgency(loginEmail, loginPassword);
-      if (!result.success || !result.data) {
-        setError(result.error || 'Ошибка авторизации');
-        return;
-      }
-
-      setStoredToken(result.data.token);
-      setUser(result.data.user);
+      await loginAgency(loginEmail, loginPassword);
+      // AuthContext уже залогинил пользователя, редиректим
       router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка авторизации');

@@ -6,6 +6,9 @@ export const idParamSchema = z.object({
   id: z.string().regex(/^\d+$/, 'ID должен быть числом').transform(Number)
 });
 
+// Тип для params после валидации через idParamSchema
+export type IdParams = z.infer<typeof idParamSchema>;
+
 export const paginationSchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
   limit: z.string().regex(/^\d+$/).transform(Number).optional().default('20')

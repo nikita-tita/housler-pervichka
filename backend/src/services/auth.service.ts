@@ -1,6 +1,8 @@
 import { pool } from '../config/database';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { logger } from '../utils/logger';
+import { isTestEmail, isTestPhone, isTestCode } from '../config/test-accounts';
 import type { RegisterRealtorInput, RegisterAgencyInput } from '../validation/schemas';
 
 export type UserRole = 'client' | 'agent' | 'agency_admin' | 'operator' | 'admin';
@@ -24,7 +26,15 @@ export interface JwtPayload {
   agencyId: number | null;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
+// JWT_SECRET обязателен — приложение не запустится без него
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
+}
+const JWT_SECRET = getJwtSecret();
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const CODE_EXPIRES_MINUTES = 10;
 const MAX_CODE_ATTEMPTS = 3;
@@ -35,6 +45,62 @@ export class AuthService {
    */
   private generateCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  /**
+   * Проверка кода авторизации в БД
+   * Общая логика для email и SMS кодов
+   */
+  private async validateAuthCode(
+    table: 'auth_codes' | 'sms_codes',
+    identifierField: 'email' | 'phone',
+    identifier: string,
+    code: string,
+    skipValidation: boolean
+  ): Promise<{ valid: boolean; codeId?: number; error?: string }> {
+    // Тестовые аккаунты могут пропустить проверку
+    if (skipValidation) {
+      return { valid: true };
+    }
+
+    const codeResult = await pool.query(`
+      SELECT id, attempts
+      FROM ${table}
+      WHERE ${identifierField} = $1
+        AND code = $2
+        AND expires_at > NOW()
+        AND used_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1
+    `, [identifier, code]);
+
+    if (codeResult.rows.length === 0) {
+      // Увеличиваем счётчик попыток
+      await pool.query(`
+        UPDATE ${table}
+        SET attempts = attempts + 1
+        WHERE ${identifierField} = $1
+          AND expires_at > NOW()
+          AND used_at IS NULL
+      `, [identifier]);
+
+      return { valid: false, error: 'Неверный или истёкший код' };
+    }
+
+    const authCode = codeResult.rows[0];
+
+    if (authCode.attempts >= MAX_CODE_ATTEMPTS) {
+      return { valid: false, error: 'Превышено количество попыток. Запросите новый код.' };
+    }
+
+    return { valid: true, codeId: authCode.id };
+  }
+
+  /**
+   * Отметить код как использованный
+   */
+  private async markCodeUsed(table: 'auth_codes' | 'sms_codes', codeId: number): Promise<void> {
+    await pool.query(`UPDATE ${table} SET used_at = NOW() WHERE id = $1`, [codeId]);
   }
 
   /**
@@ -69,9 +135,9 @@ export class AuthService {
       VALUES ($1, $2, $3)
     `, [normalizedEmail, code, expiresAt]);
 
-    // TODO: Отправить email с кодом
-    // В продакшене интегрировать с SMTP или email-сервисом
-    console.log(`📧 Auth code for ${normalizedEmail}: ${code}`);
+    // TODO: Интегрировать с SMTP/email-сервисом
+    // В development логируем факт отправки (без самого кода!)
+    logger.info('Auth code sent', { email: normalizedEmail, expiresAt: expiresAt.toISOString() });
 
     return {
       success: true,
@@ -89,52 +155,24 @@ export class AuthService {
     message: string;
   }> {
     const normalizedEmail = email.toLowerCase().trim();
+    const isTestAccount = isTestEmail(normalizedEmail) && isTestCode(code);
 
-    // Ищем валидный код
-    const codeResult = await pool.query(`
-      SELECT id, attempts
-      FROM auth_codes
-      WHERE email = $1
-        AND code = $2
-        AND expires_at > NOW()
-        AND used_at IS NULL
-      ORDER BY created_at DESC
-      LIMIT 1
-    `, [normalizedEmail, code]);
+    // Проверяем код
+    const validation = await this.validateAuthCode(
+      'auth_codes',
+      'email',
+      normalizedEmail,
+      code,
+      isTestAccount
+    );
 
-    if (codeResult.rows.length === 0) {
-      // Увеличиваем счётчик попыток для последнего кода
-      await pool.query(`
-        UPDATE auth_codes
-        SET attempts = attempts + 1
-        WHERE email = $1
-          AND expires_at > NOW()
-          AND used_at IS NULL
-      `, [normalizedEmail]);
-
-      return {
-        success: false,
-        message: 'Неверный или истёкший код'
-      };
+    if (!validation.valid) {
+      return { success: false, message: validation.error! };
     }
 
-    const authCode = codeResult.rows[0];
-
-    if (authCode.attempts >= MAX_CODE_ATTEMPTS) {
-      return {
-        success: false,
-        message: 'Превышено количество попыток. Запросите новый код.'
-      };
-    }
-
-    // Отмечаем код как использованный (кроме тестовых аккаунтов с постоянными кодами)
-    const isTestAccount = normalizedEmail.endsWith('@test.housler.ru');
-    const isTestCode = ['111111', '222222', '333333', '444444', '555555', '666666'].includes(code);
-
-    if (!(isTestAccount && isTestCode)) {
-      await pool.query(`
-        UPDATE auth_codes SET used_at = NOW() WHERE id = $1
-      `, [authCode.id]);
+    // Отмечаем код как использованный (кроме тестовых аккаунтов)
+    if (!isTestAccount && validation.codeId) {
+      await this.markCodeUsed('auth_codes', validation.codeId);
     }
 
     // Находим или создаём пользователя
@@ -142,6 +180,14 @@ export class AuthService {
 
     if (!user) {
       user = await this.createUser(normalizedEmail);
+    }
+
+    // Проверяем что пользователь активен
+    if (!user.is_active) {
+      return {
+        success: false,
+        message: 'Аккаунт деактивирован'
+      };
     }
 
     // Обновляем last_login_at
@@ -305,7 +351,8 @@ export class AuthService {
     `, [phone, code, expiresAt]);
 
     // TODO: Интегрировать с SMS-провайдером
-    console.log(`📱 SMS code for ${phone}: ${code}`);
+    // В development логируем факт отправки (без самого кода!)
+    logger.info('SMS code sent', { phone, expiresAt: expiresAt.toISOString() });
 
     return {
       success: true,
@@ -323,58 +370,39 @@ export class AuthService {
     token?: string;
     message: string;
   }> {
-    // Тестовые аккаунты
-    const isTestPhone = phone.startsWith('79999');
-    const isTestCode = ['111111', '222222', '333333'].includes(code);
+    const isTestAccount = isTestPhone(phone) && isTestCode(code);
 
-    if (!(isTestPhone && isTestCode)) {
-      const codeResult = await pool.query(`
-        SELECT id, attempts
-        FROM sms_codes
-        WHERE phone = $1
-          AND code = $2
-          AND expires_at > NOW()
-          AND used_at IS NULL
-        ORDER BY created_at DESC
-        LIMIT 1
-      `, [phone, code]);
+    // Проверяем код
+    const validation = await this.validateAuthCode(
+      'sms_codes',
+      'phone',
+      phone,
+      code,
+      isTestAccount
+    );
 
-      if (codeResult.rows.length === 0) {
-        await pool.query(`
-          UPDATE sms_codes
-          SET attempts = attempts + 1
-          WHERE phone = $1
-            AND expires_at > NOW()
-            AND used_at IS NULL
-        `, [phone]);
+    if (!validation.valid) {
+      return { success: false, isNewUser: false, message: validation.error! };
+    }
 
-        return {
-          success: false,
-          isNewUser: false,
-          message: 'Неверный или истёкший код'
-        };
-      }
-
-      const smsCode = codeResult.rows[0];
-
-      if (smsCode.attempts >= MAX_CODE_ATTEMPTS) {
-        return {
-          success: false,
-          isNewUser: false,
-          message: 'Превышено количество попыток. Запросите новый код.'
-        };
-      }
-
-      // Отмечаем код как использованный
-      await pool.query(`
-        UPDATE sms_codes SET used_at = NOW() WHERE id = $1
-      `, [smsCode.id]);
+    // Отмечаем код как использованный (кроме тестовых аккаунтов)
+    if (!isTestAccount && validation.codeId) {
+      await this.markCodeUsed('sms_codes', validation.codeId);
     }
 
     // Ищем пользователя по телефону
     const user = await this.findUserByPhone(phone);
 
     if (user) {
+      // Проверяем что пользователь активен
+      if (!user.is_active) {
+        return {
+          success: false,
+          isNewUser: false,
+          message: 'Аккаунт деактивирован'
+        };
+      }
+
       // Обновляем last_login и phone_verified
       await pool.query(`
         UPDATE users SET last_login_at = NOW(), phone_verified = TRUE WHERE id = $1

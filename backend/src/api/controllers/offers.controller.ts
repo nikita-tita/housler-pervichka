@@ -50,7 +50,8 @@ export async function searchOffers(req: Request, res: Response): Promise<void> {
 
     res.json({
       success: true,
-      ...result
+      data: result.data,
+      pagination: result.pagination
     });
   } catch (error) {
     console.error('Error searching offers:', error);

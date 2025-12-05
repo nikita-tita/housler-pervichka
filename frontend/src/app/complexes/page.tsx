@@ -20,14 +20,10 @@ export default function ComplexesPage() {
   const loadComplexes = async () => {
     setIsLoading(true);
     try {
-      const response = await api.getComplexes({ page, limit: 24, search: search || undefined }) as unknown as {
-        success: boolean;
-        data: Complex[];
-        pagination: { total_pages: number };
-      };
+      const response = await api.getComplexes({ page, limit: 24, search: search || undefined });
       if (response.success && response.data) {
-        setComplexes(response.data);
-        setTotalPages(response.pagination.total_pages);
+        setComplexes(response.data.data);
+        setTotalPages(response.data.pagination.total_pages);
       }
     } catch (error) {
       console.error('Failed to load complexes:', error);

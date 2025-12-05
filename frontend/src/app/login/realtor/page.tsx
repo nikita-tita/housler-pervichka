@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, setStoredToken } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { PhoneInput, SmsCodeInput, ConsentCheckbox, RegistrationStepper } from '@/components/auth';
 
@@ -36,7 +35,7 @@ interface RealtorFormData {
 
 export default function RealtorLoginPage() {
   const router = useRouter();
-  const { setUser, isAuthenticated } = useAuth();
+  const { isAuthenticated, requestSmsCode, verifySmsCode, registerRealtor } = useAuth();
 
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
@@ -83,11 +82,7 @@ export default function RealtorLoginPage() {
     }
 
     try {
-      const result = await api.requestSmsCode(cleanPhone);
-      if (!result.success) {
-        setError(result.error || 'Ошибка отправки кода');
-        return;
-      }
+      await requestSmsCode(cleanPhone);
       setFormData(prev => ({ ...prev, phone: cleanPhone }));
       setStep('code');
     } catch (err) {
@@ -103,19 +98,13 @@ export default function RealtorLoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await api.verifySmsCode(formData.phone, code);
-      if (!result.success || !result.data) {
-        setError(result.error || 'Неверный код');
-        return;
-      }
+      const result = await verifySmsCode(formData.phone, code);
 
-      if (result.data.isNewUser) {
+      if (result.isNewUser) {
         // Новый пользователь — показываем форму регистрации
         setStep('registration');
-      } else if (result.data.token && result.data.user) {
-        // Существующий пользователь — логиним
-        setStoredToken(result.data.token);
-        setUser(result.data.user);
+      } else {
+        // Существующий пользователь — AuthContext уже залогинил, редиректим
         router.push('/');
       }
     } catch (err) {
@@ -144,7 +133,7 @@ export default function RealtorLoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await api.registerRealtor({
+      await registerRealtor({
         phone: formData.phone,
         name: formData.name,
         email: formData.email,
@@ -153,15 +142,7 @@ export default function RealtorLoginPage() {
         personalInn: formData.isSelfEmployed ? formData.personalInn : undefined,
         consents: formData.consents,
       });
-
-      if (!result.success || !result.data) {
-        setError(result.error || 'Ошибка регистрации');
-        return;
-      }
-
-      // Сохраняем токен и редиректим
-      setStoredToken(result.data.token);
-      setUser(result.data.user);
+      // AuthContext уже залогинил пользователя, редиректим
       router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка регистрации');

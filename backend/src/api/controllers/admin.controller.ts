@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AdminService } from '../../services/admin.service';
 import type { UserRole } from '../../services/auth.service';
 import { logger } from '../../utils/logger';
+import type { IdParams } from '../../validation/schemas';
 
 const adminService = new AdminService();
 
@@ -54,8 +55,8 @@ export async function getUsers(req: Request, res: Response) {
 
 export async function getUserById(req: Request, res: Response) {
   try {
-    // ID уже провалидирован и преобразован в число через validateParams
-    const userId = req.params.id as unknown as number;
+    // ID провалидирован и преобразован в число через validateParams(idParamSchema)
+    const { id: userId } = req.params as unknown as IdParams;
 
     const user = await adminService.getUserById(userId);
 
@@ -72,8 +73,8 @@ export async function getUserById(req: Request, res: Response) {
 
 export async function updateUserRole(req: Request, res: Response) {
   try {
-    // ID и role уже провалидированы через validateParams и validateBody
-    const userId = req.params.id as unknown as number;
+    // ID и role провалидированы через validateParams и validateBody
+    const { id: userId } = req.params as unknown as IdParams;
     const { role } = req.body;
 
     // Нельзя менять роль самому себе
@@ -102,8 +103,8 @@ export async function updateUserRole(req: Request, res: Response) {
 
 export async function toggleUserActive(req: Request, res: Response) {
   try {
-    // Провалидировано через validateParams и validateBody
-    const userId = req.params.id as unknown as number;
+    // Провалидировано через validateParams(idParamSchema) и validateBody
+    const { id: userId } = req.params as unknown as IdParams;
     const { is_active } = req.body;
 
     // Нельзя деактивировать самого себя
@@ -132,8 +133,8 @@ export async function toggleUserActive(req: Request, res: Response) {
 
 export async function setUserAgency(req: Request, res: Response) {
   try {
-    // Провалидировано через validateParams и validateBody
-    const userId = req.params.id as unknown as number;
+    // Провалидировано через validateParams(idParamSchema) и validateBody
+    const { id: userId } = req.params as unknown as IdParams;
     const { agency_id } = req.body;
 
     const user = await adminService.setUserAgency(userId, agency_id);
@@ -188,8 +189,8 @@ export async function createUser(req: Request, res: Response) {
 
 export async function deleteUser(req: Request, res: Response) {
   try {
-    // Провалидировано через validateParams
-    const userId = req.params.id as unknown as number;
+    // Провалидировано через validateParams(idParamSchema)
+    const { id: userId } = req.params as unknown as IdParams;
 
     // Нельзя удалить самого себя
     if (req.user?.id === userId) {
@@ -253,8 +254,8 @@ export async function getAgencies(req: Request, res: Response) {
 
 export async function getAgencyById(req: Request, res: Response) {
   try {
-    // Провалидировано через validateParams
-    const agencyId = req.params.id as unknown as number;
+    // Провалидировано через validateParams(idParamSchema)
+    const { id: agencyId } = req.params as unknown as IdParams;
 
     const agency = await adminService.getAgencyById(agencyId);
 
@@ -271,8 +272,8 @@ export async function getAgencyById(req: Request, res: Response) {
 
 export async function updateAgencyStatus(req: Request, res: Response) {
   try {
-    // Провалидировано через validateParams и validateBody
-    const agencyId = req.params.id as unknown as number;
+    // Провалидировано через validateParams(idParamSchema) и validateBody
+    const { id: agencyId } = req.params as unknown as IdParams;
     const { status } = req.body;
 
     const agency = await adminService.updateAgencyStatus(agencyId, status);

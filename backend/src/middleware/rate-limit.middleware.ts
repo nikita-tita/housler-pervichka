@@ -1,5 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import type { Request } from 'express';
+import { isTestEmail } from '../config/test-accounts';
 
 /**
  * Нормализация IP для IPv6 (маскирование подсети /64)
@@ -51,7 +52,7 @@ export const authLimiter = rateLimit({
   skip: (req) => {
     if (process.env.NODE_ENV === 'development') {
       const email = req.body?.email;
-      if (email && email.endsWith('@test.housler.ru')) {
+      if (email && isTestEmail(email)) {
         return true;
       }
     }
@@ -78,10 +79,12 @@ export const verifyCodeLimiter = rateLimit({
     return `${getClientIp(req)}:${email}`;
   },
   skip: (req) => {
-    // Пропускаем тестовые аккаунты
-    const email = req.body?.email;
-    if (email && email.endsWith('@test.housler.ru')) {
-      return true;
+    // Пропускаем тестовые аккаунты ТОЛЬКО в development
+    if (process.env.NODE_ENV === 'development') {
+      const email = req.body?.email;
+      if (email && isTestEmail(email)) {
+        return true;
+      }
     }
     return false;
   }

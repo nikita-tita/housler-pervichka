@@ -98,6 +98,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
 
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
+    // Намеренно исключаем onFiltersChange из deps:
+    // - Эффект должен срабатывать только при изменении URL (searchParams)
+    // - onFiltersChange может меняться при каждом рендере родителя
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -217,6 +220,9 @@ export function Filters({ onFiltersChange }: FiltersProps) {
       }
     }, 500);
     return () => clearTimeout(timeout);
+    // Намеренно исключаем filters, applyFilters, addToHistory из deps:
+    // - Это debounce эффект, должен срабатывать только при изменении searchInput
+    // - filters/applyFilters используют актуальные значения через замыкание
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput]);
 

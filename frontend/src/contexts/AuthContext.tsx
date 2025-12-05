@@ -4,10 +4,43 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 import { api, getStoredToken, setStoredToken, removeStoredToken } from '@/services/api';
 import type { User, AuthState } from '@/types';
 
+// Типы для регистрации риелтора
+interface RealtorRegistrationData {
+  phone: string;
+  name: string;
+  email: string;
+  city?: string;
+  isSelfEmployed?: boolean;
+  personalInn?: string;
+  consents: {
+    personalData: boolean;
+    terms: boolean;
+    realtorOffer: boolean;
+    marketing?: boolean;
+  };
+}
+
+// Результат верификации SMS - может быть новый или существующий пользователь
+interface SmsVerifyResult {
+  isNewUser: boolean;
+  user?: User;
+}
+
 interface AuthContextType extends AuthState {
+  // Email авторизация (клиенты)
   login: (email: string, code: string) => Promise<void>;
-  logout: () => void;
   requestCode: (email: string) => Promise<void>;
+
+  // SMS авторизация (риелторы)
+  requestSmsCode: (phone: string) => Promise<void>;
+  verifySmsCode: (phone: string, code: string) => Promise<SmsVerifyResult>;
+  registerRealtor: (data: RealtorRegistrationData) => Promise<void>;
+
+  // Авторизация агентства (email + пароль)
+  loginAgency: (email: string, password: string) => Promise<void>;
+
+  // Общие методы
+  logout: () => void;
   setUser: (user: User) => void;
 }
 
@@ -92,8 +125,83 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // ============ SMS авторизация (риелторы) ============
+
+  const requestSmsCode = useCallback(async (phone: string) => {
+    const response = await api.requestSmsCode(phone);
+    if (!response.success) {
+      throw new Error(response.error || 'Ошибка отправки кода');
+    }
+  }, []);
+
+  const verifySmsCode = useCallback(async (phone: string, code: string): Promise<SmsVerifyResult> => {
+    const response = await api.verifySmsCode(phone, code);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Неверный код');
+    }
+
+    const { isNewUser, user, token } = response.data;
+
+    // Если существующий пользователь - сразу логиним
+    if (!isNewUser && token && user) {
+      setStoredToken(token);
+      setState({
+        user,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    }
+
+    return { isNewUser, user };
+  }, []);
+
+  const registerRealtor = useCallback(async (data: RealtorRegistrationData) => {
+    const response = await api.registerRealtor(data);
+    if (!response.success || !response.data?.token || !response.data?.user) {
+      throw new Error(response.error || 'Ошибка регистрации');
+    }
+
+    const { user, token } = response.data;
+    setStoredToken(token);
+    setState({
+      user,
+      token,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+  }, []);
+
+  // ============ Авторизация агентства ============
+
+  const loginAgency = useCallback(async (email: string, password: string) => {
+    const response = await api.loginAgency(email, password);
+    if (!response.success || !response.data?.token || !response.data?.user) {
+      throw new Error(response.error || 'Ошибка авторизации');
+    }
+
+    const { user, token } = response.data;
+    setStoredToken(token);
+    setState({
+      user,
+      token,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, requestCode, setUser }}>
+    <AuthContext.Provider value={{
+      ...state,
+      login,
+      logout,
+      requestCode,
+      setUser,
+      requestSmsCode,
+      verifySmsCode,
+      registerRealtor,
+      loginAgency,
+    }}>
       {children}
     </AuthContext.Provider>
   );

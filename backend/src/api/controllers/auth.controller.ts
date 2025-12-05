@@ -5,26 +5,12 @@ const authService = new AuthService();
 
 /**
  * POST /api/auth/request-code - Запросить код авторизации
+ * Валидация email выполняется middleware validateBody(requestCodeSchema)
  */
 export async function requestCode(req: Request, res: Response) {
   try {
+    // email уже провалидирован через Zod в middleware
     const { email } = req.body;
-
-    if (!email || typeof email !== 'string') {
-      return res.status(400).json({
-        success: false,
-        error: 'Email обязателен'
-      });
-    }
-
-    // Простая валидация email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Некорректный email'
-      });
-    }
 
     const result = await authService.requestCode(email);
 
@@ -43,24 +29,12 @@ export async function requestCode(req: Request, res: Response) {
 
 /**
  * POST /api/auth/verify-code - Проверить код и получить токен
+ * Валидация выполняется middleware validateBody(verifyCodeSchema)
  */
 export async function verifyCode(req: Request, res: Response) {
   try {
+    // email и code уже провалидированы через Zod в middleware
     const { email, code } = req.body;
-
-    if (!email || !code) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email и код обязательны'
-      });
-    }
-
-    if (!/^\d{6}$/.test(code)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Код должен содержать 6 цифр'
-      });
-    }
 
     const result = await authService.verifyCode(email, code);
 
@@ -130,7 +104,7 @@ export async function updateProfile(req: Request, res: Response) {
 
     res.json({
       success: true,
-      user: updatedUser
+      data: updatedUser
     });
   } catch (error) {
     console.error('Error in updateProfile:', error);
@@ -250,8 +224,10 @@ export async function checkInn(req: Request, res: Response) {
 
     res.json({
       success: true,
-      exists: result.exists,
-      agencyName: result.agencyName
+      data: {
+        exists: result.exists,
+        agencyName: result.agencyName
+      }
     });
   } catch (error) {
     console.error('Error in checkInn:', error);
