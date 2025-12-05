@@ -211,6 +211,19 @@ export default function RealtorLoginPage() {
               {isLoading ? 'Отправка...' : 'Получить код'}
             </button>
 
+            {getCleanPhone().startsWith('79999') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, phone: getCleanPhone() }));
+                  setStep('code');
+                }}
+                className="w-full py-2 text-sm text-[var(--color-accent)] hover:underline"
+              >
+                У меня есть постоянный код
+              </button>
+            )}
+
             <p className="text-xs text-[var(--color-text-light)] text-center">
               Продолжая, вы соглашаетесь с{' '}
               <Link href="/doc/clients/soglasiya/terms" className="text-[var(--color-accent)] hover:underline">
