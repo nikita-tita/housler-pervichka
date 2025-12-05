@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, setStoredToken } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
+import type { User } from '@/types';
 
 type Mode = 'login' | 'register';
 
@@ -32,14 +33,14 @@ export default function AgencyLoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await api.loginAgency(loginEmail, loginPassword);
-      if (!result.success || !result.data) {
+      const result = await api.loginAgency(loginEmail, loginPassword) as { success: boolean; user?: User; token?: string; error?: string };
+      if (!result.success || !result.user || !result.token) {
         setError(result.error || 'Ошибка авторизации');
         return;
       }
 
-      setStoredToken(result.data.token);
-      setUser(result.data.user);
+      setStoredToken(result.token);
+      setUser(result.user);
       router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка авторизации');
