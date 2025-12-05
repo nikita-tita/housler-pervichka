@@ -1,25 +1,40 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/services/api';
-import { Modal, Label, Input } from '@/components/ui';
-import type { Selection } from '@/types';
+import { Modal, Label, Input, ConfirmModal } from '@/components/ui';
+import type { Selection, ClientListItem } from '@/types';
 
 export default function SelectionsPage() {
   const router = useRouter();
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
+  const { showToast } = useToast();
   const [selections, setSelections] = useState<Selection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdSelection, setCreatedSelection] = useState<Selection | null>(null);
   const [newSelection, setNewSelection] = useState({
     name: '',
     clientName: '',
     clientEmail: '',
+    clientId: null as number | null,
   });
   const [creating, setCreating] = useState(false);
+
+  // Клиенты для выбора
+  const [clients, setClients] = useState<ClientListItem[]>([]);
+  const [clientsLoading, setClientsLoading] = useState(false);
+  const [clientMode, setClientMode] = useState<'none' | 'select' | 'create'>('none');
+
+  // Подтверждение удаления
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -38,12 +53,27 @@ export default function SelectionsPage() {
       if (response.success && response.data) {
         setSelections(response.data);
       }
-    } catch (error) {
-      console.error('Failed to load selections:', error);
+    } catch {
+      // silently fail
     } finally {
       setIsLoading(false);
     }
   };
+
+  const loadClients = useCallback(async () => {
+    if (clients.length > 0) return; // Уже загружены
+    setClientsLoading(true);
+    try {
+      const response = await api.getClients();
+      if (response.success && response.data) {
+        setClients(response.data);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setClientsLoading(false);
+    }
+  }, [clients.length]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,36 +83,52 @@ export default function SelectionsPage() {
     try {
       const response = await api.createSelection({
         name: newSelection.name,
-        clientName: newSelection.clientName || undefined,
-        clientEmail: newSelection.clientEmail || undefined,
+        clientName: clientMode === 'create' ? newSelection.clientName || undefined : undefined,
+        clientEmail: clientMode === 'create' ? newSelection.clientEmail || undefined : undefined,
+        clientId: clientMode === 'select' && newSelection.clientId ? newSelection.clientId : undefined,
       });
       if (response.success && response.data) {
         setSelections([response.data, ...selections]);
         setShowCreateModal(false);
-        setNewSelection({ name: '', clientName: '', clientEmail: '' });
+        setNewSelection({ name: '', clientName: '', clientEmail: '', clientId: null });
+        setClientMode('none');
+        // Показываем success-модалку с предложением добавить объекты
+        setCreatedSelection(response.data);
+        setShowSuccessModal(true);
       }
-    } catch (error) {
-      console.error('Failed to create selection:', error);
+    } catch {
+      showToast('Не удалось создать подборку', 'error');
     } finally {
       setCreating(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Удалить подборку?')) return;
+  const openDeleteModal = (id: number) => {
+    setDeletingId(id);
+    setShowDeleteModal(true);
+  };
 
+  const handleDelete = async () => {
+    if (!deletingId) return;
+
+    setIsDeleting(true);
     try {
-      await api.deleteSelection(id);
-      setSelections(selections.filter(s => s.id !== id));
-    } catch (error) {
-      console.error('Failed to delete selection:', error);
+      await api.deleteSelection(deletingId);
+      setSelections(selections.filter(s => s.id !== deletingId));
+      showToast('Подборка удалена', 'success');
+    } catch {
+      showToast('Не удалось удалить подборку', 'error');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setDeletingId(null);
     }
   };
 
   const copyShareLink = (code: string) => {
     const url = `${window.location.origin}/s/${code}`;
     navigator.clipboard.writeText(url);
-    alert('Ссылка скопирована!');
+    showToast('Ссылка скопирована', 'success');
   };
 
   if (authLoading || isLoading) {
@@ -181,7 +227,7 @@ export default function SelectionsPage() {
                   Открыть
                 </Link>
                 <button
-                  onClick={() => handleDelete(selection.id)}
+                  onClick={() => openDeleteModal(selection.id)}
                   className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
                   Удалить
@@ -195,7 +241,11 @@ export default function SelectionsPage() {
       {/* Create Modal */}
       <Modal
         isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={() => {
+          setShowCreateModal(false);
+          setClientMode('none');
+          setNewSelection({ name: '', clientName: '', clientEmail: '', clientId: null });
+        }}
         title="Новая подборка"
       >
         <form onSubmit={handleCreate} className="space-y-4">
@@ -209,28 +259,118 @@ export default function SelectionsPage() {
               required
             />
           </div>
+
+          {/* Выбор клиента */}
           <div>
-            <Label>Имя клиента</Label>
-            <Input
-              type="text"
-              value={newSelection.clientName}
-              onChange={(e) => setNewSelection({ ...newSelection, clientName: e.target.value })}
-              placeholder="Иван Иванов"
-            />
+            <Label>Клиент</Label>
+            <div className="flex gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setClientMode('none')}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  clientMode === 'none'
+                    ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
+                    : 'border-[var(--color-border)] hover:bg-gray-50'
+                }`}
+              >
+                Без клиента
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setClientMode('select');
+                  loadClients();
+                }}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  clientMode === 'select'
+                    ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
+                    : 'border-[var(--color-border)] hover:bg-gray-50'
+                }`}
+              >
+                Выбрать из CRM
+              </button>
+              <button
+                type="button"
+                onClick={() => setClientMode('create')}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  clientMode === 'create'
+                    ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
+                    : 'border-[var(--color-border)] hover:bg-gray-50'
+                }`}
+              >
+                Новый клиент
+              </button>
+            </div>
+
+            {/* Выбор существующего клиента */}
+            {clientMode === 'select' && (
+              <div>
+                {clientsLoading ? (
+                  <div className="text-sm text-[var(--color-text-light)]">Загрузка клиентов...</div>
+                ) : clients.length === 0 ? (
+                  <div className="text-sm text-[var(--color-text-light)]">
+                    У вас пока нет клиентов.{' '}
+                    <button
+                      type="button"
+                      onClick={() => setClientMode('create')}
+                      className="text-[var(--color-accent)] hover:underline"
+                    >
+                      Создать нового?
+                    </button>
+                  </div>
+                ) : (
+                  <select
+                    value={newSelection.clientId || ''}
+                    onChange={(e) => setNewSelection({ ...newSelection, clientId: e.target.value ? Number(e.target.value) : null })}
+                    className="input w-full"
+                  >
+                    <option value="">Выберите клиента...</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.name || client.phone || client.email || `Клиент #${client.id}`}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+
+            {/* Создание нового клиента (только контактные данные) */}
+            {clientMode === 'create' && (
+              <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <Label>Имя</Label>
+                  <Input
+                    type="text"
+                    value={newSelection.clientName}
+                    onChange={(e) => setNewSelection({ ...newSelection, clientName: e.target.value })}
+                    placeholder="Иван Иванов"
+                  />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    value={newSelection.clientEmail}
+                    onChange={(e) => setNewSelection({ ...newSelection, clientEmail: e.target.value })}
+                    placeholder="client@example.com"
+                  />
+                </div>
+                <p className="text-xs text-[var(--color-text-light)]">
+                  Клиент будет сохранён в информации о подборке. Для добавления в CRM перейдите в раздел «Клиенты».
+                </p>
+              </div>
+            )}
           </div>
-          <div>
-            <Label>Email клиента</Label>
-            <Input
-              type="email"
-              value={newSelection.clientEmail}
-              onChange={(e) => setNewSelection({ ...newSelection, clientEmail: e.target.value })}
-              placeholder="client@example.com"
-            />
-          </div>
+
           <Modal.Footer>
             <button
               type="button"
-              onClick={() => setShowCreateModal(false)}
+              onClick={() => {
+                setShowCreateModal(false);
+                setClientMode('none');
+                setNewSelection({ name: '', clientName: '', clientEmail: '', clientId: null });
+              }}
               className="btn btn-secondary flex-1"
             >
               Отмена
@@ -245,6 +385,62 @@ export default function SelectionsPage() {
           </Modal.Footer>
         </form>
       </Modal>
+
+      {/* Success Modal - предложение добавить объекты */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Подборка создана"
+      >
+        <div className="text-center py-4">
+          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="text-lg font-medium mb-2">
+            Подборка «{createdSelection?.name}» создана
+          </p>
+          <p className="text-[var(--color-text-light)] text-sm">
+            Теперь вы можете добавить в неё объекты из каталога
+          </p>
+        </div>
+        <Modal.Footer>
+          <button
+            type="button"
+            onClick={() => setShowSuccessModal(false)}
+            className="btn btn-secondary flex-1"
+          >
+            Позже
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowSuccessModal(false);
+              router.push('/offers');
+            }}
+            className="btn btn-primary flex-1"
+          >
+            Добавить объекты
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingId(null);
+        }}
+        onConfirm={handleDelete}
+        title="Удалить подборку"
+        message="Вы уверены, что хотите удалить эту подборку? Это действие нельзя отменить."
+        confirmText="Удалить"
+        cancelText="Отмена"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

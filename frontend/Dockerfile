@@ -35,8 +35,11 @@ ENV NODE_ENV=production
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (including typescript for next.config.ts)
-RUN npm ci
+# Install only production dependencies
+RUN npm ci --omit=dev
+
+# Copy typescript from builder (needed for next.config.ts at runtime)
+COPY --from=builder /app/node_modules/typescript ./node_modules/typescript
 
 # Copy built files from builder
 COPY --from=builder /app/.next ./.next

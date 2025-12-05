@@ -14,7 +14,7 @@ interface SelectionItemStatusProps {
 
 const STATUS_CONFIG: Record<ItemStatus, { label: string; color: string; bg: string }> = {
   pending: { label: 'Ожидает', color: 'text-gray-600', bg: 'bg-gray-100' },
-  shown: { label: 'Показан', color: 'text-blue-600', bg: 'bg-blue-100' },
+  shown: { label: 'Показан', color: 'text-[var(--color-text)]', bg: 'bg-gray-200' },
   interested: { label: 'Интерес', color: 'text-green-600', bg: 'bg-green-100' },
   rejected: { label: 'Отказ', color: 'text-red-600', bg: 'bg-red-100' },
 };

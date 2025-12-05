@@ -97,13 +97,13 @@ export default function GuestSelectionPage() {
       </div>
 
       {/* CTA: Search more */}
-      <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-lg text-center">
-        <p className="text-sm text-blue-800 mb-3">
+      <div className="mb-8 p-4 bg-gray-50 border border-[var(--color-border)] rounded-lg text-center">
+        <p className="text-sm text-[var(--color-text)] mb-3">
           Хотите найти ещё варианты? Ищите по всей базе новостроек!
         </p>
         <Link
           href={`/s/${code}/offers`}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          className="btn btn-primary btn-sm inline-flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

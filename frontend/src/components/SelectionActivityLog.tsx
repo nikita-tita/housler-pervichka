@@ -77,7 +77,7 @@ export function SelectionActivityLog({ selectionId }: SelectionActivityLogProps)
     <div>
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-sm">Действия клиента</h3>
-        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+        <span className="text-xs bg-gray-200 text-[var(--color-text)] px-2 py-0.5 rounded-full">
           {clientActivity.length}
         </span>
       </div>
@@ -91,7 +91,7 @@ export function SelectionActivityLog({ selectionId }: SelectionActivityLogProps)
             {/* Icon */}
             <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
               item.action === 'viewed'
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-gray-200 text-[var(--color-text)]'
                 : item.action === 'item_added'
                 ? 'bg-green-100 text-green-600'
                 : 'bg-red-100 text-red-600'

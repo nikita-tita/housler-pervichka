@@ -9,6 +9,7 @@ export interface Selection {
   agent_id: number;
   client_email: string | null;
   client_name: string | null;
+  client_id: number | null;
   share_code: string | null;
   is_public: boolean;
   items_count: number;
@@ -106,19 +107,39 @@ export class SelectionsService {
     name: string;
     clientEmail?: string;
     clientName?: string;
+    clientId?: number;
     isPublic?: boolean;
   }): Promise<Selection> {
     const shareCode = this.generateShareCode();
 
+    // Если передан clientId, проверяем что клиент принадлежит агенту
+    if (data.clientId) {
+      const clientCheck = await pool.query(
+        'SELECT id, name, email FROM clients WHERE id = $1 AND agent_id = $2',
+        [data.clientId, agentId]
+      );
+      if (clientCheck.rows.length === 0) {
+        throw new Error('Клиент не найден');
+      }
+      // Если clientName/clientEmail не переданы, берём из клиента
+      if (!data.clientName && clientCheck.rows[0].name) {
+        data.clientName = clientCheck.rows[0].name;
+      }
+      if (!data.clientEmail && clientCheck.rows[0].email) {
+        data.clientEmail = clientCheck.rows[0].email;
+      }
+    }
+
     const result = await pool.query(`
-      INSERT INTO selections (name, agent_id, client_email, client_name, share_code, is_public)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, name, agent_id, client_email, client_name, share_code, is_public, created_at, updated_at
+      INSERT INTO selections (name, agent_id, client_email, client_name, client_id, share_code, is_public)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, name, agent_id, client_email, client_name, client_id, share_code, is_public, created_at, updated_at
     `, [
       data.name,
       agentId,
       data.clientEmail || null,
       data.clientName || null,
+      data.clientId || null,
       shareCode,
       data.isPublic ?? false
     ]);

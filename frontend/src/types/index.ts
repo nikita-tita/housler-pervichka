@@ -150,6 +150,7 @@ export interface Selection {
   name: string;
   client_name: string | null;
   client_email: string | null;
+  client_id: number | null;
   share_code: string;
   items_count: number;
   view_count: number;

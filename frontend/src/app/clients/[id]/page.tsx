@@ -3,7 +3,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useToast } from '@/contexts/ToastContext';
 import { api, formatPrice } from '@/services/api';
+import { ConfirmModal } from '@/components/ui';
 import { StageBadge } from '@/components/clients/StageBadge';
 import { PriorityBadge } from '@/components/clients/PriorityBadge';
 import type { ClientDetail, ClientStage, ClientPriority } from '@/types';
@@ -28,12 +30,15 @@ const PRIORITIES: { value: ClientPriority; label: string }[] = [
 export default function ClientDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { showToast } = useToast();
   const clientId = Number(params.id);
 
   const [client, setClient] = useState<ClientDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<ClientDetail>>({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadClient = useCallback(async () => {
     try {
@@ -42,8 +47,8 @@ export default function ClientDetailPage() {
         setClient(response.data);
         setEditForm(response.data);
       }
-    } catch (error) {
-      console.error('Failed to load client:', error);
+    } catch {
+      // silently fail
     } finally {
       setIsLoading(false);
     }
@@ -60,9 +65,10 @@ export default function ClientDetailPage() {
       const response = await api.updateClientStage(clientId, stage);
       if (response.success && response.data) {
         setClient({ ...client!, ...response.data });
+        showToast('Этап изменён', 'success');
       }
-    } catch (error) {
-      console.error('Failed to update stage:', error);
+    } catch {
+      showToast('Не удалось изменить этап', 'error');
     }
   };
 
@@ -83,22 +89,26 @@ export default function ClientDetailPage() {
       if (response.success && response.data) {
         setClient({ ...client!, ...response.data });
         setIsEditing(false);
+        showToast('Изменения сохранены', 'success');
       }
-    } catch (error) {
-      console.error('Failed to update client:', error);
+    } catch {
+      showToast('Не удалось сохранить изменения', 'error');
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Удалить клиента? Это действие нельзя отменить.')) return;
-
+    setIsDeleting(true);
     try {
       const response = await api.deleteClient(clientId);
       if (response.success) {
+        showToast('Клиент удалён', 'success');
         router.push('/clients');
       }
-    } catch (error) {
-      console.error('Failed to delete client:', error);
+    } catch {
+      showToast('Не удалось удалить клиента', 'error');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -107,9 +117,10 @@ export default function ClientDetailPage() {
       const response = await api.recordClientContact(clientId);
       if (response.success) {
         loadClient();
+        showToast('Контакт записан', 'success');
       }
-    } catch (error) {
-      console.error('Failed to record contact:', error);
+    } catch {
+      showToast('Не удалось записать контакт', 'error');
     }
   };
 
@@ -185,7 +196,7 @@ export default function ClientDetailPage() {
             {isEditing ? 'Отмена' : 'Редактировать'}
           </button>
           <button
-            onClick={handleDelete}
+            onClick={() => setShowDeleteModal(true)}
             className="btn btn-sm text-red-600 border-red-200 hover:bg-red-50"
           >
             Удалить
@@ -463,6 +474,19 @@ export default function ClientDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Удалить клиента"
+        message="Вы уверены, что хотите удалить этого клиента? Это действие нельзя отменить."
+        confirmText="Удалить"
+        cancelText="Отмена"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

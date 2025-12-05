@@ -7,7 +7,7 @@ import { PriorityBadge } from '@/components/clients/PriorityBadge';
 import type { ClientListItem, ClientStage } from '@/types';
 
 const STAGES: { value: ClientStage; label: string; color: string }[] = [
-  { value: 'new', label: 'Новые', color: 'border-blue-300 bg-blue-50' },
+  { value: 'new', label: 'Новые', color: 'border-gray-300 bg-gray-50' },
   { value: 'in_progress', label: 'В работе', color: 'border-yellow-300 bg-yellow-50' },
   { value: 'fixation', label: 'Фиксация', color: 'border-purple-300 bg-purple-50' },
   { value: 'booking', label: 'Бронь', color: 'border-orange-300 bg-orange-50' },

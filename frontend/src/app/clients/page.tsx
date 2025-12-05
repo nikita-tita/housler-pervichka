@@ -186,7 +186,7 @@ export default function ClientsListPage() {
 // Компонент статистики
 function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {
   const colorClasses: Record<string, string> = {
-    blue: 'border-blue-200 bg-blue-50',
+    blue: 'border-gray-200 bg-gray-50',
     yellow: 'border-yellow-200 bg-yellow-50',
     purple: 'border-purple-200 bg-purple-50',
     orange: 'border-orange-200 bg-orange-50',

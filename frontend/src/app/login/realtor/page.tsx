@@ -9,6 +9,10 @@ import { PhoneInput, SmsCodeInput, ConsentCheckbox, RegistrationStepper } from '
 
 type Step = 'phone' | 'code' | 'registration';
 
+// Тестовые аккаунты: телефоны 79999* принимают коды 111111-333333
+const TEST_PHONE_PREFIX = '79999';
+const SHOW_DEV_LOGIN = process.env.NEXT_PUBLIC_SHOW_DEV_LOGIN === 'true';
+
 const STEPS = [
   { id: 'phone', title: 'Телефон' },
   { id: 'code', title: 'Код' },
@@ -211,7 +215,7 @@ export default function RealtorLoginPage() {
               {isLoading ? 'Отправка...' : 'Получить код'}
             </button>
 
-            {getCleanPhone().startsWith('79999') && (
+            {SHOW_DEV_LOGIN && getCleanPhone().startsWith(TEST_PHONE_PREFIX) && (
               <button
                 type="button"
                 onClick={() => {

@@ -110,9 +110,9 @@ INSERT INTO users (
 -- ============================================
 -- 4. Агент тестового агентства
 -- ============================================
--- Телефон: +7 (999) 922-22-22
--- Код: 111111 (или 222222, 333333)
--- Вход через: /login/realtor
+-- Email: agent2@test.housler.ru
+-- Пароль: test123
+-- Вход через: /login/agency (сотрудники агентств)
 
 INSERT INTO users (
     email,
@@ -121,6 +121,7 @@ INSERT INTO users (
     role,
     agency_id,
     city,
+    password_hash,
     phone_verified,
     registration_status,
     is_active
@@ -131,12 +132,15 @@ INSERT INTO users (
     'agent',
     (SELECT id FROM agencies WHERE slug = 'test-agency'),
     'Санкт-Петербург',
+    -- bcrypt hash для 'test123'
+    '$2a$10$q7uMIg2KJyjZythHrrr4teUatHDaLrOYo6ohxrVyH/ayWb4MQ7YWa',
     true,
     'active',
     true
 ) ON CONFLICT (email) DO UPDATE SET
     name = EXCLUDED.name,
     phone = EXCLUDED.phone,
+    password_hash = EXCLUDED.password_hash,
     agency_id = (SELECT id FROM agencies WHERE slug = 'test-agency'),
     role = EXCLUDED.role,
     is_active = EXCLUDED.is_active;
@@ -217,9 +221,9 @@ ON CONFLICT DO NOTHING;
  │     Код: 111111 (или 222222, 333333)                                       │
  │                                                                             │
  │  3. АГЕНТ ТЕСТОВОГО АГЕНТСТВА (agent) - привязан к "Тестовое Агентство"    │
- │     Страница входа: /login/realtor                                          │
- │     Телефон: +7 (999) 922-22-22                                            │
- │     Код: 111111 (или 222222, 333333)                                       │
+ │     Страница входа: /login/agency                                           │
+ │     Email: agent2@test.housler.ru                                           │
+ │     Пароль: test123                                                         │
  │                                                                             │
  │  4. АДМИН АГЕНТСТВА (agency_admin) - "Тестовое Агентство"                  │
  │     Страница входа: /login/agency                                           │

@@ -44,16 +44,23 @@ export async function createSelection(req: Request, res: Response) {
       return res.status(401).json({ success: false, error: 'Не авторизован' });
     }
 
-    const { name, clientEmail, clientName, isPublic } = req.body;
+    const { name, clientEmail, clientName, clientId, isPublic } = req.body;
 
     if (!name || typeof name !== 'string') {
       return res.status(400).json({ success: false, error: 'Название обязательно' });
+    }
+
+    // Валидация clientId если передан
+    const parsedClientId = clientId ? parseInt(clientId, 10) : undefined;
+    if (clientId && (isNaN(parsedClientId!) || parsedClientId! <= 0)) {
+      return res.status(400).json({ success: false, error: 'Некорректный ID клиента' });
     }
 
     const selection = await selectionsService.createSelection(req.user.id, {
       name,
       clientEmail,
       clientName,
+      clientId: parsedClientId,
       isPublic
     });
 
@@ -63,7 +70,8 @@ export async function createSelection(req: Request, res: Response) {
     });
   } catch (error) {
     console.error('Error in createSelection:', error);
-    res.status(500).json({ success: false, error: 'Ошибка при создании подборки' });
+    const message = error instanceof Error ? error.message : 'Ошибка при создании подборки';
+    res.status(500).json({ success: false, error: message });
   }
 }
 

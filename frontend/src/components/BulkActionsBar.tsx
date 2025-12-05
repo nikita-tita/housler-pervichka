@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/services/api';
 import { Modal } from '@/components/ui';
 import type { Selection } from '@/types';
@@ -12,6 +13,7 @@ interface BulkActionsBarProps {
 }
 
 export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelection }: BulkActionsBarProps) {
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selections, setSelections] = useState<Selection[]>([]);
@@ -28,8 +30,8 @@ export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelecti
       if (response.success && response.data) {
         setSelections(response.data);
       }
-    } catch (error) {
-      console.error('Failed to load selections:', error);
+    } catch {
+      // silently fail
     }
   };
 
@@ -53,13 +55,12 @@ export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelecti
         }
       }
 
-      alert(`Добавлено ${successCount} из ${offerIds.length} квартир в подборку`);
+      showToast(`Добавлено ${successCount} из ${offerIds.length} квартир в подборку`, 'success');
       setShowSelectionModal(false);
       onClearSelection();
       onAddedToSelection?.();
-    } catch (error) {
-      console.error('Failed to add to selection:', error);
-      alert('Не удалось добавить в подборку');
+    } catch {
+      showToast('Не удалось добавить в подборку', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +68,7 @@ export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelecti
 
   const handleCreateAndAdd = async () => {
     if (!newSelectionName.trim()) {
-      alert('Введите название подборки');
+      showToast('Введите название подборки', 'error');
       return;
     }
 
@@ -79,9 +80,8 @@ export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelecti
         setNewSelectionName('');
         setIsCreatingNew(false);
       }
-    } catch (error) {
-      console.error('Failed to create selection:', error);
-      alert('Не удалось создать подборку');
+    } catch {
+      showToast('Не удалось создать подборку', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -98,10 +98,10 @@ export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelecti
           // Ignore errors for individual items
         }
       }
-      alert(`Добавлено ${offerIds.length} квартир в избранное`);
+      showToast(`Добавлено ${offerIds.length} квартир в избранное`, 'success');
       onClearSelection();
-    } catch (error) {
-      console.error('Failed to add to favorites:', error);
+    } catch {
+      // silently fail
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +113,7 @@ export function BulkActionsBar({ selectedIds, onClearSelection, onAddedToSelecti
     const existingCompare = JSON.parse(localStorage.getItem('compare_offers') || '[]');
     const newCompare = [...new Set([...existingCompare, ...offerIds])].slice(0, 10); // Max 10
     localStorage.setItem('compare_offers', JSON.stringify(newCompare));
-    alert(`Добавлено ${offerIds.length} квартир к сравнению`);
+    showToast(`Добавлено ${offerIds.length} квартир к сравнению`, 'success');
     onClearSelection();
   };
 

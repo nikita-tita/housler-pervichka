@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/services/api';
+import { ConfirmModal } from '@/components/ui';
 import type { AdminUser, UserRole } from '@/types';
 
 const ROLES: { value: UserRole; label: string; color: string }[] = [
   { value: 'client', label: 'Клиент', color: 'bg-gray-100 text-gray-700' },
-  { value: 'agent', label: 'Агент', color: 'bg-blue-100 text-blue-700' },
+  { value: 'agent', label: 'Агент', color: 'bg-gray-200 text-[var(--color-text)]' },
   { value: 'agency_admin', label: 'Админ АН', color: 'bg-purple-100 text-purple-700' },
   { value: 'operator', label: 'Оператор', color: 'bg-yellow-100 text-yellow-700' },
   { value: 'admin', label: 'Админ', color: 'bg-red-100 text-red-700' },
@@ -33,6 +35,7 @@ function formatDate(dateString: string | null): string {
 }
 
 export default function UsersPage() {
+  const { showToast } = useToast();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +45,9 @@ export default function UsersPage() {
   const [offset, setOffset] = useState(0);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<AdminUser | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const limit = 20;
 
   const loadUsers = useCallback(async () => {
@@ -75,6 +81,9 @@ export default function UsersPage() {
     const res = await api.adminToggleUserActive(user.id, !user.is_active);
     if (res.success) {
       loadUsers();
+      showToast(user.is_active ? 'Пользователь деактивирован' : 'Пользователь активирован', 'success');
+    } else {
+      showToast('Не удалось изменить статус', 'error');
     }
   };
 
@@ -83,15 +92,31 @@ export default function UsersPage() {
     if (res.success) {
       setEditingUser(null);
       loadUsers();
+      showToast('Роль изменена', 'success');
+    } else {
+      showToast('Не удалось изменить роль', 'error');
     }
   };
 
-  const handleDelete = async (user: AdminUser) => {
-    if (!confirm(`Деактивировать пользователя ${user.email}?`)) return;
-    const res = await api.adminDeleteUser(user.id);
+  const openDeleteModal = (user: AdminUser) => {
+    setDeletingUser(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingUser) return;
+
+    setIsDeleting(true);
+    const res = await api.adminDeleteUser(deletingUser.id);
     if (res.success) {
       loadUsers();
+      showToast('Пользователь удалён', 'success');
+    } else {
+      showToast('Не удалось удалить пользователя', 'error');
     }
+    setIsDeleting(false);
+    setShowDeleteModal(false);
+    setDeletingUser(null);
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -236,7 +261,7 @@ export default function UsersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <button
-                        onClick={() => handleDelete(user)}
+                        onClick={() => openDeleteModal(user)}
                         className="text-red-500 hover:text-red-700 text-sm"
                       >
                         Удалить
@@ -285,6 +310,22 @@ export default function UsersPage() {
           }}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingUser(null);
+        }}
+        onConfirm={handleDelete}
+        title="Удалить пользователя"
+        message={`Вы уверены, что хотите деактивировать пользователя ${deletingUser?.email}?`}
+        confirmText="Удалить"
+        cancelText="Отмена"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

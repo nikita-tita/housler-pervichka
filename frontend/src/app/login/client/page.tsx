@@ -7,6 +7,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 type Step = 'email' | 'code';
 
+// Тестовые аккаунты: emails @test.housler.ru принимают коды 111111-666666
+const TEST_EMAIL_DOMAIN = '@test.housler.ru';
+const SHOW_DEV_LOGIN = process.env.NEXT_PUBLIC_SHOW_DEV_LOGIN === 'true';
+
 export default function ClientLoginPage() {
   const router = useRouter();
   const { requestCode, login, isAuthenticated } = useAuth();
@@ -100,7 +104,7 @@ export default function ClientLoginPage() {
               {isLoading ? 'Отправка...' : 'Получить код'}
             </button>
 
-            {email.endsWith('@test.housler.ru') && (
+            {SHOW_DEV_LOGIN && email.endsWith(TEST_EMAIL_DOMAIN) && (
               <button
                 type="button"
                 onClick={() => setStep('code')}

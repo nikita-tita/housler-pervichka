@@ -18,7 +18,7 @@ function StatCard({
   color?: 'blue' | 'green' | 'yellow' | 'red' | 'purple';
 }) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
+    blue: 'bg-gray-100 text-[var(--color-text)]',
     green: 'bg-green-50 text-green-600',
     yellow: 'bg-yellow-50 text-yellow-600',
     red: 'bg-red-50 text-red-600',
@@ -281,7 +281,7 @@ export default function AdminDashboard() {
         <h3 className="font-semibold mb-4">Быстрая статистика по ролям</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-blue-600">{stats.users.clients}</p>
+            <p className="text-2xl font-bold text-[var(--color-text)]">{stats.users.clients}</p>
             <p className="text-sm text-[var(--color-text-light)]">Клиентов</p>
           </div>
           <div className="text-center">

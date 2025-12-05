@@ -228,7 +228,7 @@ export default function GuestOfferDetailPage() {
 
             {/* Agent Contact Card */}
             {(agentName || agentPhone) && (
-              <div className="card p-6 mb-6 bg-blue-50 border-blue-100">
+              <div className="card p-6 mb-6 bg-gray-50 border-[var(--color-border)]">
                 <h2 className="font-semibold mb-3">Ваш персональный агент</h2>
                 {agentName && <div className="font-medium mb-2">{agentName}</div>}
                 {agentPhone && (

@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/contexts/ToastContext';
 import { api, formatPrice } from '@/services/api';
+import { ConfirmModal } from '@/components/ui';
 import type { DealWithOffer, DealStatus, DealStats } from '@/types';
 
 const STATUSES: { value: DealStatus | 'all'; label: string }[] = [
@@ -16,7 +18,7 @@ const STATUSES: { value: DealStatus | 'all'; label: string }[] = [
 
 const STATUS_COLORS: Record<DealStatus, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
-  signed: 'bg-blue-100 text-blue-800',
+  signed: 'bg-gray-200 text-[var(--color-text)]',
   registered: 'bg-purple-100 text-purple-800',
   completed: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
@@ -31,10 +33,14 @@ const STATUS_LABELS: Record<DealStatus, string> = {
 };
 
 export default function DealsPage() {
+  const { showToast } = useToast();
   const [deals, setDeals] = useState<DealWithOffer[]>([]);
   const [stats, setStats] = useState<DealStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<DealStatus | 'all'>('all');
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellingDealId, setCancellingDealId] = useState<number | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const loadDeals = useCallback(async () => {
     setIsLoading(true);
@@ -51,8 +57,8 @@ export default function DealsPage() {
       if (statsRes.success && statsRes.data) {
         setStats(statsRes.data);
       }
-    } catch (error) {
-      console.error('Failed to load deals:', error);
+    } catch {
+      // silently fail
     } finally {
       setIsLoading(false);
     }
@@ -67,9 +73,34 @@ export default function DealsPage() {
       const response = await api.updateDealStatus(id, status);
       if (response.success) {
         loadDeals();
+        showToast('Статус сделки обновлён', 'success');
       }
-    } catch (error) {
-      console.error('Failed to update status:', error);
+    } catch {
+      showToast('Не удалось обновить статус', 'error');
+    }
+  };
+
+  const openCancelModal = (id: number) => {
+    setCancellingDealId(id);
+    setShowCancelModal(true);
+  };
+
+  const handleCancelDeal = async () => {
+    if (!cancellingDealId) return;
+
+    setIsCancelling(true);
+    try {
+      const response = await api.updateDealStatus(cancellingDealId, 'cancelled');
+      if (response.success) {
+        loadDeals();
+        showToast('Сделка отменена', 'success');
+      }
+    } catch {
+      showToast('Не удалось отменить сделку', 'error');
+    } finally {
+      setIsCancelling(false);
+      setShowCancelModal(false);
+      setCancellingDealId(null);
     }
   };
 
@@ -230,11 +261,7 @@ export default function DealsPage() {
 
                 {['pending', 'signed'].includes(d.status) && (
                   <button
-                    onClick={() => {
-                      if (confirm('Отменить сделку?')) {
-                        handleUpdateStatus(d.id, 'cancelled');
-                      }
-                    }}
+                    onClick={() => openCancelModal(d.id)}
                     className="btn btn-sm text-red-600 border-red-200 hover:bg-red-50"
                   >
                     Отменить
@@ -245,6 +272,22 @@ export default function DealsPage() {
           ))}
         </div>
       )}
+
+      {/* Cancel Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showCancelModal}
+        onClose={() => {
+          setShowCancelModal(false);
+          setCancellingDealId(null);
+        }}
+        onConfirm={handleCancelDeal}
+        title="Отменить сделку"
+        message="Вы уверены, что хотите отменить эту сделку? Это действие нельзя отменить."
+        confirmText="Отменить сделку"
+        cancelText="Назад"
+        variant="danger"
+        isLoading={isCancelling}
+      />
     </div>
   );
 }

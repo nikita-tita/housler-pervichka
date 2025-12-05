@@ -316,6 +316,7 @@ class ApiService {
     name: string;
     clientName?: string;
     clientEmail?: string;
+    clientId?: number;
   }): Promise<ApiResponse<Selection>> {
     return this.fetch('/api/selections', {
       method: 'POST',

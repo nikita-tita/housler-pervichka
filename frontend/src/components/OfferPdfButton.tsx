@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useToast } from '@/contexts/ToastContext';
 import type { OfferDetail } from '@/types';
 import { formatPrice, formatArea, formatRooms, formatFloor } from '@/services/api';
 
@@ -32,6 +33,7 @@ function isValidDeveloperName(name: string | null | undefined): boolean {
 }
 
 export function OfferPdfButton({ offer, className = '' }: OfferPdfButtonProps) {
+  const { showToast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -92,9 +94,8 @@ export function OfferPdfButton({ offer, className = '' }: OfferPdfButtonProps) {
 
       const fileName = `${offer.complex_name?.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_') || 'offer'}_${offer.id}.pdf`;
       pdf.save(fileName);
-    } catch (error) {
-      console.error('PDF generation failed:', error);
-      alert('Не удалось сгенерировать PDF');
+    } catch {
+      showToast('Не удалось сгенерировать PDF', 'error');
     } finally {
       setIsGenerating(false);
     }

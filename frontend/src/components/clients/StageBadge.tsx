@@ -8,7 +8,7 @@ interface StageBadgeProps {
 }
 
 const STAGE_CONFIG: Record<ClientStage, { label: string; color: string; bg: string }> = {
-  new: { label: 'Новый', color: 'text-blue-700', bg: 'bg-blue-100' },
+  new: { label: 'Новый', color: 'text-[var(--color-text)]', bg: 'bg-gray-200' },
   in_progress: { label: 'В работе', color: 'text-yellow-700', bg: 'bg-yellow-100' },
   fixation: { label: 'Фиксация', color: 'text-purple-700', bg: 'bg-purple-100' },
   booking: { label: 'Бронь', color: 'text-orange-700', bg: 'bg-orange-100' },

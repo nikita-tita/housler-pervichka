@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/services/api';
 import { Modal } from '@/components/ui';
 import type { Selection } from '@/types';
@@ -13,6 +14,7 @@ interface AddToSelectionButtonProps {
 
 export function AddToSelectionButton({ offerId }: AddToSelectionButtonProps) {
   const { isAuthenticated, user } = useAuth();
+  const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [selections, setSelections] = useState<Selection[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,8 +34,8 @@ export function AddToSelectionButton({ offerId }: AddToSelectionButtonProps) {
       if (response.success && response.data) {
         setSelections(response.data);
       }
-    } catch (error) {
-      console.error('Failed to load selections:', error);
+    } catch {
+      // silently fail - UI will show empty state
     } finally {
       setIsLoading(false);
     }
@@ -50,13 +52,12 @@ export function AddToSelectionButton({ offerId }: AddToSelectionButtonProps) {
     setIsAdding(true);
     try {
       await api.addSelectionItem(selectedId, offerId, comment || undefined);
-      alert('Объект добавлен в подборку!');
+      showToast('Объект добавлен в подборку', 'success');
       setIsOpen(false);
       setComment('');
       setSelectedId(null);
-    } catch (error) {
-      console.error('Failed to add to selection:', error);
-      alert('Ошибка добавления в подборку');
+    } catch {
+      showToast('Ошибка добавления в подборку', 'error');
     } finally {
       setIsAdding(false);
     }

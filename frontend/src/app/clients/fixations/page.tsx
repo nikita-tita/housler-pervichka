@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/contexts/ToastContext';
 import { api, formatPrice } from '@/services/api';
+import { ConfirmModal } from '@/components/ui';
 import type { FixationWithOffer, FixationStatus } from '@/types';
 
 const STATUSES: { value: FixationStatus | 'all'; label: string }[] = [
@@ -19,7 +21,7 @@ const STATUS_COLORS: Record<FixationStatus, string> = {
   approved: 'bg-green-100 text-green-800',
   rejected: 'bg-red-100 text-red-800',
   expired: 'bg-gray-100 text-gray-800',
-  converted: 'bg-blue-100 text-blue-800',
+  converted: 'bg-purple-100 text-purple-800',
 };
 
 const STATUS_LABELS: Record<FixationStatus, string> = {
@@ -31,9 +33,19 @@ const STATUS_LABELS: Record<FixationStatus, string> = {
 };
 
 export default function FixationsPage() {
+  const { showToast } = useToast();
   const [fixations, setFixations] = useState<FixationWithOffer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<FixationStatus | 'all'>('all');
+
+  // Modal states
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [convertingId, setConvertingId] = useState<number | null>(null);
+  const [isConverting, setIsConverting] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadFixations = useCallback(async () => {
     setIsLoading(true);
@@ -43,8 +55,8 @@ export default function FixationsPage() {
       if (response.success && response.data) {
         setFixations(response.data);
       }
-    } catch (error) {
-      console.error('Failed to load fixations:', error);
+    } catch {
+      // silently fail
     } finally {
       setIsLoading(false);
     }
@@ -54,29 +66,51 @@ export default function FixationsPage() {
     loadFixations();
   }, [loadFixations]);
 
-  const handleConvert = async (id: number) => {
-    if (!confirm('Конвертировать фиксацию в бронь?')) return;
+  const openConvertModal = (id: number) => {
+    setConvertingId(id);
+    setShowConvertModal(true);
+  };
 
+  const handleConvert = async () => {
+    if (!convertingId) return;
+
+    setIsConverting(true);
     try {
-      const response = await api.convertFixationToBooking(id);
+      const response = await api.convertFixationToBooking(convertingId);
       if (response.success) {
         loadFixations();
+        showToast('Фиксация конвертирована в бронь', 'success');
       }
-    } catch (error) {
-      console.error('Failed to convert:', error);
+    } catch {
+      showToast('Не удалось конвертировать фиксацию', 'error');
+    } finally {
+      setIsConverting(false);
+      setShowConvertModal(false);
+      setConvertingId(null);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Удалить фиксацию?')) return;
+  const openDeleteModal = (id: number) => {
+    setDeletingId(id);
+    setShowDeleteModal(true);
+  };
 
+  const handleDelete = async () => {
+    if (!deletingId) return;
+
+    setIsDeleting(true);
     try {
-      const response = await api.deleteFixation(id);
+      const response = await api.deleteFixation(deletingId);
       if (response.success) {
         loadFixations();
+        showToast('Фиксация удалена', 'success');
       }
-    } catch (error) {
-      console.error('Failed to delete:', error);
+    } catch {
+      showToast('Не удалось удалить фиксацию', 'error');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setDeletingId(null);
     }
   };
 
@@ -196,7 +230,7 @@ export default function FixationsPage() {
 
                   {f.status === 'approved' && (
                     <button
-                      onClick={() => handleConvert(f.id)}
+                      onClick={() => openConvertModal(f.id)}
                       className="btn btn-sm btn-primary"
                     >
                       Конвертировать в бронь
@@ -205,7 +239,7 @@ export default function FixationsPage() {
 
                   {f.status === 'pending' && (
                     <button
-                      onClick={() => handleDelete(f.id)}
+                      onClick={() => openDeleteModal(f.id)}
                       className="btn btn-sm text-red-600 border-red-200 hover:bg-red-50"
                     >
                       Удалить
@@ -223,6 +257,37 @@ export default function FixationsPage() {
           })}
         </div>
       )}
+
+      {/* Convert Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showConvertModal}
+        onClose={() => {
+          setShowConvertModal(false);
+          setConvertingId(null);
+        }}
+        onConfirm={handleConvert}
+        title="Конвертировать в бронь"
+        message="Вы уверены, что хотите конвертировать эту фиксацию в бронь?"
+        confirmText="Конвертировать"
+        cancelText="Отмена"
+        isLoading={isConverting}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingId(null);
+        }}
+        onConfirm={handleDelete}
+        title="Удалить фиксацию"
+        message="Вы уверены, что хотите удалить эту фиксацию?"
+        confirmText="Удалить"
+        cancelText="Отмена"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
