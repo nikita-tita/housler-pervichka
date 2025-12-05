@@ -1,7 +1,16 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function Footer() {
+  const pathname = usePathname();
   const currentYear = new Date().getFullYear();
+
+  // Не показываем Footer на гостевых страницах /s/[code]
+  if (pathname?.startsWith('/s/')) {
+    return null;
+  }
 
   return (
     <footer className="py-16 border-t border-[var(--color-border)]">

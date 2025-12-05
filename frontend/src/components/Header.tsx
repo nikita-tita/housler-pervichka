@@ -2,13 +2,20 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 
 export function Header() {
+  const pathname = usePathname();
   const { isAuthenticated, user, logout, isLoading } = useAuth();
   const { favoriteIds } = useFavorites();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Не показываем Header на гостевых страницах /s/[code]
+  if (pathname?.startsWith('/s/')) {
+    return null;
+  }
 
   return (
     <nav className="py-8 border-b border-[var(--color-border)] bg-white">

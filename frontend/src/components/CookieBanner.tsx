@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const COOKIE_CONSENT_KEY = 'housler_cookie_consent';
 
@@ -15,12 +16,18 @@ interface CookieConsent {
 }
 
 export function CookieBanner() {
+  const pathname = usePathname();
   // Lazy initialization to avoid setState in useEffect
   const [isVisible, setIsVisible] = useState(() => {
     if (typeof window === 'undefined') return false;
     return !localStorage.getItem(COOKIE_CONSENT_KEY);
   });
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Не показываем на гостевых страницах /s/[code]
+  if (pathname?.startsWith('/s/')) {
+    return null;
+  }
 
   const saveConsent = (status: ConsentStatus, analytics: boolean) => {
     const consent: CookieConsent = {

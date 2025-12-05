@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCompare } from '@/contexts/CompareContext';
 
 export function CompareFloatingBar() {
+  const pathname = usePathname();
   const { count, clearCompare } = useCompare();
 
-  if (count === 0) {
+  // Не показываем на гостевых страницах /s/[code]
+  if (pathname?.startsWith('/s/') || count === 0) {
     return null;
   }
 
