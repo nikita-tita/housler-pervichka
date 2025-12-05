@@ -31,9 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const response = await api.getMe();
-      // API возвращает user напрямую или в data
-      const user = (response as { user?: User }).user || response.data;
-      if (response.success && user) {
+      if (response.success && response.data) {
+        const user = response.data;
         setState({
           user,
           token,
@@ -59,13 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, code: string) => {
     const response = await api.verifyCode(email, code);
-    // API возвращает user/token напрямую, не в data
-    const data = response.data || response as unknown as { user: User; token: string; success?: boolean };
-    if (!response.success || !data.user || !data.token) {
-      throw new Error((response as { error?: string }).error || 'Invalid code');
+    if (!response.success || !response.data?.user || !response.data?.token) {
+      throw new Error(response.error || 'Invalid code');
     }
 
-    const { user, token } = data;
+    const { user, token } = response.data;
     setStoredToken(token);
     setState({
       user,

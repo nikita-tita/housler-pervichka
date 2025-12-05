@@ -73,8 +73,10 @@ export async function verifyCode(req: Request, res: Response) {
 
     res.json({
       success: true,
-      token: result.token,
-      user: result.user
+      data: {
+        token: result.token,
+        user: result.user
+      }
     });
   } catch (error) {
     console.error('Error in verifyCode:', error);
@@ -99,7 +101,7 @@ export async function getCurrentUser(req: Request, res: Response) {
 
     res.json({
       success: true,
-      user: req.user
+      data: req.user
     });
   } catch (error) {
     console.error('Error in getCurrentUser:', error);
@@ -186,10 +188,12 @@ export async function verifySmsCode(req: Request, res: Response) {
 
     res.json({
       success: true,
-      isNewUser: result.isNewUser,
-      user: result.user,
-      token: result.token,
-      message: result.message
+      data: {
+        isNewUser: result.isNewUser,
+        user: result.user,
+        token: result.token,
+        message: result.message
+      }
     });
   } catch (error) {
     console.error('Error in verifySmsCode:', error);
@@ -221,9 +225,11 @@ export async function registerRealtor(req: Request, res: Response) {
 
     res.json({
       success: true,
-      user: result.user,
-      token: result.token,
-      message: result.message
+      data: {
+        user: result.user,
+        token: result.token,
+        message: result.message
+      }
     });
   } catch (error) {
     console.error('Error in registerRealtor:', error);
@@ -275,9 +281,11 @@ export async function registerAgency(req: Request, res: Response) {
 
     res.json({
       success: true,
-      user: result.user,
-      token: result.token,
-      message: result.message
+      data: {
+        user: result.user,
+        token: result.token,
+        message: result.message
+      }
     });
   } catch (error) {
     console.error('Error in registerAgency:', error);
@@ -305,8 +313,10 @@ export async function loginAgency(req: Request, res: Response) {
 
     res.json({
       success: true,
-      user: result.user,
-      token: result.token
+      data: {
+        user: result.user,
+        token: result.token
+      }
     });
   } catch (error) {
     console.error('Error in loginAgency:', error);
