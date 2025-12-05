@@ -4,14 +4,17 @@ import { getClientIp } from '../../middleware/rate-limit.middleware';
 
 const selectionsService = new SelectionsService();
 
-// Regex для валидации share_code: 32 символа hex или slug формата "name-hex"
-const SHARE_CODE_REGEX = /^[a-f0-9]{32}$|^[a-z0-9-]+-[a-f0-9]{8}$/;
+// Regex для валидации share_code:
+// - 32 символа hex (автогенерация)
+// - slug формата "name-hex8"
+// - произвольный slug (a-z0-9 и дефис, 3-50 символов)
+const SHARE_CODE_REGEX = /^[a-f0-9]{32}$|^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /**
  * Валидация share_code
  */
 function isValidShareCode(code: string): boolean {
-  return typeof code === 'string' && code.length > 0 && code.length <= 100 && SHARE_CODE_REGEX.test(code);
+  return typeof code === 'string' && code.length >= 3 && code.length <= 100 && SHARE_CODE_REGEX.test(code);
 }
 
 /**
