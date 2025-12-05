@@ -267,10 +267,10 @@ export default function SelectionsPage() {
               <button
                 type="button"
                 onClick={() => setClientMode('none')}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                className={`tab-btn border ${
                   clientMode === 'none'
-                    ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
-                    : 'border-[var(--color-border)] hover:bg-gray-50'
+                    ? 'tab-btn-active border-gray-900'
+                    : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Без клиента
@@ -281,10 +281,10 @@ export default function SelectionsPage() {
                   setClientMode('select');
                   loadClients();
                 }}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                className={`tab-btn border ${
                   clientMode === 'select'
-                    ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
-                    : 'border-[var(--color-border)] hover:bg-gray-50'
+                    ? 'tab-btn-active border-gray-900'
+                    : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Выбрать из CRM
@@ -292,10 +292,10 @@ export default function SelectionsPage() {
               <button
                 type="button"
                 onClick={() => setClientMode('create')}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                className={`tab-btn border ${
                   clientMode === 'create'
-                    ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
-                    : 'border-[var(--color-border)] hover:bg-gray-50'
+                    ? 'tab-btn-active border-gray-900'
+                    : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Новый клиент

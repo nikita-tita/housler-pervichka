@@ -54,10 +54,10 @@ export function ViewModeSwitcher({
             className={`
               px-3 py-2 flex items-center gap-2 text-sm transition-colors
               ${isActive
-                ? 'bg-[var(--color-text)] text-white'
-                : 'bg-white text-[var(--color-text)] hover:bg-gray-50'
+                ? 'bg-gray-900 text-white'
+                : 'bg-white text-gray-900 hover:bg-gray-50'
               }
-              ${m !== availableModes[0] ? 'border-l border-[var(--color-border)]' : ''}
+              ${m !== availableModes[0] ? 'border-l border-gray-300' : ''}
             `}
             title={config.label}
           >

@@ -66,7 +66,7 @@ export function CookieBanner() {
               </button>
               <button
                 onClick={handleAcceptAll}
-                className="px-4 py-2 text-sm bg-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:opacity-90 transition-opacity"
               >
                 Принять все
               </button>
@@ -118,7 +118,7 @@ export function CookieBanner() {
               </button>
               <button
                 onClick={handleAcceptAll}
-                className="px-4 py-2 text-sm bg-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:opacity-90 transition-opacity"
               >
                 Принять все
               </button>

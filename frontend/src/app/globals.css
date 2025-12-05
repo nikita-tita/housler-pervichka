@@ -366,3 +366,30 @@ a {
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
+
+/* === TAB/TOGGLE BUTTONS ===
+   Для табов, фильтров и переключателей состояния
+   Использовать вместо inline bg-[var(--color-text)] text-white
+*/
+.tab-btn {
+  padding: 8px 16px;
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  background: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.tab-btn:hover {
+  background: var(--gray-200);
+}
+
+.tab-btn.active,
+.tab-btn-active {
+  background: var(--gray-900) !important;
+  color: var(--white) !important;
+}

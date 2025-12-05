@@ -93,8 +93,8 @@ export function ChessBoard({ offers, floorsTotal }: ChessBoardProps) {
             onClick={() => setFilterRooms(null)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
               filterRooms === null
-                ? 'bg-[var(--color-text)] text-white'
-                : 'bg-gray-100 hover:bg-gray-200'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
             }`}
           >
             Все
@@ -105,8 +105,8 @@ export function ChessBoard({ offers, floorsTotal }: ChessBoardProps) {
               onClick={() => setFilterRooms(rooms)}
               className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                 filterRooms === rooms
-                  ? 'bg-[var(--color-text)] text-white'
-                  : 'bg-gray-100 hover:bg-gray-200'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
               }`}
             >
               {rooms === 0 ? 'Студия' : `${rooms}К`}

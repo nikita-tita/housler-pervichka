@@ -129,11 +129,7 @@ export default function FailuresPage() {
           <button
             key={s.value}
             onClick={() => setStageFilter(s.value)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              stageFilter === s.value
-                ? 'bg-[var(--color-text)] text-white'
-                : 'bg-[var(--color-bg-gray)] hover:bg-gray-200'
-            }`}
+            className={`tab-btn ${stageFilter === s.value ? 'tab-btn-active' : ''}`}
           >
             {s.label}
           </button>

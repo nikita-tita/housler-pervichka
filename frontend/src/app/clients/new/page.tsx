@@ -203,10 +203,10 @@ export default function NewClientPage() {
                   key={room}
                   type="button"
                   onClick={() => handleRoomsChange(room)}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`tab-btn border ${
                     form.desired_rooms?.includes(room)
-                      ? 'bg-[var(--color-text)] text-white border-[var(--color-text)]'
-                      : 'bg-white border-[var(--color-border)] hover:border-[var(--color-text)]'
+                      ? 'tab-btn-active border-gray-900'
+                      : 'border-gray-300 hover:border-gray-900'
                   }`}
                 >
                   {room === 0 ? 'Студия' : room}

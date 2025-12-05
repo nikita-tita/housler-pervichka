@@ -80,11 +80,7 @@ export default function ClientsLayout({ children }: { children: React.ReactNode 
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors
-                    ${isActive
-                      ? 'bg-[var(--color-text)] text-white'
-                      : 'bg-[var(--color-bg-gray)] hover:bg-gray-200 text-[var(--color-text)]'
-                    }`}
+                  className={`tab-btn ${isActive ? 'tab-btn-active' : ''}`}
                 >
                   {tab.label}
                 </Link>

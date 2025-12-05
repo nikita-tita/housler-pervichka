@@ -153,11 +153,7 @@ export default function DealsPage() {
           <button
             key={s.value}
             onClick={() => setStatusFilter(s.value)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              statusFilter === s.value
-                ? 'bg-[var(--color-text)] text-white'
-                : 'bg-[var(--color-bg-gray)] hover:bg-gray-200'
-            }`}
+            className={`tab-btn ${statusFilter === s.value ? 'tab-btn-active' : ''}`}
           >
             {s.label}
           </button>

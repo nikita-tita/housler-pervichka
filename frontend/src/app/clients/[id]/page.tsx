@@ -287,11 +287,7 @@ export default function ClientDetailPage() {
                 <button
                   key={s.value}
                   onClick={() => handleStageChange(s.value)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    client.stage === s.value
-                      ? 'bg-[var(--color-text)] text-white'
-                      : 'bg-[var(--color-bg-gray)] hover:bg-gray-200'
-                  }`}
+                  className={`tab-btn ${client.stage === s.value ? 'tab-btn-active' : ''}`}
                 >
                   {s.label}
                 </button>

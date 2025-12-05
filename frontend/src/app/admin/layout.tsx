@@ -93,11 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors
-                  ${isActive
-                    ? 'bg-[var(--color-text)] text-white'
-                    : 'bg-[var(--color-bg-gray)] hover:bg-gray-200 text-[var(--color-text)]'
-                  }`}
+                className={`tab-btn flex items-center gap-2 ${isActive ? 'tab-btn-active' : ''}`}
               >
                 <TabIcon icon={tab.icon} />
                 {tab.label}
