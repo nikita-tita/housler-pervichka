@@ -48,8 +48,8 @@ export function ComplexHero({ complex }: ComplexHeroProps) {
             className={`
               px-3 py-1.5 rounded-full text-sm font-medium
               ${complex.building_state === 'hand-over'
-                ? 'bg-green-500 text-white'
-                : 'bg-orange-500 text-white'
+                ? 'bg-[var(--gray-900)] text-white'
+                : 'bg-white text-[var(--color-text)] border border-[var(--color-border)]'
               }
             `}
           >
@@ -107,7 +107,7 @@ export function ComplexHero({ complex }: ComplexHeroProps) {
           )}
           {complex.metro_station && (
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="w-2 h-2 rounded-full bg-[var(--gray-900)]" />
               {complex.metro_station}
               {complex.metro_distance && (
                 <span className="text-sm">• {complex.metro_distance} мин</span>

@@ -13,6 +13,25 @@ export default function FavoritesPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteOffer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadFavorites = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await api.getFavorites();
+      if (response.success && response.data) {
+        setFavorites(response.data);
+      } else {
+        setError(response.error || 'Не удалось загрузить избранное');
+      }
+    } catch (err) {
+      console.error('Failed to load favorites:', err);
+      setError('Ошибка при загрузке данных');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -21,19 +40,6 @@ export default function FavoritesPage() {
       router.push('/login');
       return;
     }
-
-    const loadFavorites = async () => {
-      try {
-        const response = await api.getFavorites();
-        if (response.success && response.data) {
-          setFavorites(response.data);
-        }
-      } catch (error) {
-        console.error('Failed to load favorites:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
     loadFavorites();
   }, [isAuthenticated, authLoading, router]);
@@ -57,7 +63,17 @@ export default function FavoritesPage() {
     <div className="container py-12">
       <h1 className="text-2xl font-semibold mb-8">Избранное</h1>
 
-      {favorites.length === 0 ? (
+      {error ? (
+        <div className="text-center py-16">
+          <div className="text-[var(--color-text)] mb-4">{error}</div>
+          <button
+            onClick={loadFavorites}
+            className="btn btn-primary"
+          >
+            Попробовать снова
+          </button>
+        </div>
+      ) : favorites.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-[var(--color-text-light)] mb-4">
             В избранном пока ничего нет

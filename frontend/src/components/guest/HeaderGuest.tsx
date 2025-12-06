@@ -44,7 +44,7 @@ export function HeaderGuest() {
                 className="relative flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors"
               >
                 <svg
-                  className={`w-5 h-5 ${favoritesCount > 0 ? 'text-red-500 fill-current' : ''}`}
+                  className={`w-5 h-5 ${favoritesCount > 0 ? 'text-[var(--gray-900)] fill-current' : ''}`}
                   viewBox="0 0 24 24"
                   fill={favoritesCount > 0 ? 'currentColor' : 'none'}
                   stroke="currentColor"
@@ -58,7 +58,7 @@ export function HeaderGuest() {
                 </svg>
                 <span className="hidden sm:inline">Избранное</span>
                 {favoritesCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-[var(--gray-900)] text-white text-xs font-bold rounded-full">
                     {favoritesCount > 9 ? '9+' : favoritesCount}
                   </span>
                 )}

@@ -72,7 +72,7 @@ export default function AgencyRegistrationPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    router.push('/');
+    router.push('/profile');
     return null;
   }
 
@@ -214,7 +214,7 @@ export default function AgencyRegistrationPage() {
 
       setStoredToken(result.data.token);
       setUser(result.data.user);
-      router.push('/');
+      router.push('/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка регистрации');
     } finally {
@@ -267,12 +267,12 @@ export default function AgencyRegistrationPage() {
                 <p className="text-xs text-[var(--color-text-light)] mt-1">Проверка...</p>
               )}
               {innExists?.exists && (
-                <p className="text-xs text-red-600 mt-1">
+                <p className="text-xs text-[var(--color-text)] mt-1">
                   Агентство {innExists.agencyName} уже зарегистрировано
                 </p>
               )}
               {innExists && !innExists.exists && (
-                <p className="text-xs text-green-600 mt-1">ИНН свободен</p>
+                <p className="text-xs text-[var(--color-text-light)] mt-1">ИНН свободен</p>
               )}
             </div>
 
@@ -330,7 +330,7 @@ export default function AgencyRegistrationPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <button
@@ -404,7 +404,7 @@ export default function AgencyRegistrationPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <div className="flex gap-3">
@@ -462,7 +462,7 @@ export default function AgencyRegistrationPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <div className="flex gap-3">
@@ -544,7 +544,7 @@ export default function AgencyRegistrationPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <div className="flex gap-3">

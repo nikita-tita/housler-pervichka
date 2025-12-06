@@ -393,3 +393,90 @@ a {
   background: var(--gray-900) !important;
   color: var(--white) !important;
 }
+
+/* === BADGES ===
+   Для статусов, меток и тегов
+
+   Варианты:
+   - .badge - светлый фон (серый), тёмный текст
+   - .badge-filled - тёмный фон (чёрный), светлый текст
+
+   Размеры: по умолчанию sm, можно добавить .badge-md
+*/
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--border-radius-sm);
+  background: var(--gray-100);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.badge-filled {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--border-radius-sm);
+  background: var(--gray-900);
+  color: var(--white);
+  white-space: nowrap;
+}
+
+.badge-md {
+  padding: 4px 12px;
+  font-size: 14px;
+}
+
+/* === ICON BUTTONS ===
+   Квадратные кнопки с иконками
+*/
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.icon-btn:hover {
+  border-color: var(--color-text);
+  background: var(--gray-100);
+}
+
+.icon-btn-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-btn-lg {
+  width: 48px;
+  height: 48px;
+}
+
+/* === SKELETON ===
+   Плейсхолдеры для загрузки
+*/
+.skeleton {
+  background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: var(--border-radius-sm);
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

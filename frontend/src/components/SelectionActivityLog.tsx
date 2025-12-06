@@ -93,8 +93,8 @@ export function SelectionActivityLog({ selectionId }: SelectionActivityLogProps)
               item.action === 'viewed'
                 ? 'bg-gray-200 text-[var(--color-text)]'
                 : item.action === 'item_added'
-                ? 'bg-green-100 text-green-600'
-                : 'bg-red-100 text-red-600'
+                ? 'bg-[var(--gray-900)] text-white'
+                : 'bg-gray-300 text-[var(--color-text)]'
             }`}>
               {item.action === 'viewed' && (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

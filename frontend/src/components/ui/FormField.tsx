@@ -11,7 +11,7 @@ export function Label({ children, required, className = '', ...props }: LabelPro
   return (
     <label className={`block text-sm font-medium mb-1.5 ${className}`} {...props}>
       {children}
-      {required && <span className="text-red-500 ml-0.5">*</span>}
+      {required && <span className="text-[var(--color-text)] ml-0.5">*</span>}
     </label>
   );
 }
@@ -27,7 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const baseClass =
       'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors';
     const borderClass = error
-      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+      ? 'border-[var(--gray-900)] focus:ring-[var(--gray-900)] focus:border-[var(--gray-900)]'
       : 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]';
 
     if (icon) {
@@ -56,7 +56,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const baseClass =
       'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-none';
     const borderClass = error
-      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+      ? 'border-[var(--gray-900)] focus:ring-[var(--gray-900)] focus:border-[var(--gray-900)]'
       : 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]';
 
     return <textarea ref={ref} className={`${baseClass} ${borderClass} ${className}`} {...props} />;
@@ -74,7 +74,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const baseClass =
       'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors appearance-none bg-white cursor-pointer';
     const borderClass = error
-      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+      ? 'border-[var(--gray-900)] focus:ring-[var(--gray-900)] focus:border-[var(--gray-900)]'
       : 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]';
 
     return (
@@ -101,7 +101,7 @@ interface ErrorMessageProps {
 
 export function ErrorMessage({ children, className = '' }: ErrorMessageProps) {
   if (!children) return null;
-  return <p className={`text-sm text-red-600 mt-1.5 ${className}`}>{children}</p>;
+  return <p className={`text-sm text-[var(--color-text)] mt-1.5 ${className}`}>{children}</p>;
 }
 
 // ============ Success Message ============
@@ -113,7 +113,7 @@ interface SuccessMessageProps {
 export function SuccessMessage({ children, className = '' }: SuccessMessageProps) {
   if (!children) return null;
   return (
-    <div className={`p-3 bg-green-50 text-green-700 rounded-lg text-sm ${className}`}>{children}</div>
+    <div className={`p-3 bg-gray-100 text-[var(--color-text)] rounded-lg text-sm ${className}`}>{children}</div>
   );
 }
 

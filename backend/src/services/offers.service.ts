@@ -247,6 +247,42 @@ export class OffersService {
   }
 
   /**
+   * Получить несколько объявлений по массиву ID (batch)
+   */
+  async getOffersByIds(ids: number[]): Promise<OfferListItem[]> {
+    if (ids.length === 0) return [];
+    if (ids.length > 50) ids = ids.slice(0, 50); // Ограничение
+
+    const query = `
+      SELECT
+        o.id,
+        o.rooms,
+        o.is_studio,
+        o.floor,
+        o.floors_total,
+        o.area_total::float as area_total,
+        o.price::float as price,
+        o.price_per_sqm::float as price_per_sqm,
+        d.name as district_name,
+        o.metro_name as metro_station,
+        o.metro_time_on_foot as metro_distance,
+        o.building_name as complex_name,
+        CASE WHEN o.renovation IS NOT NULL AND o.renovation != '' THEN true ELSE false END as has_finishing,
+        (
+          SELECT url FROM images
+          WHERE offer_id = o.id AND (tag = 'housemain' OR tag IS NULL)
+          ORDER BY display_order LIMIT 1
+        ) as image_url
+      FROM offers o
+      LEFT JOIN districts d ON o.district_id = d.id
+      WHERE o.id = ANY($1) AND o.is_active = true
+    `;
+
+    const result = await pool.query(query, [ids]);
+    return result.rows;
+  }
+
+  /**
    * Получить историю цен для объявления
    */
   async getPriceHistory(offerId: number): Promise<{ price: number; price_per_sqm: number | null; recorded_at: string }[]> {

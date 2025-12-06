@@ -136,7 +136,7 @@ export default function GuestSelectionPage() {
                 <>
                   {/* Added by badge */}
                   {item.added_by === 'client' && (
-                    <div className="absolute top-3 left-3 z-10 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                    <div className="absolute top-3 left-3 z-10 bg-[var(--gray-900)] text-white text-xs px-2 py-1 rounded">
                       Вы добавили
                     </div>
                   )}

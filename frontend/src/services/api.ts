@@ -182,6 +182,13 @@ class ApiService {
     return this.fetch(`/api/offers/map/markers${query}`);
   }
 
+  async getOffersByIds(ids: number[]): Promise<ApiResponse<OfferListItem[]>> {
+    return this.fetch('/api/offers/batch', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    });
+  }
+
   // Filters
   async getFilters(): Promise<ApiResponse<FilterOptions>> {
     return this.fetch('/api/filters');

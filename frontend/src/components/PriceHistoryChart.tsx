@@ -72,13 +72,13 @@ export function PriceHistoryChart({ offerId }: PriceHistoryChartProps) {
 
   const pathD = `M ${points.join(' L ')}`;
   const isUp = priceDiff > 0;
-  const color = isUp ? '#ef4444' : '#22c55e'; // red for up, green for down
+  const color = '#1f2937'; // gray-800 for the line
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">История цены</span>
-        <span className={`text-sm font-medium ${isUp ? 'text-red-500' : 'text-green-500'}`}>
+        <span className={`text-sm font-medium ${isUp ? 'text-[var(--color-text)]' : 'text-[var(--color-text-light)]'}`}>
           {isUp ? '+' : ''}{formatPrice(priceDiff)} ({isUp ? '+' : ''}{percentChange}%)
         </span>
       </div>

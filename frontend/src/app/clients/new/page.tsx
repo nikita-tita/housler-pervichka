@@ -89,7 +89,7 @@ export default function NewClientPage() {
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="mb-6 p-4 bg-gray-100 border border-[var(--color-border)] rounded-lg text-[var(--color-text)] text-sm">
             {error}
           </div>
         )}

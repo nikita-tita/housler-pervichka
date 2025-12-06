@@ -4,27 +4,20 @@ import { useState, useEffect } from 'react';
 import { api } from '@/services/api';
 import type { PlatformStats } from '@/types';
 
+// Все карточки используют черно-белую палитру
 function StatCard({
   title,
   value,
   subtitle,
   icon,
-  color = 'blue'
+  highlighted = false
 }: {
   title: string;
   value: number | string;
   subtitle?: string;
   icon: React.ReactNode;
-  color?: 'blue' | 'green' | 'yellow' | 'red' | 'purple';
+  highlighted?: boolean;
 }) {
-  const colorClasses = {
-    blue: 'bg-gray-100 text-[var(--color-text)]',
-    green: 'bg-green-50 text-green-600',
-    yellow: 'bg-yellow-50 text-yellow-600',
-    red: 'bg-red-50 text-red-600',
-    purple: 'bg-purple-50 text-purple-600',
-  };
-
   return (
     <div className="card p-5">
       <div className="flex items-start justify-between">
@@ -35,7 +28,7 @@ function StatCard({
             <p className="text-xs text-[var(--color-text-light)] mt-1">{subtitle}</p>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+        <div className={`p-3 rounded-lg ${highlighted ? 'bg-[var(--gray-900)] text-white' : 'bg-gray-100 text-[var(--color-text)]'}`}>
           {icon}
         </div>
       </div>
@@ -106,7 +99,7 @@ export default function AdminDashboard() {
   if (error) {
     return (
       <div className="card p-6 text-center">
-        <p className="text-red-500 mb-4">{error}</p>
+        <p className="text-[var(--color-text)] mb-4">{error}</p>
         <button onClick={loadStats} className="btn btn-primary btn-sm">
           Повторить
         </button>
@@ -124,7 +117,6 @@ export default function AdminDashboard() {
           title="Всего пользователей"
           value={stats.users.total}
           subtitle={`Активных сегодня: ${stats.users.active_today}`}
-          color="blue"
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -134,7 +126,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Клиентов"
           value={stats.users.clients}
-          color="green"
+          highlighted
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -144,7 +136,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Агентов"
           value={stats.users.agents}
-          color="purple"
+          highlighted
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -154,8 +146,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Активных за неделю"
           value={stats.users.active_week}
-          color="yellow"
-          icon={
+                    icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
@@ -168,7 +159,6 @@ export default function AdminDashboard() {
         <StatCard
           title="Всего агентств"
           value={stats.agencies.total}
-          color="blue"
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -178,7 +168,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Активных"
           value={stats.agencies.active}
-          color="green"
+          highlighted
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -188,8 +178,7 @@ export default function AdminDashboard() {
         <StatCard
           title="На модерации"
           value={stats.agencies.pending}
-          color="yellow"
-          icon={
+                    icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -198,8 +187,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Отклонённых"
           value={stats.agencies.rejected}
-          color="red"
-          icon={
+                    icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -213,7 +201,6 @@ export default function AdminDashboard() {
           title="Всего объектов"
           value={stats.offers.total}
           subtitle={`Активных: ${stats.offers.active}`}
-          color="blue"
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -223,7 +210,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Бронирований"
           value={stats.bookings.total}
-          color="purple"
+          highlighted
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -233,8 +220,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Ожидают подтверждения"
           value={stats.bookings.pending}
-          color="yellow"
-          icon={
+                    icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -243,7 +229,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Подтверждённых"
           value={stats.bookings.approved}
-          color="green"
+          highlighted
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -257,7 +243,6 @@ export default function AdminDashboard() {
         <StatCard
           title="Всего подборок"
           value={stats.selections.total}
-          color="blue"
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -267,7 +252,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Публичных"
           value={stats.selections.public}
-          color="green"
+          highlighted
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -281,23 +266,23 @@ export default function AdminDashboard() {
         <h3 className="font-semibold mb-4">Быстрая статистика по ролям</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-[var(--color-text)]">{stats.users.clients}</p>
+            <p className="text-2xl font-bold">{stats.users.clients}</p>
             <p className="text-sm text-[var(--color-text-light)]">Клиентов</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-green-600">{stats.users.agents}</p>
+            <p className="text-2xl font-bold">{stats.users.agents}</p>
             <p className="text-sm text-[var(--color-text-light)]">Агентов</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-purple-600">{stats.users.agency_admins}</p>
+            <p className="text-2xl font-bold">{stats.users.agency_admins}</p>
             <p className="text-sm text-[var(--color-text-light)]">Админов АН</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-yellow-600">{stats.users.operators}</p>
+            <p className="text-2xl font-bold">{stats.users.operators}</p>
             <p className="text-sm text-[var(--color-text-light)]">Операторов</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-red-600">{stats.users.admins}</p>
+            <p className="text-2xl font-bold">{stats.users.admins}</p>
             <p className="text-sm text-[var(--color-text-light)]">Админов</p>
           </div>
         </div>

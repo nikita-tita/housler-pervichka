@@ -198,8 +198,8 @@ export function OffersTable({
                 className={`
                   cursor-pointer transition-colors
                   ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
-                  ${isSelected ? 'bg-blue-50' : ''}
-                  hover:bg-blue-50
+                  ${isSelected ? 'bg-gray-100' : ''}
+                  hover:bg-gray-100
                 `}
               >
                 {showCheckboxes && (

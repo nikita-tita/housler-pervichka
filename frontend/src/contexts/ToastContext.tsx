@@ -41,13 +41,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map(toast => (
           <div
             key={toast.id}
-            className={`px-4 py-3 rounded-lg shadow-lg text-sm font-medium animate-slide-in flex items-center gap-3 ${
-              toast.type === 'success'
-                ? 'bg-green-600 text-white'
-                : toast.type === 'error'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-800 text-white'
-            }`}
+            className="bg-[var(--gray-900)] text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium animate-slide-in flex items-center gap-3"
           >
             {toast.type === 'success' && (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,6 +51,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             {toast.type === 'error' && (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+            {toast.type === 'info' && (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             )}
             {toast.message}

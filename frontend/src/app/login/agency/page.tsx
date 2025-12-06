@@ -21,7 +21,7 @@ export default function AgencyLoginPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    router.push('/');
+    router.push('/profile');
     return null;
   }
 
@@ -33,7 +33,7 @@ export default function AgencyLoginPage() {
     try {
       await loginAgency(loginEmail, loginPassword);
       // AuthContext уже залогинил пользователя, редиректим
-      router.push('/');
+      router.push('/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка авторизации');
     } finally {
@@ -116,7 +116,7 @@ export default function AgencyLoginPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <button

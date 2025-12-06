@@ -35,10 +35,13 @@ export async function getComplexes(req: Request, res: Response) {
 
     const result = await complexesService.searchComplexes(filters, pagination);
 
+    // Формат: { success, data: { data, pagination } } - унифицированный PaginatedResponse
     res.json({
       success: true,
-      data: result.data,
-      pagination: result.pagination
+      data: {
+        data: result.data,
+        pagination: result.pagination
+      }
     });
   } catch (error) {
     console.error('Error in getComplexes:', error);

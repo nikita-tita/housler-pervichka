@@ -37,7 +37,7 @@ export function CompareButton({ offerId, className = '', size = 'md' }: Props) {
         rounded-full flex items-center justify-center
         transition-all duration-200
         ${inCompare
-          ? 'bg-purple-500 text-white hover:bg-purple-600'
+          ? 'bg-[var(--gray-900)] text-white hover:bg-black'
           : canAddMore
             ? 'bg-white/90 text-[var(--color-text)] hover:bg-white border border-[var(--color-border)]'
             : 'bg-gray-100 text-gray-400 cursor-not-allowed'

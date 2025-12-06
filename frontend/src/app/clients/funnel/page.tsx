@@ -6,13 +6,14 @@ import { api } from '@/services/api';
 import { PriorityBadge } from '@/components/clients/PriorityBadge';
 import type { ClientListItem, ClientStage } from '@/types';
 
+// Все колонки воронки используют черно-белую палитру
 const STAGES: { value: ClientStage; label: string; color: string }[] = [
   { value: 'new', label: 'Новые', color: 'border-gray-300 bg-gray-50' },
-  { value: 'in_progress', label: 'В работе', color: 'border-yellow-300 bg-yellow-50' },
-  { value: 'fixation', label: 'Фиксация', color: 'border-purple-300 bg-purple-50' },
-  { value: 'booking', label: 'Бронь', color: 'border-orange-300 bg-orange-50' },
-  { value: 'deal', label: 'Сделка', color: 'border-emerald-300 bg-emerald-50' },
-  { value: 'completed', label: 'Завершено', color: 'border-green-300 bg-green-50' },
+  { value: 'in_progress', label: 'В работе', color: 'border-gray-300 bg-gray-50' },
+  { value: 'fixation', label: 'Фиксация', color: 'border-gray-300 bg-gray-50' },
+  { value: 'booking', label: 'Бронь', color: 'border-gray-300 bg-gray-50' },
+  { value: 'deal', label: 'Сделка', color: 'border-gray-400 bg-gray-100' },
+  { value: 'completed', label: 'Завершено', color: 'border-[var(--gray-900)] bg-gray-200' },
 ];
 
 export default function FunnelPage() {

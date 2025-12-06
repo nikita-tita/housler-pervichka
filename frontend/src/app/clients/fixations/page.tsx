@@ -16,12 +16,13 @@ const STATUSES: { value: FixationStatus | 'all'; label: string }[] = [
   { value: 'converted', label: 'В бронь' },
 ];
 
+// Используем badge/badge-filled вместо цветов
 const STATUS_COLORS: Record<FixationStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
-  expired: 'bg-gray-100 text-gray-800',
-  converted: 'bg-purple-100 text-purple-800',
+  pending: 'badge',
+  approved: 'badge-filled',
+  rejected: 'badge',
+  expired: 'badge',
+  converted: 'badge-filled',
 };
 
 const STATUS_LABELS: Record<FixationStatus, string> = {
@@ -199,7 +200,7 @@ export default function FixationsPage() {
                     <div className="text-[var(--color-text-light)]">Срок</div>
                     <div className="font-medium">{f.requested_days} дней</div>
                     {f.status === 'approved' && f.expires_at && (
-                      <div className={`text-sm ${daysLeft && daysLeft <= 2 ? 'text-red-600' : 'text-[var(--color-text-light)]'}`}>
+                      <div className={`text-sm ${daysLeft && daysLeft <= 2 ? 'font-medium text-[var(--color-text)]' : 'text-[var(--color-text-light)]'}`}>
                         {daysLeft !== null ? (daysLeft > 0 ? `Осталось ${daysLeft} дн.` : 'Истекает сегодня') : ''}
                       </div>
                     )}
@@ -236,7 +237,7 @@ export default function FixationsPage() {
                   {f.status === 'pending' && (
                     <button
                       onClick={() => openDeleteModal(f.id)}
-                      className="btn btn-sm text-red-600 border-red-200 hover:bg-red-50"
+                      className="btn btn-sm btn-secondary"
                     >
                       Удалить
                     </button>

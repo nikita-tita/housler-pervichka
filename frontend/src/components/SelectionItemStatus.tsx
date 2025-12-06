@@ -12,11 +12,12 @@ interface SelectionItemStatusProps {
   onStatusChange?: (newStatus: ItemStatus) => void;
 }
 
-const STATUS_CONFIG: Record<ItemStatus, { label: string; color: string; bg: string }> = {
-  pending: { label: 'Ожидает', color: 'text-gray-600', bg: 'bg-gray-100' },
-  shown: { label: 'Показан', color: 'text-[var(--color-text)]', bg: 'bg-gray-200' },
-  interested: { label: 'Интерес', color: 'text-green-600', bg: 'bg-green-100' },
-  rejected: { label: 'Отказ', color: 'text-red-600', bg: 'bg-red-100' },
+// filled: true для акцентных состояний (Интерес, Отказ)
+const STATUS_CONFIG: Record<ItemStatus, { label: string; filled: boolean }> = {
+  pending: { label: 'Ожидает', filled: false },
+  shown: { label: 'Показан', filled: false },
+  interested: { label: 'Интерес', filled: true },
+  rejected: { label: 'Отказ', filled: true },
 };
 
 export function SelectionItemStatus({
@@ -50,16 +51,14 @@ export function SelectionItemStatus({
     }
   };
 
+  const badgeClass = config.filled ? 'badge-filled' : 'badge';
+
   return (
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isUpdating}
-        className={`
-          px-3 py-1.5 rounded-full text-xs font-medium transition-colors
-          ${config.bg} ${config.color}
-          hover:opacity-80 disabled:opacity-50
-        `}
+        className={`${badgeClass} hover:opacity-80 disabled:opacity-50 cursor-pointer`}
       >
         {isUpdating ? (
           <span className="flex items-center gap-1">
@@ -94,8 +93,8 @@ export function SelectionItemStatus({
                     ${s === status ? 'bg-gray-50' : ''}
                   `}
                 >
-                  <span className={`w-2 h-2 rounded-full ${cfg.bg}`} />
-                  <span className={cfg.color}>{cfg.label}</span>
+                  <span className={`w-2 h-2 rounded-full ${cfg.filled ? 'bg-[var(--gray-900)]' : 'bg-gray-300'}`} />
+                  <span className="text-[var(--color-text)]">{cfg.label}</span>
                   {s === status && (
                     <svg className="w-4 h-4 ml-auto text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

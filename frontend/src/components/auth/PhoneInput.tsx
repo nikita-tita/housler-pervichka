@@ -103,7 +103,7 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     const baseClass =
       'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors';
     const borderClass = error
-      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+      ? 'border-[var(--gray-900)] focus:ring-[var(--gray-900)] focus:border-[var(--gray-900)]'
       : 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]';
 
     return (

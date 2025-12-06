@@ -198,7 +198,7 @@ export function Header() {
                       logout();
                       setMobileMenuOpen(false);
                     }}
-                    className="text-[15px] font-medium text-red-600 py-2"
+                    className="text-[15px] font-medium text-[var(--color-text-light)] hover:text-[var(--color-text)] py-2"
                   >
                     Выйти
                   </button>

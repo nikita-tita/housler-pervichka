@@ -12,10 +12,11 @@ const STAGES: { value: CancellationStage | 'all'; label: string }[] = [
   { value: 'at_deal', label: 'На сделке' },
 ];
 
+// Используем badge вместо цветов
 const STAGE_COLORS: Record<CancellationStage, string> = {
-  at_fixation: 'bg-yellow-100 text-yellow-800',
-  at_booking: 'bg-orange-100 text-orange-800',
-  at_deal: 'bg-red-100 text-red-800',
+  at_fixation: 'badge',
+  at_booking: 'badge',
+  at_deal: 'badge-filled',
 };
 
 const STAGE_LABELS: Record<CancellationStage, string> = {
@@ -91,15 +92,15 @@ export default function FailuresPage() {
             <div className="text-sm text-[var(--color-text-light)]">Всего срывов</div>
           </div>
           <div className="card p-4">
-            <div className="text-2xl font-bold text-yellow-600">{stats.atFixation}</div>
+            <div className="text-2xl font-bold">{stats.atFixation}</div>
             <div className="text-sm text-[var(--color-text-light)]">На фиксации</div>
           </div>
           <div className="card p-4">
-            <div className="text-2xl font-bold text-orange-600">{stats.atBooking}</div>
+            <div className="text-2xl font-bold">{stats.atBooking}</div>
             <div className="text-sm text-[var(--color-text-light)]">На брони</div>
           </div>
           <div className="card p-4">
-            <div className="text-2xl font-bold text-red-600">{stats.atDeal}</div>
+            <div className="text-2xl font-bold">{stats.atDeal}</div>
             <div className="text-sm text-[var(--color-text-light)]">На сделке</div>
           </div>
           <div className="card p-4">
@@ -184,7 +185,7 @@ export default function FailuresPage() {
                 {f.penalty_amount > 0 && (
                   <div>
                     <div className="text-[var(--color-text-light)]">Штраф</div>
-                    <div className="font-medium text-red-600">{formatPrice(f.penalty_amount)}</div>
+                    <div className="font-medium">{formatPrice(f.penalty_amount)}</div>
                   </div>
                 )}
               </div>

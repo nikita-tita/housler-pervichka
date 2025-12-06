@@ -46,7 +46,7 @@ export default function LoginPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    router.push('/');
+    router.push('/profile');
     return null;
   }
 

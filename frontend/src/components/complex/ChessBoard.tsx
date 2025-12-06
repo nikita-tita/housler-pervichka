@@ -73,12 +73,13 @@ export function ChessBoard({ offers, floorsTotal }: ChessBoardProps) {
   }, [offers]);
 
   const getCellColor = (offer: OfferListItem) => {
-    if (offer.is_studio) return 'bg-purple-100 hover:bg-purple-200';
+    // Используем разные оттенки серого для разных типов квартир
+    if (offer.is_studio) return 'bg-gray-200 hover:bg-gray-300';
     switch (offer.rooms) {
-      case 1: return 'bg-blue-100 hover:bg-blue-200';
-      case 2: return 'bg-green-100 hover:bg-green-200';
-      case 3: return 'bg-yellow-100 hover:bg-yellow-200';
-      case 4: return 'bg-orange-100 hover:bg-orange-200';
+      case 1: return 'bg-gray-100 hover:bg-gray-200';
+      case 2: return 'bg-gray-200 hover:bg-gray-300';
+      case 3: return 'bg-gray-300 hover:bg-gray-400';
+      case 4: return 'bg-gray-400 hover:bg-gray-500 text-white';
       default: return 'bg-gray-100 hover:bg-gray-200';
     }
   };
@@ -118,27 +119,27 @@ export function ChessBoard({ offers, floorsTotal }: ChessBoardProps) {
       {/* Legend */}
       <div className="flex flex-wrap gap-4 mb-6 text-sm">
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded bg-purple-100" />
+          <span className="w-4 h-4 rounded bg-gray-200 border border-gray-300" />
           <span>Студия</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded bg-blue-100" />
+          <span className="w-4 h-4 rounded bg-gray-100 border border-gray-200" />
           <span>1К</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded bg-green-100" />
+          <span className="w-4 h-4 rounded bg-gray-200 border border-gray-300" />
           <span>2К</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded bg-yellow-100" />
+          <span className="w-4 h-4 rounded bg-gray-300 border border-gray-400" />
           <span>3К</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded bg-orange-100" />
+          <span className="w-4 h-4 rounded bg-gray-400" />
           <span>4К+</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded bg-gray-300" />
+          <span className="w-4 h-4 rounded bg-gray-100 opacity-30" />
           <span>Продано</span>
         </div>
       </div>

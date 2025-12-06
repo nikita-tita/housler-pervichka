@@ -7,22 +7,23 @@ interface PriorityBadgeProps {
   size?: 'sm' | 'md';
 }
 
-const PRIORITY_CONFIG: Record<ClientPriority, { label: string; color: string; icon: string }> = {
-  low: { label: 'Низкий', color: 'text-gray-500', icon: '○' },
-  medium: { label: 'Средний', color: 'text-yellow-600', icon: '◐' },
-  high: { label: 'Высокий', color: 'text-orange-600', icon: '●' },
-  urgent: { label: 'Срочный', color: 'text-red-600', icon: '⬤' },
+// Срочный/высокий приоритет - badge-filled (акцент)
+// Остальные - badge (нейтральный)
+const PRIORITY_CONFIG: Record<ClientPriority, { label: string; filled: boolean }> = {
+  low: { label: 'Низкий', filled: false },
+  medium: { label: 'Средний', filled: false },
+  high: { label: 'Высокий', filled: true },
+  urgent: { label: 'Срочный', filled: true },
 };
 
 export function PriorityBadge({ priority, size = 'sm' }: PriorityBadgeProps) {
   const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.medium;
-
-  const sizeClasses = size === 'sm' ? 'text-xs' : 'text-sm';
+  const baseClass = config.filled ? 'badge-filled' : 'badge';
+  const sizeClass = size === 'md' ? 'badge-md' : '';
 
   return (
-    <span className={`inline-flex items-center gap-1 font-medium ${config.color} ${sizeClasses}`}>
-      <span>{config.icon}</span>
-      <span>{config.label}</span>
+    <span className={`${baseClass} ${sizeClass}`}>
+      {config.label}
     </span>
   );
 }

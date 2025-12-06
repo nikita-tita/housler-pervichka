@@ -23,7 +23,7 @@ export default function ClientLoginPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    router.push('/');
+    router.push('/profile');
     return null;
   }
 
@@ -49,7 +49,7 @@ export default function ClientLoginPage() {
 
     try {
       await login(email, code);
-      router.push('/');
+      router.push('/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Неверный код');
     } finally {
@@ -93,7 +93,7 @@ export default function ClientLoginPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <button
@@ -148,7 +148,7 @@ export default function ClientLoginPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <button

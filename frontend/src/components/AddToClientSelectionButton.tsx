@@ -50,7 +50,7 @@ export function AddToClientSelectionButton({ offerId, className = '', size = 'md
         rounded-full flex items-center justify-center
         transition-all duration-200
         ${inSelection
-          ? 'bg-green-500 text-white hover:bg-green-600'
+          ? 'bg-[var(--gray-900)] text-white hover:bg-black'
           : 'bg-white/90 text-[var(--color-text)] hover:bg-white border border-[var(--color-border)]'
         }
         ${isLoading ? 'opacity-50 cursor-wait' : ''}

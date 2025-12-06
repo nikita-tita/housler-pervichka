@@ -16,12 +16,13 @@ const STATUSES: { value: DealStatus | 'all'; label: string }[] = [
   { value: 'cancelled', label: 'Отменено' },
 ];
 
+// Статусы: filled для завершённых, обычный для остальных
 const STATUS_COLORS: Record<DealStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  signed: 'bg-gray-200 text-[var(--color-text)]',
-  registered: 'bg-purple-100 text-purple-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
+  pending: 'badge',
+  signed: 'badge',
+  registered: 'badge',
+  completed: 'badge-filled',
+  cancelled: 'badge-filled',
 };
 
 const STATUS_LABELS: Record<DealStatus, string> = {
@@ -137,11 +138,11 @@ export default function DealsPage() {
             <div className="text-sm text-[var(--color-text-light)]">Общий объём</div>
           </div>
           <div className="card p-4">
-            <div className="text-2xl font-bold text-green-600">{formatPrice(stats.totalCommission)}</div>
+            <div className="text-2xl font-bold">{formatPrice(stats.totalCommission)}</div>
             <div className="text-sm text-[var(--color-text-light)]">Комиссия</div>
           </div>
           <div className="card p-4">
-            <div className="text-2xl font-bold text-orange-600">{formatPrice(stats.pendingCommission)}</div>
+            <div className="text-2xl font-bold">{formatPrice(stats.pendingCommission)}</div>
             <div className="text-sm text-[var(--color-text-light)]">К выплате</div>
           </div>
         </div>
@@ -193,7 +194,7 @@ export default function DealsPage() {
                   <div className="text-[var(--color-text-light)]">Цена</div>
                   <div className="font-medium">{formatPrice(d.final_price)}</div>
                   {d.discount_amount > 0 && (
-                    <div className="text-green-600 text-sm">Скидка: {formatPrice(d.discount_amount)}</div>
+                    <div className="text-[var(--color-text-light)] text-sm">Скидка: {formatPrice(d.discount_amount)}</div>
                   )}
                 </div>
                 <div>
@@ -258,7 +259,7 @@ export default function DealsPage() {
                 {['pending', 'signed'].includes(d.status) && (
                   <button
                     onClick={() => openCancelModal(d.id)}
-                    className="btn btn-sm text-red-600 border-red-200 hover:bg-red-50"
+                    className="btn btn-sm btn-secondary"
                   >
                     Отменить
                   </button>

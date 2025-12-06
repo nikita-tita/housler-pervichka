@@ -48,10 +48,13 @@ export async function searchOffers(req: Request, res: Response): Promise<void> {
 
     const result = await offersService.searchOffers(filters, pagination);
 
+    // Формат: { success, data: { data, pagination } } - унифицированный PaginatedResponse
     res.json({
       success: true,
-      data: result.data,
-      pagination: result.pagination
+      data: {
+        data: result.data,
+        pagination: result.pagination
+      }
     });
   } catch (error) {
     console.error('Error searching offers:', error);
@@ -94,6 +97,49 @@ export async function getOfferById(req: Request, res: Response): Promise<void> {
     });
   } catch (error) {
     console.error('Error getting offer:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+}
+
+/**
+ * POST /api/offers/batch
+ * Получить несколько объявлений по массиву ID
+ */
+export async function getOffersByIds(req: Request, res: Response): Promise<void> {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids)) {
+      res.status(400).json({
+        success: false,
+        error: 'ids must be an array'
+      });
+      return;
+    }
+
+    const numericIds = ids
+      .map(id => parseInt(id))
+      .filter(id => !isNaN(id));
+
+    if (numericIds.length === 0) {
+      res.json({
+        success: true,
+        data: []
+      });
+      return;
+    }
+
+    const offers = await offersService.getOffersByIds(numericIds);
+
+    res.json({
+      success: true,
+      data: offers
+    });
+  } catch (error) {
+    console.error('Error getting offers by ids:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'

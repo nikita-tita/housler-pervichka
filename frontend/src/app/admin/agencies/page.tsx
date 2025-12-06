@@ -4,17 +4,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/services/api';
 import type { AdminAgency } from '@/types';
 
-const STATUSES: { value: string; label: string; color: string }[] = [
-  { value: 'pending', label: 'На модерации', color: 'bg-yellow-100 text-yellow-700' },
-  { value: 'active', label: 'Активно', color: 'bg-green-100 text-green-700' },
-  { value: 'rejected', label: 'Отклонено', color: 'bg-red-100 text-red-700' },
-  { value: 'suspended', label: 'Приостановлено', color: 'bg-gray-100 text-gray-700' },
+const STATUSES: { value: string; label: string; filled: boolean }[] = [
+  { value: 'pending', label: 'На модерации', filled: false },
+  { value: 'active', label: 'Активно', filled: true },
+  { value: 'rejected', label: 'Отклонено', filled: true },
+  { value: 'suspended', label: 'Приостановлено', filled: false },
 ];
 
 function StatusBadge({ status }: { status: string }) {
   const statusConfig = STATUSES.find(s => s.value === status) || STATUSES[0];
   return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusConfig.color}`}>
+    <span className={statusConfig.filled ? 'badge-filled' : 'badge'}>
       {statusConfig.label}
     </span>
   );
@@ -198,13 +198,13 @@ export default function AgenciesPage() {
                           <>
                             <button
                               onClick={() => handleUpdateStatus(agency.id, 'active')}
-                              className="text-green-600 hover:text-green-800 text-sm"
+                              className="text-[var(--color-text)] hover:text-[var(--gray-900)] text-sm font-medium"
                             >
                               Одобрить
                             </button>
                             <button
                               onClick={() => handleUpdateStatus(agency.id, 'rejected')}
-                              className="text-red-500 hover:text-red-700 text-sm"
+                              className="text-[var(--color-text-light)] hover:text-[var(--color-text)] text-sm"
                             >
                               Отклонить
                             </button>
@@ -213,7 +213,7 @@ export default function AgenciesPage() {
                         {agency.registration_status === 'active' && (
                           <button
                             onClick={() => handleUpdateStatus(agency.id, 'suspended')}
-                            className="text-yellow-600 hover:text-yellow-800 text-sm"
+                            className="text-[var(--color-text-light)] hover:text-[var(--color-text)] text-sm"
                           >
                             Приостановить
                           </button>
@@ -221,7 +221,7 @@ export default function AgenciesPage() {
                         {agency.registration_status === 'suspended' && (
                           <button
                             onClick={() => handleUpdateStatus(agency.id, 'active')}
-                            className="text-green-600 hover:text-green-800 text-sm"
+                            className="text-[var(--color-text)] hover:text-[var(--gray-900)] text-sm font-medium"
                           >
                             Активировать
                           </button>

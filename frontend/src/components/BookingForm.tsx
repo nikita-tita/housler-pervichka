@@ -64,14 +64,14 @@ export function BookingForm({ offerId, complexName }: BookingFormProps) {
 
   if (isSuccess) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <div className="text-green-600 text-lg font-medium mb-2">Заявка отправлена!</div>
-        <div className="text-sm text-green-700">
+      <div className="bg-[var(--gray-900)] text-white rounded-lg p-6 text-center">
+        <div className="text-lg font-medium mb-2">Заявка отправлена!</div>
+        <div className="text-sm opacity-90">
           Мы свяжемся с вами в ближайшее время
         </div>
         <button
           onClick={() => setIsSuccess(false)}
-          className="mt-4 text-sm text-green-600 hover:text-green-700"
+          className="mt-4 text-sm opacity-75 hover:opacity-100"
         >
           Отправить ещё одну заявку
         </button>
@@ -186,7 +186,7 @@ export function BookingForm({ offerId, complexName }: BookingFormProps) {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm">{error}</div>
+            <div className="text-[var(--color-text)] text-sm">{error}</div>
           )}
 
           <button

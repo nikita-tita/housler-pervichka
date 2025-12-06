@@ -9,6 +9,7 @@ import type { Complex } from '@/types';
 export default function ComplexesPage() {
   const [complexes, setComplexes] = useState<Complex[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -19,14 +20,20 @@ export default function ComplexesPage() {
 
   const loadComplexes = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await api.getComplexes({ page, limit: 24, search: search || undefined });
-      if (response.success && response.data) {
+      if (response.success && response.data?.data) {
         setComplexes(response.data.data);
-        setTotalPages(response.data.pagination.total_pages);
+        setTotalPages(response.data.pagination?.total_pages ?? 1);
+      } else {
+        setError(response.error || 'Не удалось загрузить жилые комплексы');
+        setComplexes([]);
       }
-    } catch (error) {
-      console.error('Failed to load complexes:', error);
+    } catch (err) {
+      console.error('Failed to load complexes:', err);
+      setError('Ошибка при загрузке данных');
+      setComplexes([]);
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +73,16 @@ export default function ComplexesPage() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="animate-pulse bg-gray-200 rounded-lg h-48"></div>
           ))}
+        </div>
+      ) : error ? (
+        <div className="text-center py-16">
+          <div className="text-[var(--color-text)] mb-4">{error}</div>
+          <button
+            onClick={() => loadComplexes()}
+            className="btn btn-primary"
+          >
+            Попробовать снова
+          </button>
         </div>
       ) : complexes.length === 0 ? (
         <div className="text-center py-16">

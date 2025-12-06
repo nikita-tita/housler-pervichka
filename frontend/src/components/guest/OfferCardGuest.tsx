@@ -99,7 +99,7 @@ export function OfferCardGuest({ offer, selectionCode, highlighted, compact }: P
           <div className="absolute bottom-3 left-3">
             <span className={`text-xs font-medium px-2.5 py-1 rounded ${
               offer.completion_date === 'Сдан'
-                ? 'bg-green-500 text-white'
+                ? 'bg-[var(--gray-900)] text-white'
                 : 'bg-white/90 text-black border border-[var(--color-border)]'
             }`}>
               {offer.completion_date === 'Сдан' ? 'Сдан' : `Сдача: ${offer.completion_date}`}

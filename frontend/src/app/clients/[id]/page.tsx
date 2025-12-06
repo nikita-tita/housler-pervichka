@@ -197,7 +197,7 @@ export default function ClientDetailPage() {
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="btn btn-sm text-red-600 border-red-200 hover:bg-red-50"
+            className="btn btn-sm btn-secondary"
           >
             Удалить
           </button>

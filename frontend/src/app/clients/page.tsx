@@ -86,13 +86,13 @@ export default function ClientsListPage() {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
-          <StatCard label="Всего" value={stats.total} />
-          <StatCard label="Новые" value={stats.new} color="blue" />
-          <StatCard label="В работе" value={stats.in_progress} color="yellow" />
-          <StatCard label="Фиксация" value={stats.fixation} color="purple" />
-          <StatCard label="Бронь" value={stats.booking} color="orange" />
-          <StatCard label="Сделка" value={stats.deal} color="emerald" />
-          <StatCard label="Завершено" value={stats.completed} color="green" />
+          <StatCard label="Всего" value={stats.total} highlighted />
+          <StatCard label="Новые" value={stats.new} />
+          <StatCard label="В работе" value={stats.in_progress} />
+          <StatCard label="Фиксация" value={stats.fixation} />
+          <StatCard label="Бронь" value={stats.booking} />
+          <StatCard label="Сделка" value={stats.deal} />
+          <StatCard label="Завершено" value={stats.completed} />
         </div>
       )}
 
@@ -184,19 +184,10 @@ export default function ClientsListPage() {
 }
 
 // Компонент статистики
-function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {
-  const colorClasses: Record<string, string> = {
-    blue: 'border-gray-200 bg-gray-50',
-    yellow: 'border-yellow-200 bg-yellow-50',
-    purple: 'border-purple-200 bg-purple-50',
-    orange: 'border-orange-200 bg-orange-50',
-    emerald: 'border-emerald-200 bg-emerald-50',
-    green: 'border-green-200 bg-green-50',
-    red: 'border-red-200 bg-red-50',
-  };
-
+// Все карточки используют черно-белую палитру
+function StatCard({ label, value, highlighted }: { label: string; value: number; highlighted?: boolean }) {
   return (
-    <div className={`p-3 rounded-lg border ${color ? colorClasses[color] : 'border-[var(--color-border)] bg-white'}`}>
+    <div className={`p-3 rounded-lg border ${highlighted ? 'border-[var(--gray-900)] bg-gray-100' : 'border-[var(--color-border)] bg-white'}`}>
       <div className="text-2xl font-semibold">{value}</div>
       <div className="text-xs text-[var(--color-text-light)]">{label}</div>
     </div>

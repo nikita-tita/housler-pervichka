@@ -101,7 +101,7 @@ export const SmsCodeInput = forwardRef<HTMLInputElement, SmsCodeInputProps>(
     const baseClass =
       'w-12 h-14 text-center text-2xl font-medium border rounded-lg focus:outline-none focus:ring-2 transition-colors';
     const borderClass = error
-      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+      ? 'border-[var(--gray-900)] focus:ring-[var(--gray-900)] focus:border-[var(--gray-900)]'
       : 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]';
     const disabledClass = disabled ? 'bg-gray-100 cursor-not-allowed' : '';
 

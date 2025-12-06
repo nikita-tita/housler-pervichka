@@ -158,7 +158,7 @@ export default function SelectionDetailPage() {
             >
               {/* Badge for client-added items */}
               {item.added_by === 'client' && (
-                <div className="absolute top-3 left-3 z-10 bg-green-500 text-white text-xs px-2 py-1 rounded font-medium">
+                <div className="absolute top-3 left-3 z-10 bg-[var(--gray-900)] text-white text-xs px-2 py-1 rounded font-medium">
                   Добавлено клиентом
                 </div>
               )}
@@ -213,7 +213,7 @@ export default function SelectionDetailPage() {
                       />
                       <button
                         onClick={() => handleRemoveItem(item.offer_id)}
-                        className="text-sm text-red-600 hover:text-red-700"
+                        className="text-sm text-[var(--color-text-light)] hover:text-[var(--color-text)]"
                       >
                         Удалить
                       </button>
@@ -238,7 +238,7 @@ export default function SelectionDetailPage() {
                     <div className="flex items-center justify-end">
                       <button
                         onClick={() => handleRemoveItem(item.offer_id)}
-                        className="text-sm text-red-600 hover:text-red-700"
+                        className="text-sm text-[var(--color-text-light)] hover:text-[var(--color-text)]"
                       >
                         Удалить из подборки
                       </button>

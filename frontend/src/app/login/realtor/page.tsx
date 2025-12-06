@@ -60,7 +60,7 @@ export default function RealtorLoginPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    router.push('/');
+    router.push('/profile');
     return null;
   }
 
@@ -105,7 +105,7 @@ export default function RealtorLoginPage() {
         setStep('registration');
       } else {
         // Существующий пользователь — AuthContext уже залогинил, редиректим
-        router.push('/');
+        router.push('/profile');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка проверки кода');
@@ -143,7 +143,7 @@ export default function RealtorLoginPage() {
         consents: formData.consents,
       });
       // AuthContext уже залогинил пользователя, редиректим
-      router.push('/');
+      router.push('/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка регистрации');
     } finally {
@@ -185,7 +185,7 @@ export default function RealtorLoginPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <button
@@ -233,7 +233,7 @@ export default function RealtorLoginPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <button
@@ -381,7 +381,7 @@ export default function RealtorLoginPage() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
+              <div className="text-[var(--color-text)] text-sm text-center">{error}</div>
             )}
 
             <button

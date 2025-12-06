@@ -29,9 +29,9 @@ export function ConfirmModal({
     onConfirm();
   };
 
-  const confirmButtonClass = variant === 'danger'
-    ? 'bg-red-600 hover:bg-red-700 text-white'
-    : 'btn-primary';
+  // Все варианты используют btn-primary (чёрный)
+  // Опасность передаётся через текст кнопки, а не цвет
+  const confirmButtonClass = 'btn-primary';
 
   return (
     <Modal

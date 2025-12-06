@@ -57,10 +57,10 @@ export function ConsentCheckbox({
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         className={`mt-1 w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-accent)] focus:ring-[var(--color-accent)] ${
-          error ? 'border-red-500' : ''
+          error ? 'border-[var(--gray-900)]' : ''
         }`}
       />
-      <label htmlFor={id} className={`text-sm ${error ? 'text-red-600' : 'text-[var(--color-text)]'}`}>
+      <label htmlFor={id} className={`text-sm ${error ? 'text-[var(--color-text)] font-medium' : 'text-[var(--color-text)]'}`}>
         {config.label}
         {config.link && (
           <>
@@ -74,7 +74,7 @@ export function ConsentCheckbox({
             </Link>
           </>
         )}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-[var(--color-text)] ml-1">*</span>}
       </label>
     </div>
   );

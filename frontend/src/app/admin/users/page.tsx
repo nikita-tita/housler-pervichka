@@ -6,18 +6,19 @@ import { api } from '@/services/api';
 import { ConfirmModal } from '@/components/ui';
 import type { AdminUser, UserRole } from '@/types';
 
-const ROLES: { value: UserRole; label: string; color: string }[] = [
-  { value: 'client', label: 'Клиент', color: 'bg-gray-100 text-gray-700' },
-  { value: 'agent', label: 'Агент', color: 'bg-gray-200 text-[var(--color-text)]' },
-  { value: 'agency_admin', label: 'Админ АН', color: 'bg-purple-100 text-purple-700' },
-  { value: 'operator', label: 'Оператор', color: 'bg-yellow-100 text-yellow-700' },
-  { value: 'admin', label: 'Админ', color: 'bg-red-100 text-red-700' },
+// Роли: admin и operator - filled, остальные - badge
+const ROLES: { value: UserRole; label: string; filled: boolean }[] = [
+  { value: 'client', label: 'Клиент', filled: false },
+  { value: 'agent', label: 'Агент', filled: false },
+  { value: 'agency_admin', label: 'Админ АН', filled: true },
+  { value: 'operator', label: 'Оператор', filled: false },
+  { value: 'admin', label: 'Админ', filled: true },
 ];
 
 function RoleBadge({ role }: { role: UserRole }) {
   const roleConfig = ROLES.find(r => r.value === role) || ROLES[0];
   return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${roleConfig.color}`}>
+    <span className={roleConfig.filled ? 'badge-filled' : 'badge'}>
       {roleConfig.label}
     </span>
   );
@@ -247,11 +248,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleToggleActive(user)}
-                        className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          user.is_active
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}
+                        className={user.is_active ? 'badge-filled' : 'badge'}
                       >
                         {user.is_active ? 'Активен' : 'Неактивен'}
                       </button>
@@ -262,7 +259,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => openDeleteModal(user)}
-                        className="text-red-500 hover:text-red-700 text-sm"
+                        className="text-[var(--color-text-light)] hover:text-[var(--color-text)] text-sm"
                       >
                         Удалить
                       </button>
@@ -414,7 +411,7 @@ function CreateUserModal({
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm mt-4">{error}</p>
+            <p className="text-[var(--color-text)] text-sm mt-4">{error}</p>
           )}
 
           <div className="flex gap-3 mt-6">

@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { AuthRedirect } from "@/components/AuthRedirect";
 
 export default function HomePage() {
   return (
     <>
+      {/* Клиентский компонент для редиректа авторизованных пользователей */}
+      <AuthRedirect to="/profile" />
+
       {/* Hero Section */}
       <section className="py-20 md:py-28">
         <div className="container">

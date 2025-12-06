@@ -54,7 +54,7 @@ export function FavoriteButton({ offerId, className = '', size = 'md' }: Favorit
       title={isFav ? 'Убрать из избранного' : 'Добавить в избранное'}
     >
       <svg
-        className={`${iconSizes[size]} transition-colors ${isFav ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+        className={`${iconSizes[size]} transition-colors ${isFav ? 'text-[var(--gray-900)] fill-current' : 'text-gray-400'}`}
         viewBox="0 0 24 24"
         fill={isFav ? 'currentColor' : 'none'}
         stroke="currentColor"

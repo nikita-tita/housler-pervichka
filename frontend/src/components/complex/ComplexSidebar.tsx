@@ -68,7 +68,7 @@ export function ComplexSidebar({ complex }: ComplexSidebarProps) {
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-3">
             <span className={`w-2 h-2 rounded-full ${
-              complex.building_state === 'hand-over' ? 'bg-green-500' : 'bg-orange-500'
+              complex.building_state === 'hand-over' ? 'bg-[var(--gray-900)]' : 'bg-gray-400'
             }`} />
             <span>{complex.building_state === 'hand-over' ? 'Дом сдан' : 'Строится'}</span>
           </div>
