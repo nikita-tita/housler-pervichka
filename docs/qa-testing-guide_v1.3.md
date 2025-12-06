@@ -1,4 +1,4 @@
-# QA Testing Guide — Housler Первичка
+# QA Testing Guide — Housler Новостройки
 
 **Версия:** 1.3
 **Дата:** 03.12.2025

@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright E2E конфигурация для Housler Pervichka
+ * Playwright E2E конфигурация для Housler Новостройки
  * Тестирует против продакшн сервера agent.housler.ru
  */
 export default defineConfig({
